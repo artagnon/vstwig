@@ -3988,29 +3988,6 @@ resolve@^1.9.0:
   languageName: node
   linkType: hard
 
-"twig-format@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "twig-format@workspace:."
-  dependencies:
-    "@types/glob": ^7.1.3
-    "@types/mocha": ^8.0.4
-    "@types/node": ^12.11.7
-    "@types/vscode": ^1.55.0
-    "@typescript-eslint/eslint-plugin": ^4.14.1
-    "@typescript-eslint/parser": ^4.14.1
-    "@yarnpkg/pnpify": ^3.0.0-rc.3
-    eslint: ^7.19.0
-    glob: ^7.1.6
-    mocha: ^8.2.1
-    sparser: ^1.4.12
-    ts-loader: ^8.0.14
-    typescript: ^4.1.3
-    vscode-test: ^1.5.0
-    webpack: ^5.19.0
-    webpack-cli: ^4.4.0
-  languageName: unknown
-  linkType: soft
-
 "typanion@npm:^3.3.0":
   version: 3.3.0
   resolution: "typanion@npm:3.3.0"
@@ -4131,6 +4108,29 @@ typescript@^4.1.3:
   checksum: 4843119753c7c6ea1075602839cebc72d446f528b338386bafb9b8170e14bb36c6efaa650401bbf922b2c27a3ecbb2ac952c3d68e8de3ee89e6368525c1ef5e7
   languageName: node
   linkType: hard
+
+"vstwig@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "vstwig@workspace:."
+  dependencies:
+    "@types/glob": ^7.1.3
+    "@types/mocha": ^8.0.4
+    "@types/node": ^12.11.7
+    "@types/vscode": ^1.55.0
+    "@typescript-eslint/eslint-plugin": ^4.14.1
+    "@typescript-eslint/parser": ^4.14.1
+    "@yarnpkg/pnpify": ^3.0.0-rc.3
+    eslint: ^7.19.0
+    glob: ^7.1.6
+    mocha: ^8.2.1
+    sparser: ^1.4.12
+    ts-loader: ^8.0.14
+    typescript: ^4.1.3
+    vscode-test: ^1.5.0
+    webpack: ^5.19.0
+    webpack-cli: ^4.4.0
+  languageName: unknown
+  linkType: soft
 
 "watchpack@npm:^2.0.0":
   version: 2.1.1

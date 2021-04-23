@@ -1,25 +1,16 @@
-interface externalIndex {
+interface ExternalIndex {
   [key: string]: number;
 }
-interface parseResult {
-  begin: number[];
-  ender: number[];
-  lexer: string[];
-  lines: number[];
-  stack: string[];
-  token: string[];
-  types: string[];
-}
 
-interface ParserInterface {
+interface ParserState {
   options: any;
   data: data;
-  c: number;
   lexer: string;
   lf: string;
-  externalIndex: externalIndex;
+  externalIndex: ExternalIndex;
   level: number[];
   a: number;
+  c: number;
   comstart: number;
   next: number;
   count: number;

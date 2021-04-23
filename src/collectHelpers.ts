@@ -1,4 +1,4 @@
-export function nextIdx(i: ParserInterface): number {
+export function nextIdx(i: ParserState): number {
   let x: number = i.a + 1,
     y: number = 0;
   if (i.data.types[x] === undefined) {
@@ -18,7 +18,7 @@ export function nextIdx(i: ParserInterface): number {
   return x;
 }
 
-export function handleAnchor(i: ParserInterface): void {
+export function handleAnchor(i: ParserState): void {
   let aa: number = i.a;
   const stop: number = i.data.begin[i.a];
   // verify list is only i.a link list before making changes
@@ -48,7 +48,7 @@ export function handleAnchor(i: ParserInterface): void {
   } while (aa > stop + 1);
 }
 
-export function handleComment(i: ParserInterface): void {
+export function handleComment(i: ParserState): void {
   let x: number = i.a,
     test: boolean = false;
   if (i.data.lines[i.a + 1] === 0 && i.options.force_indent === false) {
@@ -96,7 +96,7 @@ export function handleComment(i: ParserInterface): void {
   i.comstart = -1;
 }
 
-export function handleContent(i: ParserInterface): void {
+export function handleContent(i: ParserState): void {
   let ind: number = i.indent;
   if (i.options.force_indent === true || i.options.force_attribute === true) {
     i.level.push(i.indent);
@@ -230,7 +230,7 @@ export function handleContent(i: ParserInterface): void {
   }
 }
 
-export function handleExternal(i: ParserInterface): void {
+export function handleExternal(i: ParserState): void {
   let skip: number = i.a;
   do {
     if (
@@ -256,7 +256,7 @@ export function handleExternal(i: ParserInterface): void {
   }
 }
 
-export function handleAttribute(i: ParserInterface): void {
+export function handleAttribute(i: ParserState): void {
   const parent: number = i.a - 1,
     wrap = function beautify_markup_levels_attribute_wrap(index: number): void {
       const item: string[] = i.data.token[index].replace(/\s+/g, " ").split(" "),

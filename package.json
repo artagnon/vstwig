@@ -1,5 +1,5 @@
 {
-  "name": "twig-format",
+  "name": "vstwig",
   "displayName": "PHP Twig Formatter",
   "description": "An opinionated formatter for PHP Twig",
   "author": "Ramkumar Ramachandra",

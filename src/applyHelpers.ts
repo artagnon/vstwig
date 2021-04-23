@@ -1,4 +1,4 @@
-function applyInd(i: ParserInterface): string {
+function applyInd(i: ParserState): string {
   const indy: string[] = [i.options.indent_char],
     size: number = i.options.indent_size - 1;
   let aa: number = 0;
@@ -11,7 +11,7 @@ function applyInd(i: ParserInterface): string {
   return indy.join("");
 }
 
-export function applyNl(i: ParserInterface, tabs: number): string {
+export function applyNl(i: ParserState, tabs: number): string {
   // i.a new line character plus the correct amount of identation for the given line
   // of code
   const linesout: string[] = [],
@@ -35,7 +35,7 @@ export function applyNl(i: ParserInterface, tabs: number): string {
   return linesout.join("");
 }
 
-function applyMultilineLev(i: ParserInterface): number {
+function applyMultilineLev(i: ParserState): number {
   let bb: number = i.a - 1,
     start: boolean = bb > -1 && i.data.types[bb].indexOf("start") > -1;
   if (i.level[i.a] > -1 && i.data.types[i.a] === "attribute") {
@@ -56,7 +56,7 @@ function applyMultilineLev(i: ParserInterface): number {
   return 1;
 }
 
-export function applyMultiline(i: ParserInterface): void {
+export function applyMultiline(i: ParserState): void {
   const lines: string[] = i.data.token[i.a].split(i.lf),
     line: number = i.data.lines[i.a + 1],
     lev: number =
@@ -82,7 +82,7 @@ export function applyMultiline(i: ParserInterface): void {
   }
 }
 
-export function applyAttributeEnd(i: ParserInterface): void {
+export function applyAttributeEnd(i: ParserState): void {
   const parent: string = i.data.token[i.a],
     regend: RegExp = /(\/|\?)?>$/,
     end: string[] | null = regend.exec(parent);

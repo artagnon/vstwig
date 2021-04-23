@@ -8,17 +8,29 @@ import {
   handleExternal,
 } from "./collectHelpers";
 
-export default class FormatTwig implements ParserInterface {
+export default class FormatTwig implements ParserState {
   options: any;
   data: data;
-  c: number;
   lexer: string = "markup";
   lf: string = "\n";
-  externalIndex: externalIndex = {};
+  externalIndex: ExternalIndex = {};
+
+  // levels sets the white space value between the current token and the next token
+  // * -20 value means no white space
+  // * -10 means to separate with a space
+  // * 0 and above is the number of indentation to insert
   level: number[];
+
+  // The start and end of the sparser array
   a: number;
+  c: number;
+
+  // Comment start
   comstart: number;
+
+  // a + 1, excluding comments
   next: number;
+
   count: number;
   indent: number;
   build: string[] = [];
@@ -26,17 +38,13 @@ export default class FormatTwig implements ParserInterface {
   constructor(options: any) {
     this.options = options;
     this.data = options.parsed;
-    this.c =
-      options.end < 1 || options.end > this.data.token.length
-        ? this.data.token.length
-        : options.end + 1;
-    this.level =
-      this.options.start > 0 ? Array(this.options.start).fill(0, 0, this.options.start) : [];
-    this.a = options.start;
+    this.c = this.data.token.length;
+    this.level = [];
+    this.a = 0;
     this.comstart = -1;
     this.next = 0;
     this.count = 0;
-    this.indent = isNaN(options.indent_level) === true ? 0 : Number(options.indent_level);
+    this.indent = options.indent_level;
   }
 
   public formatDocument(): string {
@@ -69,19 +77,19 @@ export default class FormatTwig implements ParserInterface {
         } else if (i.data.types[i.a] !== "comment") {
           i.next = nextIdx(i);
           if (i.data.types[i.next] === "end" || i.data.types[i.next] === "template_end") {
-            i.indent = i.indent - 1;
+            i.indent -= 1;
             if (
               i.data.types[i.next] === "template_end" &&
               i.data.types[i.data.begin[i.next] + 1] === "template_else"
             ) {
-              i.indent = i.indent - 1;
+              i.indent -= 1;
             }
             if (i.data.token[i.a] === "</ol>" || i.data.token[i.a] === "</ul>") {
               handleAnchor(i);
             }
           }
-          if (i.data.types[i.a] === "script_end" && i.data.types[i.a + 1] === "end") {
-            if (i.data.lines[i.a + 1] < 1) {
+          if (i.data.types[i.a] === "script_end" && i.data.types[i.next] === "end") {
+            if (i.data.lines[i.next] < 1) {
               i.level.push(-20);
             } else {
               i.level.push(-10);
@@ -117,12 +125,12 @@ export default class FormatTwig implements ParserInterface {
               i.level.push(i.indent);
             }
           } else if (i.data.types[i.a] === "start" || i.data.types[i.a] === "template_start") {
-            i.indent = i.indent + 1;
+            i.indent += 1;
             if (
               i.data.types[i.a] === "template_start" &&
-              i.data.types[i.a + 1] === "template_else"
+              i.data.types[i.next] === "template_else"
             ) {
-              i.indent = i.indent + 1;
+              i.indent += 1;
             }
             if (i.data.types[i.a] === "start" && i.data.types[i.next] === "end") {
               i.level.push(-20);
@@ -176,7 +184,7 @@ export default class FormatTwig implements ParserInterface {
         i.count = 0;
         handleExternal(i);
       }
-      i.a = i.a + 1;
+      i.a += 1;
     } while (i.a < i.c);
   }
 
@@ -192,9 +200,9 @@ export default class FormatTwig implements ParserInterface {
             i.data.types[i.a] === "singleton" ||
             i.data.types[i.a] === "xml" ||
             i.data.types[i.a] === "sgml") &&
+          i.data.types[i.a + 1] !== undefined &&
           i.data.types[i.a].indexOf("attribute") < 0 &&
           i.a < i.c - 1 &&
-          i.data.types[i.a + 1] !== undefined &&
           i.data.types[i.a + 1].indexOf("attribute") > -1
         ) {
           applyAttributeEnd(i);
@@ -231,7 +239,7 @@ export default class FormatTwig implements ParserInterface {
           i.a = i.options.iterator;
         }
       }
-      i.a = i.a + 1;
+      i.a += 1;
     } while (i.a < i.c);
     i.options.iterator = i.c - 1;
     if (i.build[0] === i.lf || i.build[0] === " ") {
