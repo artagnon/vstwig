@@ -1,7 +1,7 @@
 {
   "name": "twig-format",
   "displayName": "PHP Twig Formatter",
-  "description": "A vscode extension to format PHP Twig",
+  "description": "An opinionated formatter for PHP Twig",
   "author": "Ramkumar Ramachandra",
   "publisher": "artagnon",
   "version": "0.0.1",
