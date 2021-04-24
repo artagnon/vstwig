@@ -713,17 +713,6 @@ export function markupLexer(lexData: LexerData): data {
           attribute: string[] = [];
         const lex: string[] = [],
           //finds slash escape sequences
-          slashy = function lexer_markup_tag_slashy(): boolean {
-            let x: number = a;
-            do {
-              x = x - 1;
-            } while (b[x] === "\\");
-            x = a - x;
-            if (x % 2 === 1) {
-              return false;
-            }
-            return true;
-          },
           // attribute lexer
           attributeLexer = function lexer_markup_tag_attributeLexer(quotes: boolean): void {
             let atty: string = "",
@@ -906,11 +895,28 @@ export function markupLexer(lexData: LexerData): data {
                   do {
                     if (b[a] === "\n") {
                       parse.lineNumber = parse.lineNumber + 1;
-                    } else {
-                      attribute.push(b[a]);
                     }
-
-                    if (quote === "") {
+                    attribute.push(b[a]);
+                    if ((b[a] === "<" || b[a] === ">") && (quote === "" || quote === ">")) {
+                      if (quote === "" && b[a] === "<") {
+                        quote = ">";
+                        braccount = 1;
+                      } else if (quote === ">") {
+                        if (b[a] === "<") {
+                          braccount = braccount + 1;
+                        } else if (b[a] === ">") {
+                          braccount = braccount - 1;
+                          if (braccount === 0) {
+                            // the following detects if a coldfusion tag is embedded within another markup
+                            // tag
+                            quote = "";
+                            igcount = 0;
+                            attributeLexer(false);
+                            break;
+                          }
+                        }
+                      }
+                    } else if (quote === "") {
                       if (b[a + 1] === lastchar) {
                         //if at end of tag
                         if (
@@ -1185,8 +1191,7 @@ export function markupLexer(lexData: LexerData): data {
                 }
               } else if (
                 (b[a] === lastchar || (end === "\n" && b[a + 1] === "<")) &&
-                (lex.length > end.length + 1 || lex[0] === "]") &&
-                jsxcount === 0
+                (lex.length > end.length + 1 || lex[0] === "]")
               ) {
                 if (end === "\n") {
                   if (/\s/.test(lex[lex.length - 1]) === true) {
@@ -1489,8 +1494,6 @@ export function markupLexer(lexData: LexerData): data {
       // cheat identifies HTML singleton elements as singletons even if formatted as
       // start tags, such as <br> (which is really <br/>)
       cheat = (function lexer_markup_tag_cheat(): boolean {
-        let cfval: string = "",
-          struc: Array<[string, number]> = [];
         const ender: RegExp = /(\/>)$/,
           htmlsings: any = {
             area: "singleton",
@@ -1529,7 +1532,7 @@ export function markupLexer(lexData: LexerData): data {
                   }
                 }
                 if (bb === 0 && data.token[aa].toLowerCase().indexOf(vname) === 1) {
-                  data.types[aa] = "template_start";
+                  data.types[aa] = "start";
                   count.start = count.start + 1;
                   data.token[aa] = data.token[aa].replace(/(\s*\/>)$/, ">");
                   return false;

@@ -1045,9 +1045,18 @@ export default class Parser {
   }
 
   public runLexer() {
+    const i = this;
+    i.parse.structure.pop = function parse_structure_pop() {
+      const len = i.parse.structure.length - 1,
+        arr = i.parse.structure[len];
+      if (len > 0) {
+        i.parse.structure.splice(len, 1);
+      }
+      return arr;
+    };
     const lexerData: LexerData = {
-      options: this.options,
-      parse: this.parse,
+      options: i.options,
+      parse: i.parse,
       parseerror: "",
     };
     return markupLexer(lexerData);
