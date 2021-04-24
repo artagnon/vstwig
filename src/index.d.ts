@@ -11,8 +11,9 @@ interface ParserState {
   level: number[];
   a: number;
   c: number;
-  comstart: number;
+  prev: number;
   next: number;
+  comstart: number;
   count: number;
   indent: number;
   build: string[];

@@ -1,12 +1,13 @@
 import { isDate } from "node:util";
 import { applyAttributeEnd, applyMultiline, applyNl } from "./applyHelpers";
 import {
-  nextIdx,
+  nextIndex,
   handleAnchor,
   handleAttribute,
   handleComment,
   handleContent,
   handleExternal,
+  prevIndex,
 } from "./collectHelpers";
 
 export default class FormatTwig implements ParserState {
@@ -22,15 +23,20 @@ export default class FormatTwig implements ParserState {
   // * 0 and above is the number of indentation to insert
   level: number[];
 
-  // The start and end of the sparser array
+  // Start of the sparser array
   a: number;
+
+  // End of the sparser array
   c: number;
 
-  // Comment start
-  comstart: number;
+  // a - 1, excluding comments
+  prev: number;
 
   // a + 1, excluding comments
   next: number;
+
+  // Comment start
+  comstart: number;
 
   count: number;
   indent: number;
@@ -39,10 +45,11 @@ export default class FormatTwig implements ParserState {
   constructor(options: any) {
     this.options = options;
     this.data = options.parsed;
-    this.c = this.data.token.length;
     this.level = [];
     this.a = 0;
+    this.c = this.data.token.length;
     this.comstart = -1;
+    this.prev = 0;
     this.next = 0;
     this.count = 0;
     this.indent = options.indent_level;
@@ -50,7 +57,7 @@ export default class FormatTwig implements ParserState {
 
   public formatDocument(): string {
     this.collectLevels();
-    this.applyLevels();
+    this.applyMarkupLevels();
     return this.build.join("");
   }
 
@@ -69,14 +76,12 @@ export default class FormatTwig implements ParserState {
           if (i.comstart < 0) {
             i.comstart = i.a;
           }
-          if (
-            i.data.types[i.a + 1] !== "comment" ||
-            (i.a > 0 && i.data.types[i.a - 1].indexOf("end") > -1)
-          ) {
+          if (i.data.types[i.a + 1] !== "comment" || i.data.types[i.a - 1].indexOf("end") > -1) {
             handleComment(i);
           }
         } else if (i.data.types[i.a] !== "comment") {
-          i.next = nextIdx(i);
+          i.next = nextIndex(i);
+          i.prev = prevIndex(i);
           if (i.data.types[i.next] === "end" || i.data.types[i.next] === "template_end") {
             i.indent -= 1;
             if (
@@ -144,9 +149,9 @@ export default class FormatTwig implements ParserState {
             i.level.push(-20);
           } else if (i.data.types[i.a] === "template_else") {
             if (i.data.types[i.next] === "template_end") {
-              i.level[i.a - 1] = i.indent + 1;
+              i.level[i.prev] = i.indent + 1;
             } else {
-              i.level[i.a - 1] = i.indent - 1;
+              i.level[i.prev] = i.indent - 1;
             }
             i.level.push(i.indent);
           } else {
@@ -169,7 +174,7 @@ export default class FormatTwig implements ParserState {
     } while (i.a < i.c);
   }
 
-  applyLevels(): void {
+  applyMarkupLevels(): void {
     const i = this;
     this.a = this.options.start;
     let external: string = "";

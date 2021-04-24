@@ -1,4 +1,4 @@
-export function nextIdx(i: ParserState): number {
+export function nextIndex(i: ParserState): number {
   let x: number = i.a + 1,
     y: number = 0;
   if (i.data.types[x] === undefined) {
@@ -14,6 +14,26 @@ export function nextIdx(i: ParserState): number {
       }
       x = x + 1;
     } while (x < i.c);
+  }
+  return x;
+}
+
+export function prevIndex(i: ParserState): number {
+  let x: number = i.a - 1,
+    y: number = 0;
+  if (i.data.types[x] === undefined) {
+    return x + 1;
+  }
+  if (
+    i.data.types[x] === "comment" ||
+    (i.a < i.c - 1 && i.data.types[x].indexOf("attribute") > -1)
+  ) {
+    do {
+      if (i.data.types[x] !== "comment" && i.data.types[x].indexOf("attribute") < 0) {
+        return x;
+      }
+      x = x - 1;
+    } while (x > i.a);
   }
   return x;
 }
@@ -246,7 +266,7 @@ export function handleExternal(i: ParserState): void {
   } while (i.a < i.c);
   i.externalIndex[skip] = i.a;
   i.level.push(i.indent - 1);
-  i.next = nextIdx(i);
+  i.next = nextIndex(i);
   if (
     i.data.lexer[i.next] === i.lexer &&
     i.data.stack[i.a].indexOf("attribute") < 0 &&
@@ -256,57 +276,61 @@ export function handleExternal(i: ParserState): void {
   }
 }
 
-export function handleAttribute(i: ParserState): void {
-  const parent: number = i.a - 1,
-    wrap = function beautify_markup_levels_attribute_wrap(index: number): void {
-      const item: string[] = i.data.token[index].replace(/\s+/g, " ").split(" "),
-        ilen: number = item.length;
-      let bb: number = 1,
-        acount: number = item[0].length;
-      if (/=("|')?(<|(\{(\{|%|#|@|!|\?|^))|(\[%))/.test(i.data.token[index]) === true) {
-        return;
-      }
-      do {
-        if (acount + item[bb].length > i.options.wrap) {
-          acount = item[bb].length;
-          item[bb] = i.lf + item[bb];
-        } else {
-          item[bb] = ` ${item[bb]}`;
-          acount = acount + item[bb].length;
+function wrap(i: ParserState, index: number) {
+  const item: string[] = i.data.token[index].replace(/\s+/g, " ").split(" "),
+    ilen: number = item.length;
+  let bb: number = 1,
+    acount: number = item[0].length;
+  if (/=("|')?(<|(\{(\{|%|#|@|!|\?|^))|(\[%))/.test(i.data.token[index]) === true) {
+    return;
+  }
+  do {
+    if (acount + item[bb].length > i.options.wrap) {
+      acount = item[bb].length;
+      item[bb] = i.lf + item[bb];
+    } else {
+      item[bb] = ` ${item[bb]}`;
+      acount = acount + item[bb].length;
+    }
+    bb = bb + 1;
+  } while (bb < ilen);
+  i.data.token[index] = item.join("");
+}
+
+function attributeLevel(i: ParserState): [boolean, number] {
+  let parent: number = i.a - 1;
+  let plural: boolean = false;
+  if (i.data.types[i.a].indexOf("start") > 0) {
+    let x: number = i.a;
+    do {
+      if (i.data.types[x].indexOf("end") > 0 && i.data.begin[x] === i.a) {
+        if (x < i.c - 1 && i.data.types[x + 1].indexOf("attribute") > -1) {
+          plural = true;
+          break;
         }
-        bb = bb + 1;
-      } while (bb < ilen);
-      i.data.token[index] = item.join("");
-    };
+      }
+      x = x + 1;
+    } while (x < i.c);
+  } else if (i.a < i.c - 1 && i.data.types[i.a + 1].indexOf("attribute") > -1) {
+    plural = true;
+  }
+  if (i.data.types[i.next] === "end" || i.data.types[i.next] === "template_end") {
+    if (i.data.types[parent] === "singleton") {
+      return [plural, i.indent + 2];
+    }
+    return [plural, i.indent + 1];
+  }
+  if (i.data.types[parent] === "singleton") {
+    return [plural, i.indent + 1];
+  }
+  return [plural, i.indent];
+}
+
+export function handleAttribute(i: ParserState): void {
+  const parent: number = i.a - 1;
   let y: number = i.a,
     len: number = i.data.token[parent].length + 1,
-    plural: boolean = false,
-    lev: number = (function beautify_markup_levels_attribute_level(): number {
-      if (i.data.types[i.a].indexOf("start") > 0) {
-        let x: number = i.a;
-        do {
-          if (i.data.types[x].indexOf("end") > 0 && i.data.begin[x] === i.a) {
-            if (x < i.c - 1 && i.data.types[x + 1].indexOf("attribute") > -1) {
-              plural = true;
-              break;
-            }
-          }
-          x = x + 1;
-        } while (x < i.c);
-      } else if (i.a < i.c - 1 && i.data.types[i.a + 1].indexOf("attribute") > -1) {
-        plural = true;
-      }
-      if (i.data.types[i.next] === "end" || i.data.types[i.next] === "template_end") {
-        if (i.data.types[parent] === "singleton") {
-          return i.indent + 2;
-        }
-        return i.indent + 1;
-      }
-      if (i.data.types[parent] === "singleton") {
-        return i.indent + 1;
-      }
-      return i.indent;
-    })(),
+    [plural, lev] = attributeLevel(i),
     earlyexit: boolean = false,
     attStart: boolean = false;
 
@@ -424,7 +448,7 @@ export function handleAttribute(i: ParserState): void {
       i.count = i.data.token[i.a].length;
       do {
         if (i.data.token[y].length > i.options.wrap && /\s/.test(i.data.token[y]) === true) {
-          wrap(y);
+          wrap(i, y);
         }
         y = y - 1;
         i.level[y] = lev;
@@ -436,6 +460,6 @@ export function handleAttribute(i: ParserState): void {
     i.data.token[i.a].length > i.options.wrap &&
     /\s/.test(i.data.token[i.a]) === true
   ) {
-    wrap(i.a);
+    wrap(i, i.a);
   }
 }
