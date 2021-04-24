@@ -1,3 +1,4 @@
+import { isDate } from "node:util";
 import { applyAttributeEnd, applyMultiline, applyNl } from "./applyHelpers";
 import {
   nextIdx,
@@ -88,13 +89,7 @@ export default class FormatTwig implements ParserState {
               handleAnchor(i);
             }
           }
-          if (i.data.types[i.a] === "script_end" && i.data.types[i.next] === "end") {
-            if (i.data.lines[i.next] < 1) {
-              i.level.push(-20);
-            } else {
-              i.level.push(-10);
-            }
-          } else if (
+          if (
             (i.options.force_indent === false ||
               (i.options.force_indent === true && i.data.types[i.next] === "script_start")) &&
             (i.data.types[i.a] === "content" ||
@@ -102,23 +97,13 @@ export default class FormatTwig implements ParserState {
               i.data.types[i.a] === "template")
           ) {
             i.count = i.count + i.data.token[i.a].length;
-            if (i.data.lines[i.next] > 0 && i.data.types[i.next] === "script_start") {
+            if (i.data.types[i.next] === "script_start") {
               i.level.push(-10);
             } else if (
-              i.options.wrap > 0 &&
-              (i.data.types[i.a].indexOf("template") < 0 ||
-                (i.next < i.c &&
-                  i.data.types[i.a].indexOf("template") > -1 &&
-                  i.data.types[i.next].indexOf("template") < 0))
+              i.data.types[i.a] === "template_start" &&
+              i.data.types[i.next].indexOf("template") < 0
             ) {
               handleContent(i);
-            } else if (
-              i.next < i.c &&
-              (i.data.types[i.next].indexOf("end") > -1 ||
-                i.data.types[i.next].indexOf("start") > -1) &&
-              (i.data.lines[i.next] > 0 || i.data.types[i.next].indexOf("template_") > -1)
-            ) {
-              i.level.push(i.indent);
             } else if (i.data.lines[i.next] === 0) {
               i.level.push(-20);
             } else {
@@ -134,8 +119,6 @@ export default class FormatTwig implements ParserState {
             }
             if (i.data.types[i.a] === "start" && i.data.types[i.next] === "end") {
               i.level.push(-20);
-            } else if (i.data.types[i.a] === "start" && i.data.types[i.next] === "script_start") {
-              i.level.push(-10);
             } else if (i.options.force_indent === true) {
               i.level.push(i.indent);
             } else if (
@@ -158,8 +141,6 @@ export default class FormatTwig implements ParserState {
             i.data.lines[i.next] === 0 &&
             (i.data.types[i.next] === "content" || i.data.types[i.next] === "singleton")
           ) {
-            i.level.push(-20);
-          } else if (i.data.types[i.a + 2] === "script_end") {
             i.level.push(-20);
           } else if (i.data.types[i.a] === "template_else") {
             if (i.data.types[i.next] === "template_end") {
@@ -208,7 +189,6 @@ export default class FormatTwig implements ParserState {
           applyAttributeEnd(i);
         }
         if (
-          i.data.token[i.a] !== undefined &&
           i.data.token[i.a].indexOf(i.lf) > 0 &&
           ((i.data.types[i.a] === "content" && i.options.preserve_text === false) ||
             i.data.types[i.a] === "comment" ||
