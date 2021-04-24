@@ -109,8 +109,6 @@ export default class FormatTwig implements ParserState {
               i.data.types[i.next].indexOf("template") < 0
             ) {
               handleContent(i);
-            } else if (i.data.lines[i.next] === 0) {
-              i.level.push(-20);
             } else {
               i.level.push(i.indent);
             }
@@ -132,10 +130,9 @@ export default class FormatTwig implements ParserState {
             ) {
               i.level.push(-20);
             } else if (
-              i.data.lines[i.next] === 0 &&
-              (i.data.types[i.next] === "content" ||
-                i.data.types[i.next] === "singleton" ||
-                (i.data.types[i.a] === "start" && i.data.types[i.next] === "template"))
+              i.data.types[i.next] === "content" ||
+              i.data.types[i.next] === "singleton" ||
+              (i.data.types[i.a] === "start" && i.data.types[i.next] === "template")
             ) {
               i.level.push(-20);
             } else {
@@ -143,7 +140,6 @@ export default class FormatTwig implements ParserState {
             }
           } else if (
             i.options.force_indent === false &&
-            i.data.lines[i.next] === 0 &&
             (i.data.types[i.next] === "content" || i.data.types[i.next] === "singleton")
           ) {
             i.level.push(-20);
