@@ -152,30 +152,19 @@ export default class Parser {
               ee = keys[dd][0];
               if (ee < keyend) {
                 do {
-                  if (
-                    style === false &&
-                    dd === keylen - 1 &&
-                    ee === keyend - 2 &&
-                    data.token[ee] === "," &&
-                    data.types[ee + 1] === "comment"
-                  ) {
-                    // do not include terminal commas that are followed by a comment
-                    ff = ff + 1;
-                  } else {
-                    i.parse.push(
-                      store,
-                      {
-                        begin: data.begin[ee],
-                        ender: data.begin[ee],
-                        lines: data.lines[ee],
-                        stack: data.stack[ee],
-                        token: data.token[ee],
-                        types: data.types[ee],
-                      },
-                      ""
-                    );
-                    ff = ff + 1;
-                  }
+                  i.parse.push(
+                    store,
+                    {
+                      begin: data.begin[ee],
+                      ender: data.begin[ee],
+                      lines: data.lines[ee],
+                      stack: data.stack[ee],
+                      token: data.token[ee],
+                      types: data.types[ee],
+                    },
+                    ""
+                  );
+                  ff = ff + 1;
 
                   //remove extra commas
                   if (data.token[ee] === delim[0] && data.begin[ee] === data.begin[keys[dd][0]]) {
@@ -247,7 +236,24 @@ export default class Parser {
       // an extension of Array.prototype.push to work across the data structure
       push: function parse_push(data: data, record: record, structure: string): void {
         const ender = function parse_push_ender(): void {
-          return;
+          let a: number = i.parse.count;
+          const begin: number = data.begin[a];
+          do {
+            if (
+              data.begin[a] === begin ||
+              (data.begin[data.begin[a]] === begin &&
+                data.types[a].indexOf("attribute") > -1 &&
+                data.types[a].indexOf("attribute_end") < 0)
+            ) {
+              data.ender[a] = i.parse.count;
+            } else {
+              a = data.begin[a];
+            }
+            a = a - 1;
+          } while (a > begin);
+          if (a > -1) {
+            data.ender[a] = i.parse.count;
+          }
         };
         Object.entries(data).forEach(([k, v]) => {
           const matchingArrayEntry = Object.entries(record).filter(([k2, _]) => k2 === k)[0][1];
@@ -591,7 +597,7 @@ export default class Parser {
           regEsc: RegExp = /(\/|\\|\||\*|\[|\]|\{|\})/g,
           regEnd: RegExp = new RegExp(`\\s*${config.terminator.replace(regEsc, sanitize)}$`),
           regIgnore: RegExp = new RegExp(
-            `^(${config.opening.replace(regEsc, sanitize)}\\s*i.parse-ignore-start)`
+            `^(${config.opening.replace(regEsc, sanitize)}\\s*parse-ignore-start)`
           ),
           regStart: RegExp = new RegExp(`(${config.opening.replace(regEsc, sanitize)}\\s*)`),
           wrap: number = options.wrap,
@@ -629,7 +635,7 @@ export default class Parser {
             a < config.end &&
             (config.chars[a - 1] !== "d" ||
               (config.chars[a - 1] === "d" &&
-                build.slice(build.length - 16).join("") !== "i.parse-ignore-end"))
+                build.slice(build.length - 16).join("") !== "parse-ignore-end"))
           );
           b = a;
           terml = config.opening.length - 1;
@@ -982,7 +988,7 @@ export default class Parser {
           a = a - 1;
         }
         output = build.join("").replace(/\s+$/, "");
-        if (/^(\/\/\s*i.parse-ignore\u002dstart)/.test(output) === true) {
+        if (/^(\/\/\s*parse-ignore\u002dstart)/.test(output) === true) {
           let termination: string = "\n";
           a = a + 1;
           do {
@@ -992,7 +998,7 @@ export default class Parser {
             a < config.end &&
             (config.chars[a - 1] !== "d" ||
               (config.chars[a - 1] === "d" &&
-                build.slice(build.length - 16).join("") !== "i.parse-ignore-end"))
+                build.slice(build.length - 16).join("") !== "parse-ignore-end"))
           );
           b = a;
           do {
