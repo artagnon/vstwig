@@ -1,4 +1,4 @@
-import { initParser } from "./Parser";
+import Parser from "./Parser";
 import { applyAttributeEnd, applyMultiline, applyNl } from "./applyHelpers";
 import {
   nextIndex,
@@ -50,10 +50,9 @@ export default class FormatTwig implements FormatterState {
   build: string[] = [];
 
   constructor(options: any) {
-    const sparser = initParser(options);
     this.options = options;
     this.lf = options.lf;
-    this.data = sparser.parser();
+    this.data = new Parser(options).runLexer();
     this.level = [];
     this.a = 0;
     this.c = this.data.token.length;

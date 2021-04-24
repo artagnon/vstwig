@@ -46,10 +46,9 @@ interface splice {
   record?: record;
 }
 
-interface sparser {
+interface LexerData {
   options: any;
   parse: parse;
-  parser(): data;
   parseerror: string;
 }
 interface data {

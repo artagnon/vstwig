@@ -1,18 +1,17 @@
-export function markupLexer(sparser: sparser): data {
-  const source = sparser.options.source;
+export function markupLexer(lexData: LexerData): data {
+  const source = lexData.options.source;
   let a: number = 0,
     sgmlflag: number = 0,
     html: "html" | "xml" | "" = "",
-    cftransaction: boolean = false,
     ext: boolean = false;
-  const parse: parse = sparser.parse,
+  const parse: parse = lexData.parse,
     data: data = parse.data,
     count: markupCount = {
       end: 0,
       index: -1,
       start: 0,
     },
-    options: FormatterOptions = sparser.options,
+    options: FormatterOptions = lexData.options,
     b: string[] = source.split(""),
     c: number = b.length,
     htmlblocks: any = {
@@ -782,12 +781,12 @@ export function markupLexer(sparser: sparser): data {
               attstore.push([atty, lines]);
             }
             if (attstore.length > 0 && attstore[attstore.length - 1][0].indexOf("=\u201c") > 0) {
-              sparser.parseerror = `Quote looking character (\u201c, &#x201c) used instead of actual quotes on line number ${parse.lineNumber}`;
+              lexData.parseerror = `Quote looking character (\u201c, &#x201c) used instead of actual quotes on line number ${parse.lineNumber}`;
             } else if (
               attstore.length > 0 &&
               attstore[attstore.length - 1][0].indexOf("=\u201d") > 0
             ) {
-              sparser.parseerror = `Quote looking character (\u201d, &#x201d) used instead of actual quotes on line number ${parse.lineNumber}`;
+              lexData.parseerror = `Quote looking character (\u201d, &#x201d) used instead of actual quotes on line number ${parse.lineNumber}`;
             }
             attribute = [];
             lines = b[a] === "\n" ? 2 : 1;
@@ -813,7 +812,7 @@ export function markupLexer(sparser: sparser): data {
             }
           }
           if (ltype === "cdata" && b[a] === ">" && b[a - 1] === "]" && b[a - 2] !== "]") {
-            sparser.parseerror = `CDATA tag ${lex.join("")} is not properly terminated with ]]>`;
+            lexData.parseerror = `CDATA tag ${lex.join("")} is not properly terminated with ]]>`;
             break;
           }
           if (ltype === "comment") {
@@ -874,7 +873,7 @@ export function markupLexer(sparser: sparser): data {
                   }
                 }
                 if (b[a] !== ">" && b[a + 1] === "<") {
-                  sparser.parseerror = `SGML tag ${lex.join(
+                  lexData.parseerror = `SGML tag ${lex.join(
                     ""
                   )} is missing termination with '[' or '>'.`;
                   break;
@@ -893,7 +892,7 @@ export function markupLexer(sparser: sparser): data {
                 end !== ">>>" &&
                 simple === true
               ) {
-                sparser.parseerror = `Parse error on line ${
+                lexData.parseerror = `Parse error on line ${
                   parse.lineNumber
                 } on element: ${lex.join("")}`;
               }
@@ -2301,15 +2300,15 @@ export function markupLexer(sparser: sparser): data {
   ) {
     fixHtmlEnd(data.token[parse.count], true);
   }
-  if (count.end !== count.start && sparser.parseerror === "") {
+  if (count.end !== count.start && lexData.parseerror === "") {
     if (count.end > count.start) {
       let x: number = count.end - count.start,
         plural: string = x === 1 ? "" : "s";
-      sparser.parseerror = `${x} more end type${plural} than start types.`;
+      lexData.parseerror = `${x} more end type${plural} than start types.`;
     } else {
       let x: number = count.start - count.end,
         plural: string = x === 1 ? "" : "s";
-      sparser.parseerror = `${x} more start type${plural} than end types.`;
+      lexData.parseerror = `${x} more start type${plural} than end types.`;
     }
   }
   return data;
