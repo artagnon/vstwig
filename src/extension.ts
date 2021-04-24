@@ -1,27 +1,28 @@
 import { languages, ExtensionContext, TextDocument, Position, Range, TextEdit } from "vscode";
 import FormatTwig from "./FormatTwig";
-import "sparser";
 
 function textEdits(document: TextDocument, range: Range): TextEdit[] {
-  const options: any = {
+  const options: FormatterOptions = {
+    source: document.getText(range),
     beautify: {},
     end: 0,
     iterator: 0,
     start: 0,
+    lf: "\n",
     force_indent: false,
     force_attribute: false,
     wrap: 0,
     preserve_text: false,
+    preserve_comment: false,
     unformatted: false,
     space_close: true,
     indent_char: " ",
     indent_size: 2,
     preserve: 1,
+    correct: false,
     indent_level: 0,
   };
 
-  global.sparser.options.source = document.getText(range);
-  options.parsed = global.sparser.parser();
   const ft = new FormatTwig(options);
   return [TextEdit.replace(range, ft.formatDocument())];
 }

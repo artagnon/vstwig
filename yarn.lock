@@ -225,13 +225,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^12.7.1":
-  version: 12.20.10
-  resolution: "@types/node@npm:12.20.10"
-  checksum: 0d358c4660f32062567c878dc950d77edac737bda113dee066afc187fb4ef0eeac9acd7cfe72443f9b95a57da260851e7037f907423d05c09bcf1ae2ff89d334
-  languageName: node
-  linkType: hard
-
 "@types/node@npm:^13.7.0":
   version: 13.13.50
   resolution: "@types/node@npm:13.13.50"
@@ -3610,15 +3603,6 @@ resolve@^1.9.0:
   languageName: node
   linkType: hard
 
-"sparser@artagnon/sparser#start-template-attribute":
-  version: 1.4.12
-  resolution: "sparser@https://github.com/artagnon/sparser.git#commit=e7388b369576e40ee76378ab1d53b10b8784a5cd"
-  dependencies:
-    "@types/node": ^12.7.1
-  checksum: 0306ca949327b9b64627da83f46c61faf5f565c9edb0b4830152aedf946e312079f7cad6bcd16f3b71dd1b4db2e57efe636600296bfd52233badf7a2c7f0e523
-  languageName: node
-  linkType: hard
-
 "sprintf-js@npm:~1.0.2":
   version: 1.0.3
   resolution: "sprintf-js@npm:1.0.3"
@@ -4040,7 +4024,6 @@ typescript@^4.2.4:
     eslint: ^7.25.0
     glob: ^7.1.6
     mocha: ^8.3.2
-    sparser: "artagnon/sparser#start-template-attribute"
     ts-loader: ^9.1.1
     typescript: ^4.2.4
     vscode-test: ^1.5.2

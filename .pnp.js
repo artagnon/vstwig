@@ -47,7 +47,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["eslint", "npm:7.25.0"],
             ["glob", "npm:7.1.6"],
             ["mocha", "npm:8.3.2"],
-            ["sparser", "https://github.com/artagnon/sparser.git#commit=e7388b369576e40ee76378ab1d53b10b8784a5cd"],
             ["ts-loader", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:9.1.1"],
             ["typescript", "patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e"],
             ["vscode-test", "npm:1.5.2"],
@@ -306,13 +305,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@types/node", [
-        ["npm:12.20.10", {
-          "packageLocation": "./.yarn/cache/@types-node-npm-12.20.10-b13a191b18-0d358c4660.zip/node_modules/@types/node/",
-          "packageDependencies": [
-            ["@types/node", "npm:12.20.10"]
-          ],
-          "linkType": "HARD",
-        }],
         ["npm:13.13.50", {
           "packageLocation": "./.yarn/cache/@types-node-npm-13.13.50-b699d4b83d-794a9377f6.zip/node_modules/@types/node/",
           "packageDependencies": [
@@ -4283,16 +4275,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
-      ["sparser", [
-        ["https://github.com/artagnon/sparser.git#commit=e7388b369576e40ee76378ab1d53b10b8784a5cd", {
-          "packageLocation": "./.yarn/cache/sparser-https-15d8904c22-0306ca9493.zip/node_modules/sparser/",
-          "packageDependencies": [
-            ["sparser", "https://github.com/artagnon/sparser.git#commit=e7388b369576e40ee76378ab1d53b10b8784a5cd"],
-            ["@types/node", "npm:12.20.10"]
-          ],
-          "linkType": "HARD",
-        }]
-      ]],
       ["sprintf-js", [
         ["npm:1.0.3", {
           "packageLocation": "./.yarn/cache/sprintf-js-npm-1.0.3-73f0a322fa-51df1bce9e.zip/node_modules/sprintf-js/",
@@ -4794,7 +4776,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["eslint", "npm:7.25.0"],
             ["glob", "npm:7.1.6"],
             ["mocha", "npm:8.3.2"],
-            ["sparser", "https://github.com/artagnon/sparser.git#commit=e7388b369576e40ee76378ab1d53b10b8784a5cd"],
             ["ts-loader", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:9.1.1"],
             ["typescript", "patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e"],
             ["vscode-test", "npm:1.5.2"],

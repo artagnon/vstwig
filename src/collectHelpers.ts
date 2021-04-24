@@ -1,4 +1,4 @@
-export function nextIndex(i: ParserState): number {
+export function nextIndex(i: FormatterState): number {
   let x: number = i.a + 1,
     y: number = 0;
   if (i.data.types[x] === undefined) {
@@ -18,7 +18,7 @@ export function nextIndex(i: ParserState): number {
   return x;
 }
 
-export function prevIndex(i: ParserState): number {
+export function prevIndex(i: FormatterState): number {
   let x: number = i.a - 1,
     y: number = 0;
   if (i.data.types[x] === undefined) {
@@ -38,7 +38,7 @@ export function prevIndex(i: ParserState): number {
   return x;
 }
 
-export function handleAnchor(i: ParserState): void {
+export function handleAnchor(i: FormatterState): void {
   let aa: number = i.a;
   const stop: number = i.data.begin[i.a];
   // verify list is only i.a link list before making changes
@@ -68,7 +68,7 @@ export function handleAnchor(i: ParserState): void {
   } while (aa > stop + 1);
 }
 
-export function handleComment(i: ParserState): void {
+export function handleComment(i: FormatterState): void {
   let x: number = i.a,
     test: boolean = false;
   if (i.data.lines[i.a + 1] === 0 && i.options.force_indent === false) {
@@ -116,7 +116,7 @@ export function handleComment(i: ParserState): void {
   i.comstart = -1;
 }
 
-export function handleContent(i: ParserState): void {
+export function handleContent(i: FormatterState): void {
   let ind: number = i.indent;
   if (i.options.force_indent === true || i.options.force_attribute === true) {
     i.level.push(i.indent);
@@ -250,33 +250,7 @@ export function handleContent(i: ParserState): void {
   }
 }
 
-export function handleExternal(i: ParserState): void {
-  let skip: number = i.a;
-  do {
-    if (
-      i.data.lexer[i.a + 1] === i.lexer &&
-      i.data.begin[i.a + 1] < skip &&
-      i.data.types[i.a + 1] !== "start" &&
-      i.data.types[i.a + 1] !== "singleton"
-    ) {
-      break;
-    }
-    i.level.push(0);
-    i.a = i.a + 1;
-  } while (i.a < i.c);
-  i.externalIndex[skip] = i.a;
-  i.level.push(i.indent - 1);
-  i.next = nextIndex(i);
-  if (
-    i.data.lexer[i.next] === i.lexer &&
-    i.data.stack[i.a].indexOf("attribute") < 0 &&
-    (i.data.types[i.next] === "end" || i.data.types[i.next] === "template_end")
-  ) {
-    i.indent = i.indent - 1;
-  }
-}
-
-function wrap(i: ParserState, index: number) {
+function wrap(i: FormatterState, index: number) {
   const item: string[] = i.data.token[index].replace(/\s+/g, " ").split(" "),
     ilen: number = item.length;
   let bb: number = 1,
@@ -297,7 +271,7 @@ function wrap(i: ParserState, index: number) {
   i.data.token[index] = item.join("");
 }
 
-function attributeLevel(i: ParserState): [boolean, number] {
+function attributeLevel(i: FormatterState): [boolean, number] {
   let parent: number = i.a - 1;
   let plural: boolean = false;
   if (i.data.types[i.a].indexOf("start") > 0) {
@@ -326,7 +300,7 @@ function attributeLevel(i: ParserState): [boolean, number] {
   return [plural, i.indent];
 }
 
-export function handleAttribute(i: ParserState): void {
+export function handleAttribute(i: FormatterState): void {
   const parent: number = i.a - 1;
   let y: number = i.a,
     len: number = i.data.token[parent].length + 1,
@@ -362,27 +336,18 @@ export function handleAttribute(i: ParserState): void {
         if (i.a < i.c - 2 && i.data.types[i.a + 2].indexOf("attribute") > 0) {
           i.level.push(-20);
           i.a = i.a + 1;
-          i.externalIndex[i.a] = i.a;
         } else {
           if (parent === i.a - 1 && plural === false) {
             i.level.push(lev);
           } else {
             i.level.push(lev + 1);
           }
-          if (i.data.lexer[i.a + 1] !== i.lexer) {
-            i.a = i.a + 1;
-            handleExternal(i);
-          }
         }
       } else if (i.data.types[i.a].indexOf("end") > 0) {
         if (i.level[i.a - 1] !== -20) {
           i.level[i.a - 1] = i.level[i.data.begin[i.a]] - 1;
         }
-        if (i.data.lexer[i.a + 1] !== i.lexer) {
-          i.level.push(-20);
-        } else {
-          i.level.push(lev);
-        }
+        i.level.push(lev);
       } else {
         i.level.push(lev);
       }
