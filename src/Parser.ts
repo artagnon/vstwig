@@ -29,10 +29,12 @@ export default class Parser {
       structure: [["global", -1]],
       // an extension of Array.prototype.concat to work across the data structure.  This is an expensive operation.
       concat: function parse_concat(data: data, array: data): void {
-        Object.entries(data).forEach(([k, v]) => {
-          const matchingArrayEntry = Object.entries(array).filter(([k2, _]) => k2 === k)[0][1];
-          v = v.concat(matchingArrayEntry);
-        });
+        data.begin = data.begin.concat(array.begin);
+        data.ender = data.ender.concat(array.ender);
+        data.lines = data.lines.concat(array.lines);
+        data.stack = data.stack.concat(array.stack);
+        data.token = data.token.concat(array.token);
+        data.types = data.types.concat(array.types);
         if (data === i.parse.data) {
           i.parse.count = data.token.length - 1;
         }
@@ -255,10 +257,13 @@ export default class Parser {
             data.ender[a] = i.parse.count;
           }
         };
-        Object.entries(data).forEach(([k, v]) => {
-          const matchingArrayEntry = Object.entries(record).filter(([k2, _]) => k2 === k)[0][1];
-          v = v.concat(matchingArrayEntry);
-        });
+
+        data.begin = data.begin.concat(record.begin);
+        data.ender = data.ender.concat(record.ender);
+        data.lines = data.lines.concat(record.lines);
+        data.stack = data.stack.concat(record.stack);
+        data.token = data.token.concat(record.token);
+        data.types = data.types.concat(record.types);
         if (data === i.parse.data) {
           i.parse.count = i.parse.count + 1;
           i.parse.linesSpace = 0;
@@ -545,12 +550,37 @@ export default class Parser {
         // * index   - The index where to start
         // * record  - A new record to insert
         if (spliceData.record && spliceData.record.token !== "") {
-          Object.entries(spliceData.data).forEach(([k, v]) => {
-            const matchingArrayEntry = Object.entries(spliceData.record ?? {}).filter(
-              ([k2, _]) => k2 === k
-            )[0][1];
-            v.splice(spliceData.index, spliceData.howmany, matchingArrayEntry);
-          });
+          spliceData.data.begin.splice(
+            spliceData.index,
+            spliceData.howmany,
+            spliceData.record.begin
+          );
+          spliceData.data.ender.splice(
+            spliceData.index,
+            spliceData.howmany,
+            spliceData.record.ender
+          );
+          spliceData.data.lines.splice(
+            spliceData.index,
+            spliceData.howmany,
+            spliceData.record.lines
+          );
+          spliceData.data.stack.splice(
+            spliceData.index,
+            spliceData.howmany,
+            spliceData.record.stack
+          );
+          spliceData.data.token.splice(
+            spliceData.index,
+            spliceData.howmany,
+            spliceData.record.token
+          );
+          spliceData.data.types.splice(
+            spliceData.index,
+            spliceData.howmany,
+            spliceData.record.types
+          );
+
           if (spliceData.data === i.parse.data) {
             i.parse.count = i.parse.count - spliceData.howmany + 1;
             if (
@@ -562,9 +592,12 @@ export default class Parser {
           }
           return;
         }
-        Object.entries(spliceData.data).forEach(([_, v]) => {
-          v.splice(spliceData.index, spliceData.howmany);
-        });
+        spliceData.data.begin.splice(spliceData.index, spliceData.howmany);
+        spliceData.data.ender.splice(spliceData.index, spliceData.howmany);
+        spliceData.data.lines.splice(spliceData.index, spliceData.howmany);
+        spliceData.data.stack.splice(spliceData.index, spliceData.howmany);
+        spliceData.data.token.splice(spliceData.index, spliceData.howmany);
+        spliceData.data.types.splice(spliceData.index, spliceData.howmany);
         if (spliceData.data === i.parse.data) {
           i.parse.count = i.parse.count - spliceData.howmany;
           i.parse.linesSpace = 0;
