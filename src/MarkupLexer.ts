@@ -415,13 +415,10 @@ export function markupLexer(lexData: LexerData): data {
                 start = "<!--";
               }
             } else if (
-              b[a + 2] === "[" &&
-              b[a + 3] === "C" &&
-              b[a + 4] === "D" &&
-              b[a + 5] === "A" &&
-              b[a + 6] === "T" &&
-              b[a + 7] === "A" &&
-              b[a + 8] === "["
+              b
+                .slice(a + 2, 7)
+                .join("")
+                .toLowerCase() === "[CDATA"
             ) {
               end = "]]>";
               ltype = "cdata";
@@ -455,41 +452,25 @@ export function markupLexer(lexData: LexerData): data {
               ltype = "template";
             }
           } else if (
-            (b[a + 1] === "p" || b[a + 1] === "P") &&
-            (b[a + 2] === "r" || b[a + 2] === "R") &&
-            (b[a + 3] === "e" || b[a + 3] === "E") &&
+            b
+              .slice(a + 1, 4)
+              .join("")
+              .toLowerCase() === "<pre" &&
             (b[a + 4] === ">" || /\s/.test(b[a + 4]) === true)
           ) {
             end = "</pre>";
             preserve = true;
             ltype = "ignore";
           } else if (
-            (b[a + 1] === "x" || b[a + 1] === "X") &&
-            (b[a + 2] === "m" || b[a + 2] === "M") &&
-            (b[a + 3] === "l" || b[a + 3] === "L") &&
-            b[a + 4] === ":" &&
-            (b[a + 5] === "t" || b[a + 5] === "T") &&
-            (b[a + 6] === "e" || b[a + 6] === "E") &&
-            (b[a + 7] === "x" || b[a + 7] === "X") &&
-            (b[a + 8] === "t" || b[a + 8] === "T") &&
+            b
+              .slice(a + 1, 9)
+              .join("")
+              .toLowerCase() === "<xsl:text" &&
             (b[a + 9] === ">" || /\s/.test(b[a + 9]) === true)
           ) {
             end = "</xsl:text>";
             preserve = true;
             ltype = "ignore";
-          } else if (
-            (b[a + 1] === "c" || b[a + 1] === "C") &&
-            (b[a + 2] === "f" || b[a + 2] === "F") &&
-            (b[a + 3] === "q" || b[a + 3] === "Q") &&
-            (b[a + 4] === "u" || b[a + 4] === "U") &&
-            (b[a + 5] === "e" || b[a + 5] === "E") &&
-            (b[a + 6] === "r" || b[a + 6] === "R") &&
-            (b[a + 7] === "y" || b[a + 7] === "Y") &&
-            (b[a + 8] === ">" || /\s/.test(b[a + 8]) === true)
-          ) {
-            end = "</" + b.slice(a + 1, a + 8).join("") + ">";
-            preserve = true;
-            ltype = "content_preserve";
           } else if (b[a + 1] === "<") {
             if (b[a + 2] === "<") {
               end = ">>>";
@@ -570,17 +551,6 @@ export function markupLexer(lexData: LexerData): data {
         });
         element = comm[0];
         a = comm[1];
-        if (
-          element
-            .replace(start, "")
-            .replace(/(^\s*)/, "")
-            .indexOf("parse-ignore-start") === 0
-        ) {
-          record.token = element;
-          record.types = "ignore";
-          recordPush(data, record, "");
-          return;
-        }
       }
       let braccount: number = 0,
         jsxcount: number = 0,
@@ -598,17 +568,14 @@ export function markupLexer(lexData: LexerData): data {
         // attribute lexer
         attributeLexer = function lexer_markup_tag_attributeLexer(quotes: boolean): void {
           let atty: string = "",
-            name: [string, string],
             aa: number = 0,
             bb: number = 0;
           if (quotes === true) {
             atty = attribute.join("");
-            name = arname(atty);
             quote = "";
           } else {
             atty = attribute.join("");
             atty = atty.replace(/\s+/g, " ");
-            name = arname(atty);
           }
           atty = atty.replace(/^\u0020/, "").replace(/\u0020$/, "");
           attribute = atty.replace(/\r\n/g, "\n").split("\n");
