@@ -28,7 +28,7 @@ export default class Parser {
       // stores the stack and begin values by stacking depth
       structure: [["global", -1]],
       // an extension of Array.prototype.concat to work across the data structure.  This is an expensive operation.
-      concat: function parse_concat(data: data, array: data): void {
+      concat: (data: data, array: data): void => {
         data.begin = data.begin.concat(array.begin);
         data.ender = data.ender.concat(array.ender);
         data.lines = data.lines.concat(array.lines);
@@ -40,7 +40,7 @@ export default class Parser {
         }
       },
       // the function that sorts object properties
-      object_sort: function parse_objectSort(data: data): void {
+      objectSort: (data: data): void => {
         let cc: number = i.parse.count,
           global: boolean = false,
           dd: number = i.parse.structure[i.parse.structure.length - 1][1],
@@ -59,7 +59,7 @@ export default class Parser {
           style: boolean = false,
           delim: [string, string] = [",", "separator"],
           lines: number = i.parse.linesSpace,
-          sort = function parse_objectSort_sort(x: [number, number], y: [number, number]): number {
+          sort = (x: [number, number], y: [number, number]): number => {
             let xx = x[0],
               yy = y[0];
             if (data.types[xx] === "comment") {
@@ -221,7 +221,7 @@ export default class Parser {
         return;
       },
       // an extension of Array.prototype.pop to work across the data structure
-      pop: function parse_pop(data: data): record {
+      pop: (data: data): record => {
         const output: record = {
           begin: data.begin.pop() ?? 0,
           ender: data.ender.pop() ?? 0,
@@ -236,8 +236,8 @@ export default class Parser {
         return output;
       },
       // an extension of Array.prototype.push to work across the data structure
-      push: function parse_push(data: data, record: record, structure: string): void {
-        const ender = function parse_push_ender(): void {
+      push: (data: data, record: record, structure: string): void => {
+        const ender = (): void => {
           let a: number = i.parse.count;
           const begin: number = data.begin[a];
           do {
@@ -280,7 +280,7 @@ export default class Parser {
             i.parse.structure.push([structure, i.parse.count]);
           } else if (record.types === "end" || record.types.indexOf("_end") > 0) {
             // this big condition fixes language specific else blocks that are children of start/end blocks not associated with the if/else chain
-            let case_ender: number = 0;
+            let caseEnder: number = 0;
             if (
               i.parse.structure.length > 2 &&
               (data.types[i.parse.structure[i.parse.structure.length - 1][1]] === "else" ||
@@ -298,11 +298,11 @@ export default class Parser {
               data.begin[i.parse.count] = i.parse.structure[i.parse.structure.length - 1][1];
               data.stack[i.parse.count] = i.parse.structure[i.parse.structure.length - 1][0];
               data.ender[i.parse.count - 1] = i.parse.count;
-              case_ender = data.ender[data.begin[i.parse.count] + 1];
+              caseEnder = data.ender[data.begin[i.parse.count] + 1];
             }
             ender();
-            if (case_ender > 0) {
-              data.ender[data.begin[i.parse.count] + 1] = case_ender;
+            if (caseEnder > 0) {
+              data.ender[data.begin[i.parse.count] + 1] = caseEnder;
             }
             i.parse.structure.pop();
           } else if (record.types === "else" || record.types.indexOf("_else") > 0) {
@@ -327,37 +327,37 @@ export default class Parser {
         }
       },
       // a custom sort tool that is a bit more intelligent and multidimensional than Array.prototype.sort
-      safeSort: function parse_safeSort(
+      safeSort: (
         array: any[],
         operation: "ascend" | "descend" | "normal",
         recursive: boolean
-      ): any[] {
-        let extref = function parse_safeSort_extref(item: any): any {
+      ): any[] => {
+        let extref = (item: any): any => {
           //worthless function for backwards compatibility with older versions of V8 node.
           return item;
         };
-        const arTest = function parse_safeSort_arTest(item: any): boolean {
+        const arTest = (item: any): boolean => {
             if (Array.isArray(item) === true) {
               return true;
             }
             return false;
           },
-          normal = function parse_safeSort_normal(item: any[]): any[] {
+          normal = (item: any[]): any[] => {
             let storeb: any = item;
             const done: any = [item[0]],
-              child = function safeSort_normal_child(): void {
+              child = (): void => {
                 let a: number = 0;
                 const len: number = storeb.length;
                 if (a < len) {
                   do {
                     if (arTest(storeb[a]) === true) {
-                      storeb[a] = parse_safeSort_normal(storeb[a]);
+                      storeb[a] = normal(storeb[a]);
                     }
                     a = a + 1;
                   } while (a < len);
                 }
               },
-              recurse = function parse_safeSort_normal_recurse(x: any) {
+              recurse = (x: any) => {
                 let a: number = 0;
                 const storea: any[] = [],
                   len: number = storeb.length;
@@ -384,23 +384,23 @@ export default class Parser {
             recurse(array[0]);
             return item;
           },
-          descend = function parse_safeSort_descend(item: any[]): any[] {
+          descend = (item: any[]): any[] => {
             let c: number = 0;
             const len: number = item.length,
               storeb: any[] = item,
-              child = function parse_safeSort_descend_child(): void {
+              child = (): void => {
                 let a: number = 0;
                 const lenc: number = storeb.length;
                 if (a < lenc) {
                   do {
                     if (arTest(storeb[a]) === true) {
-                      storeb[a] = parse_safeSort_descend(storeb[a]);
+                      storeb[a] = descend(storeb[a]);
                     }
                     a = a + 1;
                   } while (a < lenc);
                 }
               },
-              recurse = function parse_safeSort_descend_recurse(value: string): string {
+              recurse = function recurse(value: string): string {
                 let a: number = c,
                   b: number = 0,
                   d: number = 0,
@@ -447,23 +447,23 @@ export default class Parser {
             recurse("");
             return item;
           },
-          ascend = function parse_safeSort_ascend(item: any[]): any[] {
+          ascend = (item: any[]): any[] => {
             let c: number = 0;
             const len: number = item.length,
               storeb: any[] = item,
-              child = function parse_safeSort_ascend_child(): void {
+              child = (): void => {
                 let a: number = 0;
                 const lenc: number = storeb.length;
                 if (a < lenc) {
                   do {
                     if (arTest(storeb[a]) === true) {
-                      storeb[a] = parse_safeSort_ascend(storeb[a]);
+                      storeb[a] = ascend(storeb[a]);
                     }
                     a = a + 1;
                   } while (a < lenc);
                 }
               },
-              recurse = function parse_safeSort_ascend_recurse(value: string): string {
+              recurse = (value: string): string => {
                 let a: number = c,
                   b: number = 0,
                   d: number = 0,
@@ -522,7 +522,7 @@ export default class Parser {
         return ascend(array);
       },
       // a simple tool to take note of whitespace between tokens
-      spacer: function parse_spacer(args: spacer): number {
+      spacer: (args: spacer): number => {
         // * array - the characters to scan
         // * index - the index to start scanning from
         // * end   - the length of the array, to break the loop
@@ -540,7 +540,7 @@ export default class Parser {
         return args.index;
       },
       // an extension of Array.prototype.splice to work across the data structure
-      splice: function parse_splice(spliceData: splice): void {
+      splice: (spliceData: splice): void => {
         const finalItem: [number, string] = [
           i.parse.data.begin[i.parse.count],
           i.parse.data.token[i.parse.count],
@@ -604,7 +604,7 @@ export default class Parser {
         }
       },
       // parsing block comments and simultaneously applying word wrap
-      wrapCommentBlock: function parse_wrapCommentBlock(config: wrapConfig): [string, number] {
+      wrapCommentBlock: (config: wrapConfig): [string, number] => {
         let a: number = config.start,
           b: number = 0,
           c: number = 0,
@@ -624,7 +624,7 @@ export default class Parser {
           twrap: number = 0;
         const build: string[] = [],
           second: string[] = [],
-          sanitize = function parse_wrapCommentBlock_sanitize(input: string) {
+          sanitize = (input: string) => {
             return `\\${input}`;
           },
           regEsc: RegExp = /(\/|\\|\||\*|\[|\]|\{|\})/g,
@@ -634,7 +634,7 @@ export default class Parser {
           ),
           regStart: RegExp = new RegExp(`(${config.opening.replace(regEsc, sanitize)}\\s*)`),
           wrap: number = options.wrap,
-          emptyLines = function parse_wrapCommentBlock_emptyLines() {
+          emptyLines = () => {
             if (/^\s+$/.test(lines[b + 1]) === true || lines[b + 1] === "") {
               do {
                 b = b + 1;
@@ -924,13 +924,13 @@ export default class Parser {
         return [output, a];
       },
       // parsing line comments and simultaneously applying word wrap
-      wrapCommentLine: function parse_wrapCommentLine(config: wrapConfig): [string, number] {
+      wrapCommentLine: (config: wrapConfig): [string, number] => {
         let a: number = config.start,
           b: number = 0,
           output: string = "",
           build: string[] = [];
         const wrap: number = options.wrap,
-          recurse = function parse_wrapCommentLine_recurse(): void {
+          recurse = (): void => {
             let line: string = "";
             do {
               b = b + 1;
@@ -952,11 +952,11 @@ export default class Parser {
               ) {
                 output = `${output} ${line.replace(/(^\/\/\s*)/, "").replace(/\s+$/, "")}`;
                 a = b - 1;
-                parse_wrapCommentLine_recurse();
+                recurse();
               }
             }
           },
-          wordWrap = function parse_wrapCommentLine_wordWrap(): void {
+          wordWrap = (): void => {
             let c: number = 0,
               d: number = 0;
             const lines: string[] = [],
@@ -1085,7 +1085,7 @@ export default class Parser {
 
   public runLexer() {
     const i = this;
-    i.parse.structure.pop = function parse_structure_pop() {
+    i.parse.structure.pop = () => {
       const len = i.parse.structure.length - 1,
         arr = i.parse.structure[len];
       if (len > 0) {

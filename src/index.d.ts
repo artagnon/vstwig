@@ -27,7 +27,7 @@ interface parse {
   data: data;
   lineNumber: number;
   linesSpace: number;
-  object_sort(data: data): void;
+  objectSort(data: data): void;
   pop(data: data): record;
   push(data: data, record: record, structure: string): void;
   references: string[][];
