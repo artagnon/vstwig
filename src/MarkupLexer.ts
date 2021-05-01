@@ -414,12 +414,7 @@ export function markupLexer(lexData: LexerData): data {
                 ltype = "comment";
                 start = "<!--";
               }
-            } else if (
-              b
-                .slice(a + 2, 7)
-                .join("")
-                .toLowerCase() === "[CDATA"
-            ) {
+            } else if (b.slice(a + 2, a + 8).join("") === "[CDATA") {
               end = "]]>";
               ltype = "cdata";
               preserve = true;
@@ -453,20 +448,36 @@ export function markupLexer(lexData: LexerData): data {
             }
           } else if (
             b
-              .slice(a + 1, 4)
+              .slice(a + 1, a + 4)
               .join("")
-              .toLowerCase() === "<pre" &&
-            (b[a + 4] === ">" || /\s/.test(b[a + 4]) === true)
+              .toLowerCase() === "pre"
           ) {
             end = "</pre>";
             preserve = true;
             ltype = "ignore";
           } else if (
             b
-              .slice(a + 1, 9)
+              .slice(a + 1, a + 6)
               .join("")
-              .toLowerCase() === "<xsl:text" &&
-            (b[a + 9] === ">" || /\s/.test(b[a + 9]) === true)
+              .toLowerCase() === "style"
+          ) {
+            end = "</style>";
+            preserve = true;
+            ltype = "ignore";
+          } else if (
+            b
+              .slice(a + 1, a + 7)
+              .join("")
+              .toLowerCase() === "script"
+          ) {
+            end = "</script>";
+            preserve = true;
+            ltype = "ignore";
+          } else if (
+            b
+              .slice(a + 1, a + 9)
+              .join("")
+              .toLowerCase() === "xsl:text"
           ) {
             end = "</xsl:text>";
             preserve = true;
@@ -1615,11 +1626,7 @@ export function markupLexer(lexData: LexerData): data {
         ) {
           //regular content
           a = a - 1;
-          if (parse.structure[parse.structure.length - 1][0] === "comment") {
-            ltoke = lex.join("");
-          } else {
-            ltoke = lex.join("").replace(/\s+$/, "");
-          }
+          ltoke = lex.join("");
           ltoke = bracketSpace(ltoke);
           liner = 0;
           record.token = ltoke;
