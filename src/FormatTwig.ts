@@ -133,12 +133,6 @@ export default class FormatTwig implements FormatterState {
             i.data.types[i.next] === "template_end"
           ) {
             i.level.push(-20);
-          } else if (
-            i.data.types[i.next] === "content" ||
-            i.data.types[i.next] === "singleton" ||
-            (i.data.types[i.a] === "start" && i.data.types[i.next] === "template")
-          ) {
-            i.level.push(-20);
           } else {
             i.level.push(i.indent);
           }
