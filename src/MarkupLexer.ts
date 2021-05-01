@@ -318,7 +318,6 @@ export function markupLexer(lexData: LexerData): data {
             dq = dq + 1;
           }
 
-          // preparation for a coldfusion edge case
           record.begin = begin;
           record.stack = stack;
           record.types = "attribute";
@@ -334,7 +333,6 @@ export function markupLexer(lexData: LexerData): data {
             dq = attstore[ind][0].indexOf('"');
 
             if (eq > -1 && store.length > 0) {
-              // put certain attributes together for coldfusion
               record.token = store.join(" ");
               convertQ();
               if (
@@ -807,8 +805,6 @@ export function markupLexer(lexData: LexerData): data {
                       } else if (b[a] === ">") {
                         braccount = braccount - 1;
                         if (braccount === 0) {
-                          // the following detects if a coldfusion tag is embedded within another markup
-                          // tag
                           quote = "";
                           igcount = 0;
                           attributeLexer(false);
@@ -989,8 +985,6 @@ export function markupLexer(lexData: LexerData): data {
                       tname = lex[1] + lex[2];
                       tname = tname.toLowerCase();
                     }
-                    // in coldfusion quotes are escaped in a string with double the characters:
-                    // "cat"" and dog"
                     e = quote.length - 1;
                     while (e > -1) {
                       if (b[a - f] !== quote.charAt(e)) {
@@ -1128,8 +1122,6 @@ export function markupLexer(lexData: LexerData): data {
                 tname = lex[1] + lex[2];
                 tname = tname.toLowerCase();
               }
-              // in coldfusion quotes are escaped in a string with double the characters:
-              // "cat"" and dog"
               e = quote.length - 1;
               while (e > -1) {
                 if (b[a - f] !== quote.charAt(e)) {
