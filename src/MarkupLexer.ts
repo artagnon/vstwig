@@ -2,8 +2,7 @@ export function markupLexer(lexData: LexerData): data {
   const source = lexData.options.source;
   let a: number = 0,
     sgmlflag: number = 0,
-    html: "html" | "xml" | "" = "",
-    ext: boolean = false;
+    html: "html" | "xml" | "" = "";
   const parse: parse = lexData.parse,
     data: data = parse.data,
     count: markupCount = {
@@ -182,8 +181,6 @@ export function markupLexer(lexData: LexerData): data {
         start: string = "",
         cheat: boolean = false,
         earlyexit: boolean = false,
-        ignoreme: boolean = false,
-        nopush: boolean = false,
         preserve: boolean = false,
         simple: boolean = false,
         attstore: attStore = [],
@@ -223,7 +220,6 @@ export function markupLexer(lexData: LexerData): data {
             syntax: string = "<{\"'=/",
             convertQ = function lexer_markup_tag_attributeRecord_convertQ(): void {
               if (
-                ignoreme === true ||
                 qc === "none" ||
                 record.types !== "attribute" ||
                 (qc === "single" && record.token.indexOf('"') < 0) ||
@@ -387,7 +383,6 @@ export function markupLexer(lexData: LexerData): data {
             convertQ();
           }
         };
-      ext = false;
 
       // this complex series of conditions determines an elements delimiters look to
       // the types being pushed to quickly reason about the logic no type is pushed
@@ -633,17 +628,11 @@ export function markupLexer(lexData: LexerData): data {
             if (quotes === true) {
               atty = attribute.join("");
               name = arname(atty);
-              if (name[0] === "data-parse-ignore" || name[0] === "data-prettydiff-ignore") {
-                ignoreme = true;
-              }
               quote = "";
             } else {
               atty = attribute.join("");
               atty = atty.replace(/\s+/g, " ");
               name = arname(atty);
-              if (name[0] === "data-parse-ignore" || name[0] === "data-prettydiff-ignore") {
-                ignoreme = true;
-              }
             }
             atty = atty.replace(/^\u0020/, "").replace(/\u0020$/, "");
             attribute = atty.replace(/\r\n/g, "\n").split("\n");
@@ -1137,10 +1126,6 @@ export function markupLexer(lexData: LexerData): data {
           }
           a = a + 1;
         }
-        //nopush flags mean an early exit
-        if (nopush) {
-          return;
-        }
 
         //a correction to incomplete template tags that use multiple angle braces
         if (options.correct === true) {
@@ -1588,103 +1573,13 @@ export function markupLexer(lexData: LexerData): data {
       }
 
       //am I a singleton or a start type?
-      if (simple === true && ignoreme === false && ltype !== "xml" && ltype !== "sgml") {
+      if (simple === true && ltype !== "xml" && ltype !== "sgml") {
         if (cheat === true || element.slice(element.length - 2) === "/>") {
           ltype = "singleton";
         } else {
           ltype = "start";
         }
         record.types = ltype;
-      }
-
-      // additional logic is required to find the end of a tag with the attribute
-      // data-parse-ignore
-      if (
-        simple === true &&
-        preserve === false &&
-        ignoreme &&
-        end === ">" &&
-        element.slice(element.length - 2) !== "/>"
-      ) {
-        let tags: string[] = [],
-          atstring: string[] = [];
-        if (cheat === true) {
-          ltype = "singleton";
-        } else {
-          attstore.forEach(function lexer_markup_tag_atstore(value: [string, number]): void {
-            atstring.push(value[0]);
-          });
-          preserve = true;
-          ltype = "ignore";
-          a = a + 1;
-          if (a < c) {
-            let delim: string = "",
-              ee: number = 0,
-              ff: number = 0,
-              endtag: boolean = false;
-            while (a < c) {
-              if (b[a] === "\n") {
-                parse.lineNumber = parse.lineNumber + 1;
-              }
-              tags.push(b[a]);
-              if (delim === "") {
-                if (b[a] === '"') {
-                  delim = '"';
-                } else if (b[a] === "'") {
-                  delim = "'";
-                } else if (
-                  tags[0] !== "{" &&
-                  b[a] === "{" &&
-                  (b[a + 1] === "{" || b[a + 1] === "%" || b[a + 1] === "@" || b[a + 1] === "#")
-                ) {
-                  if (b[a + 1] === "{") {
-                    if (b[a + 2] === "{") {
-                      delim = "}}}";
-                    } else {
-                      delim = "}}";
-                    }
-                  } else {
-                    delim = b[a + 1] + "}";
-                  }
-                } else if (b[a] === "<" && simple === true) {
-                  if (b[a + 1] === "/") {
-                    endtag = true;
-                  } else {
-                    endtag = false;
-                  }
-                } else if (b[a] === lastchar && b[a - 1] !== "/") {
-                  if (endtag === true) {
-                    igcount = igcount - 1;
-                    if (igcount < 0) {
-                      break;
-                    }
-                  } else {
-                    igcount = igcount + 1;
-                  }
-                }
-              } else if (b[a] === delim.charAt(delim.length - 1)) {
-                ff = 0;
-                ee = delim.length - 1;
-                while (ee > -1) {
-                  if (b[a - ff] !== delim.charAt(ee)) {
-                    break;
-                  }
-                  ff = ff + 1;
-                  ee = ee - 1;
-                }
-                if (ee < 0) {
-                  delim = "";
-                }
-              }
-              a = a + 1;
-            }
-          }
-        }
-        element = element + tags.join("");
-        element = element.replace(">", ` ${atstring.join(" ")}>`);
-        record.token = element;
-        record.types = "content-ignore";
-        attstore = [];
       }
 
       // some template tags can be evaluated as a block start/end based on syntax
@@ -1793,15 +1688,7 @@ export function markupLexer(lexData: LexerData): data {
         jsxbrace: boolean = data.token[parse.count] === "{",
         liner: number = parse.linesSpace,
         now: number = a;
-      const name: string =
-          ext === true
-            ? jsxbrace === true
-              ? "script"
-              : parse.structure[parse.structure.length - 1][1] > -1
-              ? tagName(data.token[parse.structure[parse.structure.length - 1][1]].toLowerCase())
-              : tagName(data.token[data.begin[parse.count]].toLowerCase())
-            : "",
-        square: boolean =
+      const square: boolean =
           data.types[parse.count] === "template_start" &&
           data.token[parse.count].indexOf("<!") === 0 &&
           data.token[parse.count].indexOf("<![") < 0 &&
@@ -1813,70 +1700,13 @@ export function markupLexer(lexData: LexerData): data {
           stack: parse.structure[parse.structure.length - 1][0],
           token: "",
           types: "content",
-        },
-        esctest = function lexer_markup_content_esctest(): boolean {
-          let aa = a - 1,
-            bb = 0;
-          if (b[a - 1] !== "\\") {
-            return false;
-          }
-          while (aa > -1) {
-            if (b[aa] !== "\\") {
-              break;
-            }
-            bb = bb + 1;
-            aa = aa - 1;
-          }
-          if (bb % 2 === 1) {
-            return true;
-          }
-          return false;
         };
       while (a < c) {
-        let end: string = "",
-          quote: string = "",
-          quotes: number = 0;
         if (b[a] === "\n") {
-          parse.lineNumber = parse.lineNumber + 1;
-        }
-        // external code requires additional parsing to look for the appropriate end
-        // tag, but that end tag cannot be quoted or commented
-        if (ext === true) {
-          if (quote === "") {
-            if (b[a] === "/") {
-              if (b[a + 1] === "*") {
-                quote = "*";
-              } else if (b[a + 1] === "/") {
-                quote = "/";
-              }
-            } else if ((b[a] === '"' || b[a] === "'" || b[a] === "`") && esctest() === false) {
-              quote = b[a];
-            }
-            end = b
-              .slice(a, a + 10)
-              .join("")
-              .toLowerCase();
-          } else if (
-            quote === b[a] &&
-            (quote === '"' ||
-              quote === "'" ||
-              quote === "`" ||
-              (quote === "*" && b[a + 1] === "/")) &&
-            esctest() === false
-          ) {
-            quote = "";
-          } else if (quote === "`" && b[a] === "$" && b[a + 1] === "{" && esctest() === false) {
-            quote = "}";
-          } else if (quote === "}" && b[a] === "}" && esctest() === false) {
-            quote = "`";
-          } else if (quote === "/" && (b[a] === "\n" || b[a] === "\r")) {
-            quote = "";
-          } else if (quote === "reg" && b[a] === "/" && esctest() === false) {
-            quote = "";
-          }
+          parse.lineNumber += 1;
         }
 
-        //typically this logic is for artifacts nested within an SGML tag
+        // Artifacts nested within an SGML tag
         if (square === true && b[a] === "]") {
           a = a - 1;
           ltoke = lex.join("");
@@ -1886,9 +1716,8 @@ export function markupLexer(lexData: LexerData): data {
           break;
         }
 
-        //general content processing
+        // General content processing
         if (
-          ext === false &&
           lex.length > 0 &&
           ((b[a] === "<" && b[a + 1] !== "=" && /\s|\d/.test(b[a + 1]) === false) ||
             (b[a] === "[" && b[a + 1] === "%") ||
@@ -1989,7 +1818,6 @@ export function markupLexer(lexData: LexerData): data {
         lex.push(b[a]);
         a = a + 1;
       }
-      ext = false;
     };
 
   // trim the attribute_sort_list values
@@ -2010,8 +1838,6 @@ export function markupLexer(lexData: LexerData): data {
       } else {
         a = parse.spacer({ array: b, end: c, index: a });
       }
-    } else if (ext) {
-      content();
     } else if (b[a] === "<") {
       tag("");
     } else if (b[a] === "[" && b[a + 1] === "%") {
