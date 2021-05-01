@@ -1499,6 +1499,7 @@ export function markupLexer(lexData: LexerData): data {
             "macro",
             "paginate",
             "raw",
+            "set",
             "sandbox",
             "spaceless",
             "switch",
@@ -1521,17 +1522,11 @@ export function markupLexer(lexData: LexerData): data {
           ) {
             record.types = "template_else";
           } else {
-            let namelen: number = names.length - 1;
-            while (namelen > -1) {
-              if (tname === names[namelen]) {
-                record.types = "template_start";
-                break;
-              }
-              if (tname === "end" + names[namelen]) {
-                record.types = "template_end";
-                break;
-              }
-              namelen = namelen - 1;
+            if (names.indexOf(tname) > -1) {
+              record.types = "template_start";
+            }
+            if (names.map((n) => "end" + n).indexOf(tname) > -1) {
+              record.types = "template_end";
             }
           }
         } else if (element.slice(0, 2) === "{{" && element.charAt(3) !== "{") {
