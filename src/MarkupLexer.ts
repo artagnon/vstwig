@@ -192,18 +192,6 @@ export function markupLexer(lexData: LexerData): data {
           token: "",
           types: "",
         },
-        //attribute name
-        arname = function lexer_markup_tag_name(x: string): [string, string] {
-          const eq: number = x.indexOf("=");
-          if (
-            eq > 0 &&
-            ((eq < x.indexOf('"') && x.indexOf('"') > 0) ||
-              (eq < x.indexOf("'") && x.indexOf("'") > 0))
-          ) {
-            return [x.slice(0, eq), x.slice(eq + 1)];
-          }
-          return [x, ""];
-        },
         // attribute parser
         attributeRecord = function lexer_markup_tag_attributeRecord(): void {
           let ind: number = 0,
@@ -273,11 +261,7 @@ export function markupLexer(lexData: LexerData): data {
               sample: string,
               token: string
             ): void {
-              if (sample.charAt(0) === "{" && "{%#@:/?^<+~=".indexOf(sample.charAt(1)) > -1) {
-                record.types = "template_attribute";
-              } else if (sample.charAt(0) === "<") {
-                record.types = "template_attribute";
-              } else if (sample === "[%") {
+              if (sample.charAt(0) === "{" && "{%".indexOf(sample.charAt(1)) > -1) {
                 record.types = "template_attribute";
               } else {
                 record.token = token;
@@ -344,18 +328,7 @@ export function markupLexer(lexData: LexerData): data {
             } else if (ltype === "sgml") {
               store.push(attstore[ind][0]);
             } else if (eq < 0) {
-              // in most markup languages an attribute without an expressed value has its name
-              // as its string value
-              if (
-                html === "html" &&
-                "[{(".indexOf(attstore[ind][0].charAt(0)) < 0 &&
-                attstore[ind][0].charAt(0) !== "#" &&
-                /^\*?ng[A-Z]/.test(attstore[ind][0]) === false
-              ) {
-                record.token = attstore[ind][0].toLowerCase();
-              } else {
-                record.token = attstore[ind][0];
-              }
+              record.token = attstore[ind][0];
               convertQ();
             } else {
               // separates out the attribute name from its value
@@ -364,14 +337,6 @@ export function markupLexer(lexData: LexerData): data {
                 slice = '"' + slice + '"';
               }
               name = attstore[ind][0].slice(0, eq);
-              if (
-                html === "html" &&
-                "[{(".indexOf(name.charAt(0)) < 0 &&
-                /^\*?ng[A-Z]/.test(attstore[ind][0]) === false
-              ) {
-                name = name.toLowerCase();
-              }
-
               name = name + "=" + slice;
               templateAtt(slice.replace(/^("|')/, "").slice(0, 2), name.replace(/(\s+)$/, ""));
             }
@@ -560,8 +525,11 @@ export function markupLexer(lexData: LexerData): data {
           start: a,
           terminator: end,
         });
-        element = comm[0];
-        a = comm[1];
+        [element, a] = comm;
+        record.token = element;
+        record.types = "comment";
+        recordPush(data, record, "");
+        return;
       }
       let braccount: number = 0,
         jsxcount: number = 0,
@@ -652,375 +620,338 @@ export function markupLexer(lexData: LexerData): data {
           lexData.parseerror = `CDATA tag ${lex.join("")} is not properly terminated with ]]>`;
           break;
         }
-        if (ltype === "comment") {
-          quote = "";
-          //comments must ignore fancy encapsulations and attribute parsing
-          if (b[a] === lastchar && lex.length > end.length + 1) {
-            //if current character matches the last character of the tag ending sequence
-            f = lex.length;
-            e = end.length - 1;
-            while (e > -1) {
-              f = f - 1;
-              if (lex[f] !== end.charAt(e)) {
+        if (quote === "") {
+          if (lex[0] + lex[1] === "<!" && ltype !== "cdata") {
+            if (b[a] === "[") {
+              if (b[a + 1] === "<") {
+                ltype = "start";
                 break;
               }
-              e = e - 1;
+              while (a < c - 1 && /\s/.test(b[a + 1]) === true) {
+                a = a + 1;
+                if (b[a] === "\n") {
+                  lines = lines + 1;
+                }
+              }
+              if (b[a + 1] === "<") {
+                ltype = "start";
+                break;
+              }
             }
-            if (e < 0) {
-              if (end === "endcomment") {
-                while (f > 0 && /\s/.test(lex[f]) === true) {
-                  f = f - 1;
+            if (b[a] !== ">" && b[a + 1] === "<") {
+              lexData.parseerror = `SGML tag ${lex.join(
+                ""
+              )} is missing termination with '[' or '>'.`;
+              break;
+            }
+          }
+          if (data.types[parse.count] === "sgml" && b[a] === "[" && lex.length > 4) {
+            data.types[parse.count] = "template_start";
+            count.start = count.start + 1;
+            break;
+          }
+          if (
+            b[a] === "<" &&
+            preserve === false &&
+            lex.length > 1 &&
+            end !== ">>" &&
+            end !== ">>>" &&
+            simple === true
+          ) {
+            lexData.parseerror = `Parse error on line ${parse.lineNumber} on element: ${lex.join(
+              ""
+            )}`;
+          }
+          if (stest === true && /\s/.test(b[a]) === false && b[a] !== lastchar) {
+            //attribute start
+            stest = false;
+            quote = jsxquote;
+            igcount = 0;
+            lex.pop();
+            while (a < c) {
+              if (b[a] === "\n") {
+                parse.lineNumber = parse.lineNumber + 1;
+              }
+              attribute.push(b[a]);
+              if ((b[a] === "<" || b[a] === ">") && (quote === "" || quote === ">")) {
+                if (quote === "" && b[a] === "<") {
+                  quote = ">";
+                  braccount = 1;
+                } else if (quote === ">") {
+                  if (b[a] === "<") {
+                    braccount = braccount + 1;
+                  } else if (b[a] === ">") {
+                    braccount = braccount - 1;
+                    if (braccount === 0) {
+                      quote = "";
+                      igcount = 0;
+                      attributeLexer(false);
+                      break;
+                    }
+                  }
                 }
-                if (lex[f - 2] === "{" && lex[f - 1] === "%" && lex[f] === "-") {
-                  end = "-%}";
-                  lastchar = "}";
-                } else if (lex[f - 1] === "{" && lex[f] === "%") {
-                  end = "%}";
-                  lastchar = "}";
+              } else if (quote === "") {
+                if (b[a + 1] === lastchar) {
+                  //if at end of tag
+                  if (
+                    attribute[attribute.length - 1] === "/" ||
+                    (attribute[attribute.length - 1] === "?" && ltype === "xml")
+                  ) {
+                    attribute.pop();
+                    if (preserve === true) {
+                      lex.pop();
+                    }
+                    a = a - 1;
+                  }
+                  if (attribute.length > 0) {
+                    attributeLexer(false);
+                  }
+                  break;
+                } else if (b[a] === "{" && b[a - 1] === "=") {
+                  quote = "}";
+                } else if (b[a] === '"' || b[a] === "'") {
+                  quote = b[a];
+                  if (
+                    b[a - 1] === "=" &&
+                    (b[a + 1] === "<" ||
+                      (b[a + 1] === "{" && b[a + 2] === "%") ||
+                      (/\s/.test(b[a + 1]) === true && b[a - 1] !== "="))
+                  ) {
+                    igcount = a;
+                  }
+                } else if (b[a] === "(") {
+                  quote = ")";
+                  parncount = 1;
+                } else if (
+                  lex[0] !== "{" &&
+                  b[a] === "{" &&
+                  (b[a + 1] === "{" || b[a + 1] === "%" || b[a + 1] === "@" || b[a + 1] === "#")
+                ) {
+                  //opening embedded template expression
+                  if (b[a + 1] === "{") {
+                    if (b[a + 2] === "{") {
+                      quote = "}}}";
+                    } else {
+                      quote = "}}";
+                    }
+                  } else {
+                    quote = b[a + 1] + "}";
+                  }
                 }
+                if (/\s/.test(b[a]) === true && quote === "") {
+                  // testing for a run of spaces between an attribute's = and a quoted value.
+                  // Unquoted values separated by space are separate attributes
+                  if (attribute[attribute.length - 2] === "=") {
+                    while (e < c) {
+                      if (/\s/.test(b[e]) === false) {
+                        if (b[e] === '"' || b[e] === "'") {
+                          a = e - 1;
+                          quotetest = true;
+                          attribute.pop();
+                        }
+                        break;
+                      }
+                      e = e + 1;
+                    }
+                  }
+                  if (quotetest === true) {
+                    quotetest = false;
+                  } else if (jsxcount === 0 || (jsxcount === 1 && attribute[0] === "{")) {
+                    //if there is an unquoted space attribute is complete
+                    attribute.pop();
+                    attributeLexer(false);
+                    stest = true;
+                    break;
+                  }
+                }
+              } else if (b[a] === "(" && quote === ")") {
+                parncount = parncount + 1;
+              } else if (b[a] === ")" && quote === ")") {
+                parncount = parncount - 1;
+                if (parncount === 0) {
+                  quote = "";
+                  if (b[a + 1] === end.charAt(0)) {
+                    attributeLexer(false);
+                    break;
+                  }
+                }
+              } else if (
+                b[a] === "{" &&
+                b[a + 1] === "%" &&
+                b[igcount - 1] === "=" &&
+                (quote === '"' || quote === "'")
+              ) {
+                quote = quote + "{%";
+                igcount = 0;
+              } else if (b[a - 1] === "%" && b[a] === "}" && (quote === '"{%' || quote === "'{%")) {
+                quote = quote.charAt(0);
+                igcount = 0;
+              } else if (
+                b[a] === "<" &&
+                end === ">" &&
+                b[igcount - 1] === "=" &&
+                (quote === '"' || quote === "'")
+              ) {
+                quote = quote + "<";
+                igcount = 0;
+              } else if (b[a] === ">" && (quote === '"<' || quote === "'<")) {
+                quote = quote.charAt(0);
+                igcount = 0;
+              } else if (
+                igcount === 0 &&
+                quote !== ">" &&
+                (quote.length < 2 || (quote.charAt(0) !== '"' && quote.charAt(0) !== "'"))
+              ) {
+                //terminate attribute at the conclusion of a quote pair
+                f = 0;
+                if (lex.length > 1) {
+                  tname = lex[1] + lex[2];
+                  tname = tname.toLowerCase();
+                }
+                e = quote.length - 1;
+                while (e > -1) {
+                  if (b[a - f] !== quote.charAt(e)) {
+                    break;
+                  }
+                  f = f + 1;
+                  e = e - 1;
+                }
+                if (e < 0) {
+                  attributeLexer(true);
+                  if (b[a + 1] === lastchar) {
+                    break;
+                  }
+                }
+              } else if (igcount > 0 && /\s/.test(b[a]) === false) {
+                igcount = 0;
+              }
+              a = a + 1;
+            }
+          } else if (end !== "%>" && end !== "\n" && (b[a] === '"' || b[a] === "'")) {
+            //opening quote
+            quote = b[a];
+          } else if (
+            ltype !== "comment" &&
+            end !== "\n" &&
+            b[a] === "<" &&
+            b[a + 1] === "!" &&
+            b[a + 2] === "-" &&
+            b[a + 3] === "-" &&
+            b[a + 4] !== "#" &&
+            data.types[parse.count] !== "conditional"
+          ) {
+            quote = "-->";
+          } else if (
+            b[a] === "{" &&
+            lex[0] !== "{" &&
+            end !== "\n" &&
+            end !== "%>" &&
+            end !== "%]" &&
+            (b[a + 1] === "{" || b[a + 1] === "%" || b[a + 1] === "@" || b[a + 1] === "#")
+          ) {
+            //opening embedded template expression
+            if (b[a + 1] === "{") {
+              if (b[a + 2] === "{") {
+                quote = "}}}";
               } else {
+                quote = "}}";
+              }
+            } else {
+              quote = b[a + 1] + "}";
+              if (attribute.length < 1 && (attstore.length < 1 || /\s/.test(b[a - 1]) === true)) {
+                lex.pop();
+                while (a < c && b[a - 1] + b[a] !== quote) {
+                  if (b[a] === "\n") {
+                    lines = lines + 1;
+                  }
+                  attribute.push(b[a]);
+                  a = a + 1;
+                }
+                attribute.push("}");
+                attstore.push([attribute.join(""), lines]);
+                attribute = [];
+                lines = 1;
+                quote = "";
+              }
+            }
+            if (quote === end) {
+              quote = "";
+            }
+          } else if (
+            (simple === true || ltype === "sgml") &&
+            end !== "\n" &&
+            /\s/.test(b[a]) === true &&
+            b[a - 1] !== "<"
+          ) {
+            //identify a space in a regular start or singleton tag
+            if (ltype === "sgml") {
+              lex.push(" ");
+            } else {
+              stest = true;
+            }
+          } else if (
+            (b[a] === lastchar || (end === "\n" && b[a + 1] === "<")) &&
+            (lex.length > end.length + 1 || lex[0] === "]")
+          ) {
+            if (end === "\n") {
+              while (/\s/.test(lex[lex.length - 1]) === true) {
+                lex.pop();
+                a = a - 1;
+              }
+              break;
+            }
+            if (
+              lex[0] === "{" &&
+              lex[1] === "%" &&
+              lex.join("").replace(/\s+/g, "") === "{%comment%}"
+            ) {
+              end = "endcomment";
+              lastchar = "t";
+              preserve = true;
+              ltype = "comment";
+            } else if (
+              lex[0] === "{" &&
+              lex[1] === "%" &&
+              lex[2] === "-" &&
+              lex.join("").replace(/\s+/g, "") === "{%-comment-%}"
+            ) {
+              end = "endcomment";
+              lastchar = "t";
+              preserve = true;
+              ltype = "comment";
+            } else {
+              //if current character matches the last character of the tag ending sequence
+              f = lex.length;
+              e = end.length - 1;
+              while (e > -1) {
+                f = f - 1;
+                if (lex[f] !== end.charAt(e)) {
+                  break;
+                }
+                e = e - 1;
+              }
+              if (e < 0) {
                 break;
               }
             }
           }
-        } else {
-          if (quote === "") {
-            if (lex[0] + lex[1] === "<!" && ltype !== "cdata") {
-              if (b[a] === "[") {
-                if (b[a + 1] === "<") {
-                  ltype = "start";
-                  break;
-                }
-                while (a < c - 1 && /\s/.test(b[a + 1]) === true) {
-                  a = a + 1;
-                  if (b[a] === "\n") {
-                    lines = lines + 1;
-                  }
-                }
-                if (b[a + 1] === "<") {
-                  ltype = "start";
-                  break;
-                }
-              }
-              if (b[a] !== ">" && b[a + 1] === "<") {
-                lexData.parseerror = `SGML tag ${lex.join(
-                  ""
-                )} is missing termination with '[' or '>'.`;
-                break;
-              }
-            }
-            if (data.types[parse.count] === "sgml" && b[a] === "[" && lex.length > 4) {
-              data.types[parse.count] = "template_start";
-              count.start = count.start + 1;
+        } else if (b[a] === quote.charAt(quote.length - 1) && end !== "}") {
+          //find the closing quote or embedded template expression
+          f = 0;
+          if (lex.length > 1) {
+            tname = lex[1] + lex[2];
+            tname = tname.toLowerCase();
+          }
+          e = quote.length - 1;
+          while (e > -1) {
+            if (b[a - f] !== quote.charAt(e)) {
               break;
             }
-            if (
-              b[a] === "<" &&
-              preserve === false &&
-              lex.length > 1 &&
-              end !== ">>" &&
-              end !== ">>>" &&
-              simple === true
-            ) {
-              lexData.parseerror = `Parse error on line ${parse.lineNumber} on element: ${lex.join(
-                ""
-              )}`;
-            }
-            if (stest === true && /\s/.test(b[a]) === false && b[a] !== lastchar) {
-              //attribute start
-              stest = false;
-              quote = jsxquote;
-              igcount = 0;
-              lex.pop();
-              while (a < c) {
-                if (b[a] === "\n") {
-                  parse.lineNumber = parse.lineNumber + 1;
-                }
-                attribute.push(b[a]);
-                if ((b[a] === "<" || b[a] === ">") && (quote === "" || quote === ">")) {
-                  if (quote === "" && b[a] === "<") {
-                    quote = ">";
-                    braccount = 1;
-                  } else if (quote === ">") {
-                    if (b[a] === "<") {
-                      braccount = braccount + 1;
-                    } else if (b[a] === ">") {
-                      braccount = braccount - 1;
-                      if (braccount === 0) {
-                        quote = "";
-                        igcount = 0;
-                        attributeLexer(false);
-                        break;
-                      }
-                    }
-                  }
-                } else if (quote === "") {
-                  if (b[a + 1] === lastchar) {
-                    //if at end of tag
-                    if (
-                      attribute[attribute.length - 1] === "/" ||
-                      (attribute[attribute.length - 1] === "?" && ltype === "xml")
-                    ) {
-                      attribute.pop();
-                      if (preserve === true) {
-                        lex.pop();
-                      }
-                      a = a - 1;
-                    }
-                    if (attribute.length > 0) {
-                      attributeLexer(false);
-                    }
-                    break;
-                  } else if (b[a] === "{" && b[a - 1] === "=") {
-                    quote = "}";
-                  } else if (b[a] === '"' || b[a] === "'") {
-                    quote = b[a];
-                    if (
-                      b[a - 1] === "=" &&
-                      (b[a + 1] === "<" ||
-                        (b[a + 1] === "{" && b[a + 2] === "%") ||
-                        (/\s/.test(b[a + 1]) === true && b[a - 1] !== "="))
-                    ) {
-                      igcount = a;
-                    }
-                  } else if (b[a] === "(") {
-                    quote = ")";
-                    parncount = 1;
-                  } else if (
-                    lex[0] !== "{" &&
-                    b[a] === "{" &&
-                    (b[a + 1] === "{" || b[a + 1] === "%" || b[a + 1] === "@" || b[a + 1] === "#")
-                  ) {
-                    //opening embedded template expression
-                    if (b[a + 1] === "{") {
-                      if (b[a + 2] === "{") {
-                        quote = "}}}";
-                      } else {
-                        quote = "}}";
-                      }
-                    } else {
-                      quote = b[a + 1] + "}";
-                    }
-                  }
-                  if (/\s/.test(b[a]) === true && quote === "") {
-                    // testing for a run of spaces between an attribute's = and a quoted value.
-                    // Unquoted values separated by space are separate attributes
-                    if (attribute[attribute.length - 2] === "=") {
-                      while (e < c) {
-                        if (/\s/.test(b[e]) === false) {
-                          if (b[e] === '"' || b[e] === "'") {
-                            a = e - 1;
-                            quotetest = true;
-                            attribute.pop();
-                          }
-                          break;
-                        }
-                        e = e + 1;
-                      }
-                    }
-                    if (quotetest === true) {
-                      quotetest = false;
-                    } else if (jsxcount === 0 || (jsxcount === 1 && attribute[0] === "{")) {
-                      //if there is an unquoted space attribute is complete
-                      attribute.pop();
-                      attributeLexer(false);
-                      stest = true;
-                      break;
-                    }
-                  }
-                } else if (b[a] === "(" && quote === ")") {
-                  parncount = parncount + 1;
-                } else if (b[a] === ")" && quote === ")") {
-                  parncount = parncount - 1;
-                  if (parncount === 0) {
-                    quote = "";
-                    if (b[a + 1] === end.charAt(0)) {
-                      attributeLexer(false);
-                      break;
-                    }
-                  }
-                } else if (
-                  b[a] === "{" &&
-                  b[a + 1] === "%" &&
-                  b[igcount - 1] === "=" &&
-                  (quote === '"' || quote === "'")
-                ) {
-                  quote = quote + "{%";
-                  igcount = 0;
-                } else if (
-                  b[a - 1] === "%" &&
-                  b[a] === "}" &&
-                  (quote === '"{%' || quote === "'{%")
-                ) {
-                  quote = quote.charAt(0);
-                  igcount = 0;
-                } else if (
-                  b[a] === "<" &&
-                  end === ">" &&
-                  b[igcount - 1] === "=" &&
-                  (quote === '"' || quote === "'")
-                ) {
-                  quote = quote + "<";
-                  igcount = 0;
-                } else if (b[a] === ">" && (quote === '"<' || quote === "'<")) {
-                  quote = quote.charAt(0);
-                  igcount = 0;
-                } else if (
-                  igcount === 0 &&
-                  quote !== ">" &&
-                  (quote.length < 2 || (quote.charAt(0) !== '"' && quote.charAt(0) !== "'"))
-                ) {
-                  //terminate attribute at the conclusion of a quote pair
-                  f = 0;
-                  if (lex.length > 1) {
-                    tname = lex[1] + lex[2];
-                    tname = tname.toLowerCase();
-                  }
-                  e = quote.length - 1;
-                  while (e > -1) {
-                    if (b[a - f] !== quote.charAt(e)) {
-                      break;
-                    }
-                    f = f + 1;
-                    e = e - 1;
-                  }
-                  if (e < 0) {
-                    attributeLexer(true);
-                    if (b[a + 1] === lastchar) {
-                      break;
-                    }
-                  }
-                } else if (igcount > 0 && /\s/.test(b[a]) === false) {
-                  igcount = 0;
-                }
-                a = a + 1;
-              }
-            } else if (end !== "%>" && end !== "\n" && (b[a] === '"' || b[a] === "'")) {
-              //opening quote
-              quote = b[a];
-            } else if (
-              ltype !== "comment" &&
-              end !== "\n" &&
-              b[a] === "<" &&
-              b[a + 1] === "!" &&
-              b[a + 2] === "-" &&
-              b[a + 3] === "-" &&
-              b[a + 4] !== "#" &&
-              data.types[parse.count] !== "conditional"
-            ) {
-              quote = "-->";
-            } else if (
-              b[a] === "{" &&
-              lex[0] !== "{" &&
-              end !== "\n" &&
-              end !== "%>" &&
-              end !== "%]" &&
-              (b[a + 1] === "{" || b[a + 1] === "%" || b[a + 1] === "@" || b[a + 1] === "#")
-            ) {
-              //opening embedded template expression
-              if (b[a + 1] === "{") {
-                if (b[a + 2] === "{") {
-                  quote = "}}}";
-                } else {
-                  quote = "}}";
-                }
-              } else {
-                quote = b[a + 1] + "}";
-                if (attribute.length < 1 && (attstore.length < 1 || /\s/.test(b[a - 1]) === true)) {
-                  lex.pop();
-                  while (a < c && b[a - 1] + b[a] !== quote) {
-                    if (b[a] === "\n") {
-                      lines = lines + 1;
-                    }
-                    attribute.push(b[a]);
-                    a = a + 1;
-                  }
-                  attribute.push("}");
-                  attstore.push([attribute.join(""), lines]);
-                  attribute = [];
-                  lines = 1;
-                  quote = "";
-                }
-              }
-              if (quote === end) {
-                quote = "";
-              }
-            } else if (
-              (simple === true || ltype === "sgml") &&
-              end !== "\n" &&
-              /\s/.test(b[a]) === true &&
-              b[a - 1] !== "<"
-            ) {
-              //identify a space in a regular start or singleton tag
-              if (ltype === "sgml") {
-                lex.push(" ");
-              } else {
-                stest = true;
-              }
-            } else if (
-              (b[a] === lastchar || (end === "\n" && b[a + 1] === "<")) &&
-              (lex.length > end.length + 1 || lex[0] === "]")
-            ) {
-              if (end === "\n") {
-                while (/\s/.test(lex[lex.length - 1]) === true) {
-                  lex.pop();
-                  a = a - 1;
-                }
-                break;
-              }
-              if (
-                lex[0] === "{" &&
-                lex[1] === "%" &&
-                lex.join("").replace(/\s+/g, "") === "{%comment%}"
-              ) {
-                end = "endcomment";
-                lastchar = "t";
-                preserve = true;
-                ltype = "comment";
-              } else if (
-                lex[0] === "{" &&
-                lex[1] === "%" &&
-                lex[2] === "-" &&
-                lex.join("").replace(/\s+/g, "") === "{%-comment-%}"
-              ) {
-                end = "endcomment";
-                lastchar = "t";
-                preserve = true;
-                ltype = "comment";
-              } else {
-                //if current character matches the last character of the tag ending sequence
-                f = lex.length;
-                e = end.length - 1;
-                while (e > -1) {
-                  f = f - 1;
-                  if (lex[f] !== end.charAt(e)) {
-                    break;
-                  }
-                  e = e - 1;
-                }
-                if (e < 0) {
-                  break;
-                }
-              }
-            }
-          } else if (b[a] === quote.charAt(quote.length - 1) && end !== "}") {
-            //find the closing quote or embedded template expression
-            f = 0;
-            if (lex.length > 1) {
-              tname = lex[1] + lex[2];
-              tname = tname.toLowerCase();
-            }
-            e = quote.length - 1;
-            while (e > -1) {
-              if (b[a - f] !== quote.charAt(e)) {
-                break;
-              }
-              f = f + 1;
-              e = e - 1;
-            }
-            if (e < 0) {
-              quote = "";
-            }
+            f = f + 1;
+            e = e - 1;
+          }
+          if (e < 0) {
+            quote = "";
           }
         }
         a = a + 1;
@@ -1336,34 +1267,6 @@ export function markupLexer(lexData: LexerData): data {
           }
         }
 
-        //renames the types value for the following two template tags
-        if (tname === "/#assign" || tname === "/#global") {
-          let dd: number = parse.count - 1,
-            tcount: number = 1;
-          while (dd > -1) {
-            if (data.types[dd] === "start" || data.types[dd] === "template_start") {
-              tcount = tcount - 1;
-            } else if (data.types[dd] === "end" || data.types[dd] === "template_end") {
-              tcount = tcount + 1;
-            }
-            if (tcount === 1) {
-              if (
-                (data.token[dd].indexOf("<#assign") === 0 && tname === "/#assign") ||
-                (data.token[dd].indexOf("<#global") === 0 && tname === "/#global")
-              ) {
-                data.types[dd] = "template_start";
-                count.start = count.start + 1;
-                return false;
-              }
-            }
-            if (tcount === 0) {
-              return false;
-            }
-            dd = dd - 1;
-          }
-          return false;
-        }
-
         if (html === "html") {
           // html gets tag names in lowercase, if you want to preserve case sensitivity
           // beautify as XML
@@ -1580,9 +1483,7 @@ export function markupLexer(lexData: LexerData): data {
     content = function lexer_markup_content(): void {
       let lex: string[] = [],
         ltoke: string = "",
-        jsxbrace: boolean = data.token[parse.count] === "{",
-        liner: number = parse.linesSpace,
-        now: number = a;
+        liner: number = parse.linesSpace;
       const square: boolean =
           data.types[parse.count] === "template_start" &&
           data.token[parse.count].indexOf("<!") === 0 &&

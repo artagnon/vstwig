@@ -173,7 +173,6 @@ export default class FormatTwig implements FormatterState {
   applyMarkupLevels(): void {
     const i = this;
     this.a = this.options.start;
-    let lastLevel: number = i.options.indent_level;
     do {
       if (
         (i.data.types[i.a] === "start" ||
@@ -199,7 +198,6 @@ export default class FormatTwig implements FormatterState {
         if (i.level[i.a] === -10 && i.a < i.c - 1) {
           i.build.push(" ");
         } else if (i.level[i.a] > -1) {
-          lastLevel = i.level[i.a];
           i.build.push(applyNl(i, i.level[i.a]));
         }
       }
