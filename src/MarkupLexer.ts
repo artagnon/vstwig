@@ -183,13 +183,6 @@ export function markupLexer(lexData: LexerData): data {
       recordPush(data, rec, "");
       parse.linesSpace = liner;
     },
-    // A fix for Vapor Leaf start structure parsing
-    vaporStart = function lexer_markup_vaporStart(): void {
-      const rec: record = parse.pop(data);
-      rec.token = `${rec.token} {`;
-      rec.types = "template_start";
-      recordPush(data, rec, rec.token.slice(0, rec.token.indexOf("(")));
-    },
     //parses tags, attributes, and template elements
     tag = function lexer_markup_tag(end: string): void {
       // markup is two smaller lexers that work together: tag - evaluates markup and
@@ -257,12 +250,9 @@ export function markupLexer(lexData: LexerData): data {
         cheat: boolean = false,
         earlyexit: boolean = false,
         ignoreme: boolean = false,
-        jscom: boolean = false,
         nopush: boolean = false,
-        nosort: boolean = false,
         preserve: boolean = false,
         simple: boolean = false,
-        singleton: boolean = false,
         attstore: attStore = [],
         comm: [string, number] = ["", 0];
       const record: record = {
@@ -500,10 +490,6 @@ export function markupLexer(lexData: LexerData): data {
               if (b[a + 4] === "#") {
                 end = "-->";
                 ltype = "template";
-              } else if (b[a + 4] === "-" && /<cf[a-z]/i.test(source) === true) {
-                end = "--->";
-                ltype = "comment";
-                start = "<!---";
               } else {
                 end = "-->";
                 ltype = "comment";
@@ -733,9 +719,6 @@ export function markupLexer(lexData: LexerData): data {
               if (name[0] === "data-parse-ignore" || name[0] === "data-prettydiff-ignore") {
                 ignoreme = true;
               }
-            }
-            if (atty.slice(0, 3) === "<%=" || atty.slice(0, 2) === "{%") {
-              nosort = true;
             }
             atty = atty.replace(/^\u0020/, "").replace(/\u0020$/, "");
             attribute = atty.replace(/\r\n/g, "\n").split("\n");
@@ -1097,25 +1080,20 @@ export function markupLexer(lexData: LexerData): data {
                       }
                       // in coldfusion quotes are escaped in a string with double the characters:
                       // "cat"" and dog"
-                      if (tname === "cf" && b[a] === b[a + 1] && (b[a] === '"' || b[a] === "'")) {
-                        attribute.push(b[a + 1]);
-                        a = a + 1;
-                      } else {
-                        e = quote.length - 1;
-                        if (e > -1) {
-                          do {
-                            if (b[a - f] !== quote.charAt(e)) {
-                              break;
-                            }
-                            f = f + 1;
-                            e = e - 1;
-                          } while (e > -1);
-                        }
-                        if (e < 0) {
-                          attributeLexer(true);
-                          if (b[a + 1] === lastchar) {
+                      e = quote.length - 1;
+                      if (e > -1) {
+                        do {
+                          if (b[a - f] !== quote.charAt(e)) {
                             break;
                           }
+                          f = f + 1;
+                          e = e - 1;
+                        } while (e > -1);
+                      }
+                      if (e < 0) {
+                        attributeLexer(true);
+                        if (b[a + 1] === lastchar) {
+                          break;
                         }
                       }
                     } else if (igcount > 0 && /\s/.test(b[a]) === false) {
@@ -1248,23 +1226,18 @@ export function markupLexer(lexData: LexerData): data {
               }
               // in coldfusion quotes are escaped in a string with double the characters:
               // "cat"" and dog"
-              if (tname === "cf" && b[a] === b[a + 1] && (b[a] === '"' || b[a] === "'")) {
-                attribute.push(b[a + 1]);
-                a = a + 1;
-              } else {
-                e = quote.length - 1;
-                if (e > -1) {
-                  do {
-                    if (b[a - f] !== quote.charAt(e)) {
-                      break;
-                    }
-                    f = f + 1;
-                    e = e - 1;
-                  } while (e > -1);
-                }
-                if (e < 0) {
-                  quote = "";
-                }
+              e = quote.length - 1;
+              if (e > -1) {
+                do {
+                  if (b[a - f] !== quote.charAt(e)) {
+                    break;
+                  }
+                  f = f + 1;
+                  e = e - 1;
+                } while (e > -1);
+              }
+              if (e < 0) {
+                quote = "";
               }
             }
           }
@@ -1390,9 +1363,6 @@ export function markupLexer(lexData: LexerData): data {
         parse.structure.push(["block", aa]);
         recordPush(data, record, "");
         return;
-      }
-      if (/^(\/?cf)/i.test(tname) === true) {
-        tname = tname.toLowerCase().replace(/\/$/, "").replace(/^\//, "");
       }
 
       if (preserve === false) {
@@ -1604,7 +1574,7 @@ export function markupLexer(lexData: LexerData): data {
           };
 
         //determine if the current end tag is actually part of an HTML singleton
-        if (ltype === "end" && tname.slice(0, 3) !== "/cf") {
+        if (ltype === "end") {
           const lastToken: string = data.token[parse.count];
           if (
             data.types[parse.count - 1] === "singleton" &&
@@ -1652,8 +1622,7 @@ export function markupLexer(lexData: LexerData): data {
             element.charAt(0) === "<" &&
             element.charAt(1) !== "!" &&
             element.charAt(1) !== "?" &&
-            (parse.count < 0 || data.types[parse.count].indexOf("template") < 0) &&
-            tname.slice(0, 3) !== "cf_"
+            (parse.count < 0 || data.types[parse.count].indexOf("template") < 0)
           ) {
             element = element.toLowerCase();
           }
@@ -1707,11 +1676,7 @@ export function markupLexer(lexData: LexerData): data {
           }
 
           // generalized corrections for the handling of singleton tags
-          if (
-            data.types[parse.count] === "end" &&
-            htmlsings[tname.slice(1)] === "singleton" &&
-            element.toLowerCase().indexOf("/cftransaction") !== 1
-          ) {
+          if (data.types[parse.count] === "end" && htmlsings[tname.slice(1)] === "singleton") {
             return fixsingleton();
           }
 
@@ -1756,83 +1721,6 @@ export function markupLexer(lexData: LexerData): data {
           tname === "#visit")
       ) {
         simple = true;
-      }
-
-      // determine if the markup tag potentially contains code interpreted by a
-      // different lexer
-      if (
-        (tname === "script" || tname === "style" || tname === "cfscript") &&
-        element.slice(element.length - 2) !== "/>"
-      ) {
-        //get the attribute value for "type"
-        let len: number = attstore.length - 1,
-          attValue: string = "",
-          attr: string[] = [];
-        if (len > -1) {
-          do {
-            attr = arname(attstore[len][0]);
-            if (attr[0] === "type") {
-              attValue = attr[1];
-              if (attValue.charAt(0) === '"' || attValue.charAt(0) === "'") {
-                attValue = attValue.slice(1, attValue.length - 1);
-              }
-              break;
-            }
-            len = len - 1;
-          } while (len > -1);
-        }
-
-        //ext is flag to send information between the tag lexer and the content lexer
-        if (
-          tname === "script" &&
-          (attValue === "" ||
-            attValue === "text/javascript" ||
-            attValue === "babel" ||
-            attValue === "module" ||
-            attValue === "application/javascript" ||
-            attValue === "application/x-javascript" ||
-            attValue === "text/ecmascript" ||
-            attValue === "application/ecmascript" ||
-            attValue === "text/jsx" ||
-            attValue === "application/jsx" ||
-            attValue === "text/cjs")
-        ) {
-          ext = true;
-        } else if (tname === "style" && (attValue === "" || attValue === "text/css")) {
-          ext = true;
-        } else if (tname === "cfscript") {
-          ext = true;
-        }
-        if (ext === true) {
-          len = a + 1;
-          if (len < c) {
-            do {
-              if (/\s/.test(b[len]) === false) {
-                if (b[len] === "<") {
-                  if (b.slice(len + 1, len + 4).join("") === "!--") {
-                    len = len + 4;
-                    if (len < c) {
-                      do {
-                        if (/\s/.test(b[len]) === false) {
-                          ext = false;
-                          break;
-                        }
-                        if (b[len] === "\n" || b[len] === "\r") {
-                          break;
-                        }
-                        len = len + 1;
-                      } while (len < c);
-                    }
-                  } else {
-                    ext = false;
-                  }
-                }
-                break;
-              }
-              len = len + 1;
-            } while (len < c);
-          }
-        }
       }
 
       //am I a singleton or a start type?
@@ -2126,22 +2014,6 @@ export function markupLexer(lexData: LexerData): data {
               quote = "";
             } else if (quote === "reg" && b[a] === "/" && esctest() === false) {
               quote = "";
-            } else if (quote === "/" && b[a] === ">" && b[a - 1] === "-" && b[a - 2] === "-") {
-              end = b
-                .slice(a + 1, a + 11)
-                .join("")
-                .toLowerCase();
-              if (name === "cfscript" && end === "</cfscript") {
-                quote = "";
-              }
-              end = end.slice(0, end.length - 2);
-              if (name === "script" && end === "</script") {
-                quote = "";
-              }
-              end = end.slice(0, end.length - 1);
-              if (name === "style" && end === "</style") {
-                quote = "";
-              }
             }
           }
 
