@@ -127,20 +127,18 @@ export function markupLexer(lexData: LexerData): data {
       // * <#--       -->     comment
       // * <%--       --%>    comment
       // * {!         !}      comment
-      // * <!--[if    -->     conditional
-      // * text       text    content
-      // * </         >       end
-      // * <pre       </pre>  ignore (html only)
-      // * text       text    script
+      // * <!--[if    -->        conditional
+      // * text       text       content
+      // * </         >          end
+      // * <pre       </pre>     ignore
+      // * <script    </script>  ignore
+      // * <style     </style>   ignore
       // * <!         >       sgml
       // * <          />      singleton
       // * <          >       start
       // * text       text    style
       // * <!--#      -->     template
-      // * <%         %>      template
-      // * {{{        }}}     template
       // * {{         }}      template
-      // * {%         %}      template
       // * [%         %]      template
       // * {@         @}      template
       // * {#         #}      template
@@ -152,15 +150,12 @@ export function markupLexer(lexData: LexerData): data {
       // * {+         /}      template
       // * {~         }       template
       // * <?         ?>      template
-      // * {:else}            template_else
-      // * <#else     >       template_else
-      // * {@}else{@}         template_else
-      // * <%}else{%>         template_else
       // * {{         }}      template_end
       // * <%\s*}     %>      template_end
       // * [%\s*}     %]      template_end
       // * {@\s*}     @}      template_end
       // * {          }       template_end
+      // * {%         %}      template_start
       // * {{#        }}      template_start
       // * <%         {\s*%>  template_start
       // * [%         {\s*%]  template_start
@@ -1402,7 +1397,6 @@ export function markupLexer(lexData: LexerData): data {
             "macro",
             "paginate",
             "raw",
-            "set",
             "sandbox",
             "spaceless",
             "switch",
@@ -1427,9 +1421,10 @@ export function markupLexer(lexData: LexerData): data {
           } else {
             if (names.indexOf(tname) > -1) {
               record.types = "template_start";
-            }
-            if (names.map((n) => "end" + n).indexOf(tname) > -1) {
+            } else if (names.map((n) => "end" + n).indexOf(tname) > -1) {
               record.types = "template_end";
+            } else {
+              record.types = "template";
             }
           }
         } else if (element.slice(0, 2) === "{{" && element.charAt(3) !== "{") {
