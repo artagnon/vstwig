@@ -1,39 +1,19 @@
 export function nextIndex(i: FormatterState): number {
-  let x: number = i.a + 1,
-    y: number = 0;
-  if (i.data.types[x] === undefined) {
-    return x - 1;
-  }
-  if (
-    i.data.types[x] === "comment" ||
-    (i.a < i.c - 1 && i.data.types[x].indexOf("attribute") > -1)
-  ) {
-    do {
-      if (i.data.types[x] !== "comment" && i.data.types[x].indexOf("attribute") < 0) {
-        return x;
-      }
-      x = x + 1;
-    } while (x < i.c);
+  let x;
+  for (x = i.a + 1; x < i.c; x += 1) {
+    if (i.data.types[x] !== "comment" && i.data.types[x].indexOf("attribute") < 0) {
+      break;
+    }
   }
   return x;
 }
 
 export function prevIndex(i: FormatterState): number {
-  let x: number = i.a - 1,
-    y: number = 0;
-  if (i.data.types[x] === undefined) {
-    return x + 1;
-  }
-  if (
-    i.data.types[x] === "comment" ||
-    (i.a < i.c - 1 && i.data.types[x].indexOf("attribute") > -1)
-  ) {
-    do {
-      if (i.data.types[x] !== "comment" && i.data.types[x].indexOf("attribute") < 0) {
-        return x;
-      }
-      x = x - 1;
-    } while (x > i.a);
+  let x;
+  for (x = i.a - 1; x > 0; x -= 1) {
+    if (i.data.types[x] !== "comment" && i.data.types[x].indexOf("attribute") < 0) {
+      break;
+    }
   }
   return x;
 }
