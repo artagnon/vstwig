@@ -1,4 +1,4 @@
-export function nextIndex(i: FormatterState): number {
+export function next(i: FormatterState): number {
   let x;
   for (x = i.a + 1; x < i.c; x += 1) {
     if (i.data.types[x] !== "comment" && i.data.types[x].indexOf("attribute") < 0) {
@@ -8,7 +8,7 @@ export function nextIndex(i: FormatterState): number {
   return x;
 }
 
-export function prevIndex(i: FormatterState): number {
+export function prev(i: FormatterState): number {
   let x;
   for (x = i.a - 1; x > 0; x -= 1) {
     if (i.data.types[x] !== "comment" && i.data.types[x].indexOf("attribute") < 0) {
@@ -78,13 +78,6 @@ export function comment(i: FormatterState): void {
     // correction so that a following end tag is not indented 1 too much
     if (ind === i.indent + 1) {
       i.level[i.a] = i.indent;
-    }
-
-    // indentation must be applied to the tag preceeding the comment
-    if (i.data.types[x].indexOf("attribute") > -1) {
-      i.level[i.data.begin[x]] = ind;
-    } else {
-      i.level[x] = ind;
     }
   } else {
     do {

@@ -80,13 +80,14 @@ export default class FormatTwig implements FormatterState {
           Collect.comment(i);
         }
       } else if (i.data.types[i.a] !== "comment") {
-        i.next = Collect.nextIndex(i);
-        i.prev = Collect.prevIndex(i);
-        if (i.data.types[i.next] === "end" || i.data.types[i.next] === "template_end") {
+        if (
+          i.data.types[Collect.next(i)] === "end" ||
+          i.data.types[Collect.next(i)] === "template_end"
+        ) {
           i.indent -= 1;
           if (
-            i.data.types[i.next] === "template_end" &&
-            i.data.types[i.data.begin[i.next] + 1] === "template_else"
+            i.data.types[Collect.next(i)] === "template_end" &&
+            i.data.types[i.data.begin[Collect.next(i)] + 1] === "template_else"
           ) {
             i.indent -= 1;
           }
@@ -95,18 +96,15 @@ export default class FormatTwig implements FormatterState {
           }
         }
         if (
-          (i.options.forceIndent === false ||
-            (i.options.forceIndent === true && i.data.types[i.next] === "script_start")) &&
+          i.options.forceIndent === false &&
           (i.data.types[i.a] === "content" ||
             i.data.types[i.a] === "singleton" ||
             i.data.types[i.a] === "template")
         ) {
           i.count = i.count + i.data.token[i.a].length;
-          if (i.data.types[i.next] === "script_start") {
-            i.level.push(-10);
-          } else if (
+          if (
             i.data.types[i.a] === "template_start" &&
-            i.data.types[i.next].indexOf("template") < 0
+            i.data.types[Collect.next(i)].indexOf("template") < 0
           ) {
             Collect.content(i);
           } else {
@@ -114,31 +112,29 @@ export default class FormatTwig implements FormatterState {
           }
         } else if (i.data.types[i.a] === "start" || i.data.types[i.a] === "template_start") {
           i.indent += 1;
-          if (i.data.types[i.a] === "template_start" && i.data.types[i.next] === "template_else") {
+          if (
+            i.data.types[i.a] === "template_start" &&
+            i.data.types[Collect.next(i)] === "template_else"
+          ) {
             i.indent += 1;
           }
-          if (i.data.types[i.a] === "start" && i.data.types[i.next] === "end") {
+          if (i.data.types[i.a] === "start" && i.data.types[Collect.next(i)] === "end") {
             i.level.push(-20);
           } else if (i.options.forceIndent === true) {
             i.level.push(i.indent);
           } else if (
             i.data.types[i.a] === "template_start" &&
-            i.data.types[i.next] === "template_end"
+            i.data.types[Collect.next(i)] === "template_end"
           ) {
             i.level.push(-20);
           } else {
             i.level.push(i.indent);
           }
-        } else if (
-          i.options.forceIndent === false &&
-          (i.data.types[i.next] === "content" || i.data.types[i.next] === "singleton")
-        ) {
-          i.level.push(-20);
         } else if (i.data.types[i.a] === "template_else") {
-          if (i.data.types[i.next] === "template_end") {
-            i.level[i.prev] = i.indent + 1;
+          if (i.data.types[Collect.next(i)] === "template_end") {
+            i.level[Collect.prev(i)] = i.indent + 1;
           } else {
-            i.level[i.prev] = i.indent - 1;
+            i.level[Collect.prev(i)] = i.indent - 1;
           }
           i.level.push(i.indent);
         } else {
