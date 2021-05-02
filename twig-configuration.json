@@ -1,0 +1,27 @@
+{
+  "comments": {
+    "blockComment": [
+      ["{#", "#}"],
+      ["<!--", "-->"]
+    ]
+  },
+  "brackets": [
+    ["{{", "}}"],
+    ["{%", "%}"]
+  ],
+  "autoClosingPairs": [
+    ["{{", "}}"],
+    ["{%", "%}"]
+  ],
+  "surroundingPairs": [
+    ["{{", "}}"],
+    ["<", ">"],
+    ["{", "}"],
+    ["\"", "\""],
+    ["{%", "%}"]
+  ],
+  "indentationRules": {
+    "increaseIndentPattern": "(<\\w+>|{% [^(end)] %})",
+    "decreaseIndentPattern": "(</\\w+>|{% end\\w+ %})"
+  }
+}

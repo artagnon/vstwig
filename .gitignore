@@ -1,5 +1,14 @@
 out
 dist
-node_modules
+node_modules/
 .vscode-test/
 *.vsix
+.DS_Store
+
+.yarn/*
+!.yarn/cache
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
