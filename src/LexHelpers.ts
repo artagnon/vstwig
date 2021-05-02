@@ -1,4 +1,4 @@
-/* Pads certain template tag delimiters with i.a space */
+/* Pads certain template tag delimiters with a space */
 export function bracketSpace(input: string): string {
   function spaceStart(start: string): string {
     return start.replace(/\s*$/, " ");
@@ -14,7 +14,7 @@ export function bracketSpace(input: string): string {
   return input;
 }
 
-// pushes i.a record into the parse table
+// pushes a record into the parse table
 export function recordPush(i: LexState, target: data, record: record, structure: string): void {
   if (target === i.parse.data) {
     if (record.types.indexOf("end") > -1) {
@@ -531,7 +531,7 @@ export function tag(i: LexState, end: string): void {
       attstore.length > 0 &&
       attstore[attstore.length - 1][0].indexOf("=") < 0
     ) {
-      //if an attribute starts with i.a `=` then adjoin it to the last attribute
+      //if an attribute starts with a `=` then adjoin it to the last attribute
       attstore[attstore.length - 1][0] = attstore[attstore.length - 1][0] + atty;
     } else if (
       atty.charAt(0) !== "=" &&
@@ -552,7 +552,7 @@ export function tag(i: LexState, end: string): void {
     attribute = [];
     lines = i.b[i.a] === "\n" ? 2 : 1;
   }
-  while (i.a < i.c) {
+  for (; i.a < i.c; i.a += 1) {
     if (i.b[i.a] === "\n") {
       lines = lines + 1;
       parse.lineNumber = parse.lineNumber + 1;
@@ -584,7 +584,7 @@ export function tag(i: LexState, end: string): void {
             break;
           }
           while (i.a < i.c - 1 && /\s/.test(i.b[i.a + 1]) === true) {
-            i.a = i.a + 1;
+            i.a += 1;
             if (i.b[i.a] === "\n") {
               lines = lines + 1;
             }
@@ -620,7 +620,7 @@ export function tag(i: LexState, end: string): void {
         quote = jsxquote;
         igcount = 0;
         lex.pop();
-        while (i.a < i.c) {
+        for (; i.a < i.c; i.a += 1) {
           if (i.b[i.a] === "\n") {
             parse.lineNumber = parse.lineNumber + 1;
           }
@@ -653,7 +653,7 @@ export function tag(i: LexState, end: string): void {
                 if (preserve === true) {
                   lex.pop();
                 }
-                i.a = i.a - 1;
+                i.a -= 1;
               }
               if (attribute.length > 0) {
                 attributeLexer(false);
@@ -784,7 +784,6 @@ export function tag(i: LexState, end: string): void {
           } else if (igcount > 0 && /\s/.test(i.b[i.a]) === false) {
             igcount = 0;
           }
-          i.a = i.a + 1;
         }
       } else if (end !== "%>" && end !== "\n" && (i.b[i.a] === '"' || i.b[i.a] === "'")) {
         //opening quote
@@ -916,11 +915,10 @@ export function tag(i: LexState, end: string): void {
         quote = "";
       }
     }
-    i.a = i.a + 1;
   }
 
   if (i.a < i.c) {
-    //i.a correction to incomplete template tags that use multiple angle braces
+    // a correction to incomplete template tags that use multiple angle braces
     if (i.options.correct === true) {
       if (i.b[i.a + 1] === ">" && lex[0] === "<" && lex[1] !== "<") {
         while (i.b[i.a + 1] === ">") {
@@ -1337,7 +1335,7 @@ export function tag(i: LexState, end: string): void {
     simple = true;
   }
 
-  //am I i.a singleton or i.a start type?
+  //am I a singleton or a start type?
   if (simple === true && ltype !== "xml" && ltype !== "sgml") {
     if (cheat === true || element.slice(element.length - 2) === "/>") {
       ltype = "singleton";
@@ -1440,4 +1438,142 @@ export function tag(i: LexState, end: string): void {
   recordPush(i, data, record, tname);
   attributeRecord();
   parse.linesSpace = 0;
+}
+
+// parses everything other than markup tags
+export function content(i: LexState): void {
+  const parse = i.parse;
+  const data = i.parse.data;
+
+  let lex: string[] = [],
+    ltoke: string = "",
+    liner: number = parse.linesSpace;
+  const square: boolean =
+      data.types[parse.count] === "template_start" &&
+      data.token[parse.count].indexOf("<!") === 0 &&
+      data.token[parse.count].indexOf("<![") < 0 &&
+      data.token[parse.count].charAt(data.token[parse.count].length - 1) === "[",
+    record: record = {
+      begin: parse.structure[parse.structure.length - 1][1],
+      ender: -1,
+      lines: liner,
+      stack: parse.structure[parse.structure.length - 1][0],
+      token: "",
+      types: "content",
+    };
+  for (; i.a < i.c; i.a += 1) {
+    if (i.b[i.a] === "\n") {
+      parse.lineNumber += 1;
+    }
+
+    // Artifacts nested within an SGML tag
+    if (square === true && i.b[i.a] === "]") {
+      i.a -= 1;
+      ltoke = lex.join("");
+      liner = 0;
+      record.token = ltoke;
+      recordPush(i, data, record, "");
+      break;
+    }
+
+    // General content processing
+    if (
+      lex.length > 0 &&
+      ((i.b[i.a] === "<" && i.b[i.a + 1] !== "=" && /\s|\d/.test(i.b[i.a + 1]) === false) ||
+        (i.b[i.a] === "[" && i.b[i.a + 1] === "%") ||
+        (i.b[i.a] === "{" &&
+          (i.b[i.a + 1] === "{" ||
+            i.b[i.a + 1] === "%" ||
+            i.b[i.a + 1] === "@" ||
+            i.b[i.a + 1] === "#")))
+    ) {
+      // Regular content
+      i.a -= 1;
+      ltoke = lex.join("");
+      ltoke = bracketSpace(ltoke);
+      liner = 0;
+      record.token = ltoke;
+      if (i.options.wrap > 0) {
+        let aa: number = i.options.wrap,
+          len: number = ltoke.length,
+          startSpace: string = "",
+          endSpace: string = "";
+        const wrap: number = i.options.wrap,
+          store: string[] = [];
+        function wrapper(): void {
+          if (ltoke.charAt(aa) === " ") {
+            store.push(ltoke.slice(0, aa));
+            ltoke = ltoke.slice(aa + 1);
+            len = ltoke.length;
+            aa = wrap;
+            return;
+          }
+          while (aa > 0 && ltoke.charAt(aa) !== " ") {
+            aa -= 1;
+          }
+          if (aa > 0) {
+            store.push(ltoke.slice(0, aa));
+            ltoke = ltoke.slice(aa + 1);
+            len = ltoke.length;
+            aa = wrap;
+          } else {
+            aa = wrap;
+            while (aa < len && ltoke.charAt(aa) !== " ") {
+              aa += 1;
+            }
+            store.push(ltoke.slice(0, aa));
+            ltoke = ltoke.slice(aa + 1);
+            len = ltoke.length;
+            aa = wrap;
+          }
+        }
+        // HTML anchor lists do not get wrapping unless the content itself exceeds the wrapping limit
+        if (
+          data.token[data.begin[parse.count]] === "<a>" &&
+          data.token[data.begin[data.begin[parse.count]]] === "<li>" &&
+          data.lines[data.begin[parse.count]] === 0 &&
+          parse.linesSpace === 0 &&
+          ltoke.length < i.options.wrap
+        ) {
+          recordPush(i, data, record, "");
+          break;
+        }
+        if (len < wrap) {
+          recordPush(i, data, record, "");
+          break;
+        }
+        if (parse.linesSpace < 1) {
+          let bb = parse.count;
+          while (bb > 0 && aa > 0) {
+            aa = aa - data.token[bb].length;
+            if (data.types[bb].indexOf("attribute") > -1) {
+              aa = aa - 1;
+            }
+            if (data.lines[bb] > 0 && data.types[bb].indexOf("attribute") < 0) {
+              break;
+            }
+            bb -= 1;
+          }
+          if (aa < 1) {
+            aa = ltoke.indexOf(" ");
+          }
+        }
+        ltoke = lex.join("");
+        ltoke = ltoke.replace(/^\s+/, "").replace(/\s+$/, "").replace(/\s+/g, " ");
+        while (aa < len) {
+          wrapper();
+        }
+        if (ltoke !== "" && ltoke !== " ") {
+          store.push(ltoke);
+        }
+        ltoke = store.join(i.options.lf);
+        ltoke = startSpace + ltoke + endSpace;
+      }
+      liner = 0;
+      record.token = ltoke;
+      recordPush(i, data, record, "");
+      break;
+    }
+    lex.push(i.b[i.a]);
+  }
 }
