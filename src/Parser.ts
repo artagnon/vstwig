@@ -1093,11 +1093,38 @@ export default class Parser {
       }
       return arr;
     };
-    const lexerData: LexerData = {
-      options: i.options,
+    const lexState: LexState = {
+      a: 0,
+      sgmlflag: 0,
+      html: "",
       parse: i.parse,
       parseerror: "",
+      count: {
+        end: 0,
+        index: -1,
+        start: 0,
+      },
+      options: i.options,
+      b: i.options.source.split(""),
+      c: i.options.source.length,
+      htmlblocks: {
+        body: "block",
+        colgroup: "block",
+        dd: "block",
+        dt: "block",
+        head: "block",
+        html: "block",
+        li: "block",
+        option: "block",
+        p: "block",
+        tbody: "block",
+        td: "block",
+        tfoot: "block",
+        th: "block",
+        thead: "block",
+        tr: "block",
+      },
     };
-    return markupLexer(lexerData);
+    return markupLexer(lexState);
   }
 }

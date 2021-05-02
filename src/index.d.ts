@@ -46,11 +46,6 @@ interface splice {
   record?: record;
 }
 
-interface LexerData {
-  options: any;
-  parse: parse;
-  parseerror: string;
-}
 interface data {
   begin: number[];
   ender: number[];
@@ -89,8 +84,9 @@ interface FormatterOptions {
   correct: boolean;
   indentLevel: number;
 }
+
 interface FormatterState {
-  options: any;
+  options: FormatterOptions;
   data: data;
   lf: string;
   level: number[];
@@ -102,4 +98,17 @@ interface FormatterState {
   count: number;
   indent: number;
   build: string[];
+}
+
+interface LexState {
+  a: number;
+  b: string[];
+  c: number;
+  parse: parse;
+  sgmlflag: number;
+  html: "html" | "xml" | "";
+  parseerror: string;
+  count: markupCount;
+  options: FormatterOptions;
+  htmlblocks: any;
 }
