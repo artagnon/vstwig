@@ -38,7 +38,7 @@ export function prevIndex(i: FormatterState): number {
   return x;
 }
 
-export function handleAnchor(i: FormatterState): void {
+export function anchor(i: FormatterState): void {
   let aa: number = i.a;
   const stop: number = i.data.begin[i.a];
   // verify list is only i.a link list before making changes
@@ -68,7 +68,7 @@ export function handleAnchor(i: FormatterState): void {
   } while (aa > stop + 1);
 }
 
-export function handleComment(i: FormatterState): void {
+export function comment(i: FormatterState): void {
   let x: number = i.a,
     test: boolean = false;
   if (i.data.lines[i.a + 1] === 0 && i.options.forceIndent === false) {
@@ -116,7 +116,7 @@ export function handleComment(i: FormatterState): void {
   i.comstart = -1;
 }
 
-export function handleContent(i: FormatterState): void {
+export function content(i: FormatterState): void {
   let ind: number = i.indent;
   if (i.options.forceIndent === true || i.options.forceAttribute === true) {
     i.level.push(i.indent);
@@ -300,7 +300,7 @@ function attributeLevel(i: FormatterState): [boolean, number] {
   return [plural, i.indent];
 }
 
-export function handleAttribute(i: FormatterState): void {
+export function attribute(i: FormatterState): void {
   const parent: number = i.a - 1;
   let y: number = i.a,
     len: number = i.data.token[parent].length + 1,

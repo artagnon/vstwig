@@ -1,4 +1,4 @@
-function applyInd(i: FormatterState): string {
+function ind(i: FormatterState): string {
   const indy: string[] = [i.options.indentChar],
     size: number = i.options.indentSize - 1;
   let aa: number = 0;
@@ -11,7 +11,7 @@ function applyInd(i: FormatterState): string {
   return indy.join("");
 }
 
-export function applyNl(i: FormatterState, tabs: number): string {
+export function nl(i: FormatterState, tabs: number): string {
   // i.a new line character plus the correct amount of identation for the given line
   // of code
   const linesout: string[] = [],
@@ -28,14 +28,14 @@ export function applyNl(i: FormatterState, tabs: number): string {
   if (tabs > 0) {
     index = 0;
     do {
-      linesout.push(applyInd(i));
+      linesout.push(ind(i));
       index = index + 1;
     } while (index < tabs);
   }
   return linesout.join("");
 }
 
-function applyMultilineLev(i: FormatterState): number {
+function multilineLev(i: FormatterState): number {
   let bb: number = i.a - 1,
     start: boolean = bb > -1 && i.data.types[bb].indexOf("start") > -1;
   if (i.level[i.a] > -1 && i.data.types[i.a] === "attribute") {
@@ -56,7 +56,7 @@ function applyMultilineLev(i: FormatterState): number {
   return 1;
 }
 
-export function applyMultiline(i: FormatterState): void {
+export function multiline(i: FormatterState): void {
   const lines: string[] = i.data.token[i.a].split(i.lf),
     line: number = i.data.lines[i.a + 1],
     lev: number =
@@ -64,13 +64,13 @@ export function applyMultiline(i: FormatterState): void {
         ? i.data.types[i.a] === "attribute"
           ? i.level[i.a - 1] + 1
           : i.level[i.a - 1]
-        : applyMultilineLev(i);
+        : multilineLev(i);
   let aa: number = 0,
     len: number = lines.length - 1;
   i.data.lines[i.a + 1] = 0;
   do {
     i.build.push(lines[aa]);
-    i.build.push(applyNl(i, lev));
+    i.build.push(nl(i, lev));
     aa = aa + 1;
   } while (aa < len);
   i.data.lines[i.a + 1] = line;
@@ -78,11 +78,11 @@ export function applyMultiline(i: FormatterState): void {
   if (i.level[i.a] === -10) {
     i.build.push(" ");
   } else if (i.level[i.a] > -1) {
-    i.build.push(applyNl(i, i.level[i.a]));
+    i.build.push(nl(i, i.level[i.a]));
   }
 }
 
-export function applyAttributeEnd(i: FormatterState): void {
+export function attributeEnd(i: FormatterState): void {
   const parent: string = i.data.token[i.a],
     regend: RegExp = /(\/|\?)?>$/,
     end: string[] | null = regend.exec(parent);
@@ -99,7 +99,7 @@ export function applyAttributeEnd(i: FormatterState): void {
     y = y + 1;
   } while (y < i.c);
   if (i.data.types[y - 1] === "comment_attribute") {
-    space = applyNl(i, i.level[y - 2] - 1);
+    space = nl(i, i.level[y - 2] - 1);
   }
   i.data.token[y - 1] = i.data.token[y - 1] + space + end[0];
 }

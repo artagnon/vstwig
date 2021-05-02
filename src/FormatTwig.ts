@@ -1,13 +1,6 @@
 import Parser from "./Parser";
-import { applyAttributeEnd, applyMultiline, applyNl } from "./applyHelpers";
-import {
-  nextIndex,
-  handleAnchor,
-  handleAttribute,
-  handleComment,
-  handleContent,
-  prevIndex,
-} from "./collectHelpers";
+import * as Collect from "./CollectHelpers";
+import * as Apply from "./ApplyHelpers";
 
 export default class FormatTwig implements FormatterState {
   // The options passed to the parser
@@ -78,17 +71,17 @@ export default class FormatTwig implements FormatterState {
         i.level[i.a - 1] = i.indent;
       }
       if (i.data.types[i.a].indexOf("attribute") > -1) {
-        handleAttribute(i);
+        Collect.attribute(i);
       } else if (i.data.types[i.a] === "comment") {
         if (i.comstart < 0) {
           i.comstart = i.a;
         }
         if (i.data.types[i.a + 1] !== "comment" || i.data.types[i.a - 1].indexOf("end") > -1) {
-          handleComment(i);
+          Collect.comment(i);
         }
       } else if (i.data.types[i.a] !== "comment") {
-        i.next = nextIndex(i);
-        i.prev = prevIndex(i);
+        i.next = Collect.nextIndex(i);
+        i.prev = Collect.prevIndex(i);
         if (i.data.types[i.next] === "end" || i.data.types[i.next] === "template_end") {
           i.indent -= 1;
           if (
@@ -98,7 +91,7 @@ export default class FormatTwig implements FormatterState {
             i.indent -= 1;
           }
           if (i.data.token[i.a] === "</ol>" || i.data.token[i.a] === "</ul>") {
-            handleAnchor(i);
+            Collect.anchor(i);
           }
         }
         if (
@@ -115,7 +108,7 @@ export default class FormatTwig implements FormatterState {
             i.data.types[i.a] === "template_start" &&
             i.data.types[i.next].indexOf("template") < 0
           ) {
-            handleContent(i);
+            Collect.content(i);
           } else {
             i.level.push(i.indent);
           }
@@ -178,7 +171,7 @@ export default class FormatTwig implements FormatterState {
         i.a < i.c - 1 &&
         i.data.types[i.a + 1].indexOf("attribute") > -1
       ) {
-        applyAttributeEnd(i);
+        Apply.attributeEnd(i);
       }
       if (
         i.data.token[i.a].indexOf(i.lf) > 0 &&
@@ -186,13 +179,13 @@ export default class FormatTwig implements FormatterState {
           i.data.types[i.a] === "comment" ||
           i.data.types[i.a] === "attribute")
       ) {
-        applyMultiline(i);
+        Apply.multiline(i);
       } else {
         i.build.push(i.data.token[i.a]);
         if (i.level[i.a] === -10 && i.a < i.c - 1) {
           i.build.push(" ");
         } else if (i.level[i.a] > -1) {
-          i.build.push(applyNl(i, i.level[i.a]));
+          i.build.push(Apply.nl(i, i.level[i.a]));
         }
       }
       i.a += 1;
