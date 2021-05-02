@@ -41,13 +41,13 @@ export function prevIndex(i: FormatterState): number {
 export function anchor(i: FormatterState): void {
   let aa: number = i.a;
   const stop: number = i.data.begin[i.a];
-  // verify list is only i.a link list before making changes
+  // Verify list is only a link list before making changes
   do {
     aa = aa - 1;
     if (
       i.data.token[aa] === "</li>" &&
       i.data.begin[i.data.begin[aa]] === stop &&
-      i.data.token[aa - 1] === "</i.a>" &&
+      i.data.token[aa - 1] === "</a>" &&
       i.data.begin[aa - 1] === i.data.begin[aa] + 1
     ) {
       aa = i.data.begin[aa];
@@ -60,7 +60,7 @@ export function anchor(i: FormatterState): void {
   aa = i.a;
   do {
     aa = aa - 1;
-    if (i.data.types[aa + 1] === "attribute") {
+    if (i.data.types[aa + 1].indexOf("attribute") > -1) {
       i.level[aa] = -10;
     } else if (i.data.token[aa] !== "</li>") {
       i.level[aa] = -20;
@@ -95,13 +95,13 @@ export function comment(i: FormatterState): void {
       x = x - 1;
     } while (x > i.comstart);
 
-    // correction so that i.a following end tag is not indented 1 too much
+    // correction so that a following end tag is not indented 1 too much
     if (ind === i.indent + 1) {
       i.level[i.a] = i.indent;
     }
 
     // indentation must be applied to the tag preceeding the comment
-    if (i.data.types[x] === "attribute" || i.data.types[x] === "template_attribute") {
+    if (i.data.types[x].indexOf("attribute") > -1) {
       i.level[i.data.begin[x]] = ind;
     } else {
       i.level[x] = ind;
@@ -272,8 +272,8 @@ function wrap(i: FormatterState, index: number) {
 }
 
 function attributeLevel(i: FormatterState): [boolean, number] {
-  let parent: number = i.a - 1;
-  let plural: boolean = false;
+  let parent = i.a - 1,
+    plural: boolean = false;
   if (i.data.types[i.a].indexOf("start") > 0) {
     let x: number = i.a;
     do {
@@ -301,21 +301,21 @@ function attributeLevel(i: FormatterState): [boolean, number] {
 }
 
 export function attribute(i: FormatterState): void {
-  const parent: number = i.a - 1;
   let y: number = i.a,
+    parent: number = i.a - 1,
     len: number = i.data.token[parent].length + 1,
     [plural, lev] = attributeLevel(i),
     earlyexit: boolean = false,
     attStart: boolean = false;
 
   if (plural === false && i.data.types[i.a] === "comment_attribute") {
-    // lev must be i.indent unless the "next" type is end then its i.indent + 1
-    i.level.push(i.indent);
-    if (i.data.types[parent] === "singleton") {
-      i.level[parent] = i.indent + 1;
+    if (i.data.types[i.prev] === "singleton") {
+      i.level[i.prev] = i.indent + 1;
     } else {
-      i.level[parent] = i.indent;
+      i.level[i.prev] = i.indent;
     }
+    i.level.push(i.indent);
+    i.level[parent] = i.indent;
     return;
   }
 
@@ -323,7 +323,7 @@ export function attribute(i: FormatterState): void {
     lev = 1;
   }
 
-  // first, set levels and determine if there are template attributes
+  // First, set levels and determine if there are template attributes
   do {
     i.count = i.count + i.data.token[i.a].length + 1;
     if (i.data.types[i.a].indexOf("attribute") > 0) {
@@ -335,7 +335,7 @@ export function attribute(i: FormatterState): void {
         attStart = true;
         if (i.a < i.c - 2 && i.data.types[i.a + 2].indexOf("attribute") > 0) {
           i.level.push(-20);
-          i.a = i.a + 1;
+          i.a += 1;
         } else {
           if (parent === i.a - 1 && plural === false) {
             i.level.push(lev);
@@ -378,7 +378,6 @@ export function attribute(i: FormatterState): void {
     i.level[i.a - 1] > 0 &&
     i.data.types[i.a].indexOf("end") > 0 &&
     i.data.types[i.a].indexOf("attribute") > 0 &&
-    i.data.types[parent] !== "singleton" &&
     plural === true
   ) {
     i.level[i.a - 1] = i.level[i.a - 1] - 1;
@@ -403,9 +402,9 @@ export function attribute(i: FormatterState): void {
   }
   y = i.a;
 
-  // second, ensure tag contains more than one attribute
+  // Second, ensure tag contains more than one attribute
   if (y > parent + 1) {
-    // finally, i.indent attributes if tag length exceeds the wrap limit
+    // Finally, indent attributes if tag length exceeds the wrap limit
     if (i.options.spaceClose === false) {
       len = len - 1;
     }
@@ -421,7 +420,7 @@ export function attribute(i: FormatterState): void {
     }
   } else if (
     i.options.wrap > 0 &&
-    i.data.types[i.a] === "attribute" &&
+    i.data.types[i.a].indexOf("attribute") > -1 &&
     i.data.token[i.a].length > i.options.wrap &&
     /\s/.test(i.data.token[i.a]) === true
   ) {

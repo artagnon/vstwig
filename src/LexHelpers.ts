@@ -1076,7 +1076,7 @@ export function tag(i: LexState, end: string): void {
     return;
   }
 
-  // i.a type correction for template tags who have variable start tag names but i.a
+  // A type correction for template tags who have variable start tag names but a
   // consistent ending tag name
   if (element.indexOf("{{") === 0 && element.slice(element.length - 2) === "}}") {
     if (tname === "end") {
@@ -1096,7 +1096,7 @@ export function tag(i: LexState, end: string): void {
   }
   record.types = ltype;
 
-  //update i.a flag for subatomic parsing in SGML tags
+  // Update a flag for subatomic parsing in SGML tags
   if (
     end !== "]>" &&
     i.sgmlflag > 0 &&
@@ -1215,7 +1215,7 @@ export function tag(i: LexState, end: string): void {
       data.lines[parse.count - 1] = 0;
     }
 
-    //determine if the current end tag is actually part of an HTML singleton
+    // Determine if the current end tag is actually part of an HTML singleton
     if (ltype === "end") {
       const lastToken: string = data.token[parse.count];
       if (
@@ -1228,8 +1228,7 @@ export function tag(i: LexState, end: string): void {
     }
 
     if (i.html === "html") {
-      // html gets tag names in lowercase, if you want to preserve case sensitivity
-      // beautify as XML
+      // html gets tag names in lowercase
       if (
         element.charAt(0) === "<" &&
         element.charAt(1) !== "!" &&
@@ -1243,7 +1242,7 @@ export function tag(i: LexState, end: string): void {
         i.htmlblocks[parse.structure[parse.structure.length - 1][0]] === "block" &&
         peertest(tname.slice(1), parse.structure[parse.structure.length - 2][0]) === true
       ) {
-        // looks for HTML tags missing an ending pair when encountering an ending tag for i.a parent node
+        // Looks for HTML tags missing an ending pair when encountering an ending tag for i.a parent node
         addHtmlEnd(0);
       } else if (
         parse.structure.length > 3 &&
@@ -1252,7 +1251,7 @@ export function tag(i: LexState, end: string): void {
         i.htmlblocks[parse.structure[parse.structure.length - 3][0]] === "block" &&
         peertest(tname, parse.structure[parse.structure.length - 4][0]) === true
       ) {
-        // looks for consecutive missing end tags
+        // Looks for consecutive missing end tags
         addHtmlEnd(3);
       } else if (
         parse.structure.length > 2 &&
@@ -1260,24 +1259,24 @@ export function tag(i: LexState, end: string): void {
         i.htmlblocks[parse.structure[parse.structure.length - 2][0]] === "block" &&
         peertest(tname, parse.structure[parse.structure.length - 3][0]) === true
       ) {
-        // looks for consecutive missing end tags
+        // Looks for consecutive missing end tags
         addHtmlEnd(2);
       } else if (
         parse.structure.length > 1 &&
         i.htmlblocks[parse.structure[parse.structure.length - 1][0]] === "block" &&
         peertest(tname, parse.structure[parse.structure.length - 2][0]) === true
       ) {
-        // looks for consecutive missing end tags
+        // Looks for consecutive missing end tags
         addHtmlEnd(1);
       } else if (peertest(tname, parse.structure[parse.structure.length - 1][0]) === true) {
-        // certain tags cannot contain other certain tags if such tags are peers
+        // Certain tags cannot contain other certain tags if such tags are peers
         addHtmlEnd(0);
       } else if (
         tname.charAt(0) === "/" &&
         i.htmlblocks[parse.structure[parse.structure.length - 1][0]] === "block" &&
         parse.structure[parse.structure.length - 1][0] !== tname.slice(1)
       ) {
-        // looks for consecutive missing end tags if the current element is an end tag
+        // Looks for consecutive missing end tags if the current element is an end tag
         fixHtmlEnd(i, element, false);
         record.begin = parse.structure[parse.structure.length - 1][1];
         record.lines = parse.linesSpace;
@@ -1287,12 +1286,12 @@ export function tag(i: LexState, end: string): void {
         data.lines[parse.count - 1] = 0;
       }
 
-      // generalized corrections for the handling of singleton tags
+      // Generalized corrections for the handling of singleton tags
       if (data.types[parse.count] === "end" && htmlsings[tname.slice(1)] === "singleton") {
         return fixsingleton();
       }
 
-      //inserts i.a trailing slash into singleton tags if they do not already have it
+      // Inserts a trailing slash into singleton tags if they do not already have it
       if (htmlsings[tname] === "singleton") {
         if (i.options.correct === true && ender.test(element) === false) {
           element = element.slice(0, element.length - 1) + " />";
@@ -1335,7 +1334,7 @@ export function tag(i: LexState, end: string): void {
     simple = true;
   }
 
-  //am I a singleton or a start type?
+  // Am I a singleton or a start type?
   if (simple === true && ltype !== "xml" && ltype !== "sgml") {
     if (cheat === true || element.slice(element.length - 2) === "/>") {
       ltype = "singleton";
@@ -1345,7 +1344,7 @@ export function tag(i: LexState, end: string): void {
     record.types = ltype;
   }
 
-  // some template tags can be evaluated as i.a block start/end based on syntax
+  // some template tags can be evaluated as a block start/end based on syntax
   // alone
   if (record.types.indexOf("template") > -1) {
     if (element.slice(0, 2) === "{%") {
