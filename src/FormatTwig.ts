@@ -43,7 +43,7 @@ export default class FormatTwig implements FormatterState {
   // Keeps count of the number of tokens encountered
   count: number;
 
-  // Initialized to options.indent_level: the amount of overall identation
+  // Initialized to options.indentLevel: the amount of overall identation
   indent: number;
 
   // The final result of the formatting is collected here
@@ -60,7 +60,7 @@ export default class FormatTwig implements FormatterState {
     this.prev = 0;
     this.next = 0;
     this.count = 0;
-    this.indent = options.indent_level;
+    this.indent = options.indentLevel;
   }
 
   public formatDocument(): string {
@@ -102,8 +102,8 @@ export default class FormatTwig implements FormatterState {
           }
         }
         if (
-          (i.options.force_indent === false ||
-            (i.options.force_indent === true && i.data.types[i.next] === "script_start")) &&
+          (i.options.forceIndent === false ||
+            (i.options.forceIndent === true && i.data.types[i.next] === "script_start")) &&
           (i.data.types[i.a] === "content" ||
             i.data.types[i.a] === "singleton" ||
             i.data.types[i.a] === "template")
@@ -126,7 +126,7 @@ export default class FormatTwig implements FormatterState {
           }
           if (i.data.types[i.a] === "start" && i.data.types[i.next] === "end") {
             i.level.push(-20);
-          } else if (i.options.force_indent === true) {
+          } else if (i.options.forceIndent === true) {
             i.level.push(i.indent);
           } else if (
             i.data.types[i.a] === "template_start" &&
@@ -137,7 +137,7 @@ export default class FormatTwig implements FormatterState {
             i.level.push(i.indent);
           }
         } else if (
-          i.options.force_indent === false &&
+          i.options.forceIndent === false &&
           (i.data.types[i.next] === "content" || i.data.types[i.next] === "singleton")
         ) {
           i.level.push(-20);
@@ -182,7 +182,7 @@ export default class FormatTwig implements FormatterState {
       }
       if (
         i.data.token[i.a].indexOf(i.lf) > 0 &&
-        ((i.data.types[i.a] === "content" && i.options.preserve_text === false) ||
+        ((i.data.types[i.a] === "content" && i.options.preserveText === false) ||
           i.data.types[i.a] === "comment" ||
           i.data.types[i.a] === "attribute")
       ) {

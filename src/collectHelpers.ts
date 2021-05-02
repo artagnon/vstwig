@@ -71,7 +71,7 @@ export function handleAnchor(i: FormatterState): void {
 export function handleComment(i: FormatterState): void {
   let x: number = i.a,
     test: boolean = false;
-  if (i.data.lines[i.a + 1] === 0 && i.options.force_indent === false) {
+  if (i.data.lines[i.a + 1] === 0 && i.options.forceIndent === false) {
     do {
       if (i.data.lines[x] > 0) {
         test = true;
@@ -118,7 +118,7 @@ export function handleComment(i: FormatterState): void {
 
 export function handleContent(i: FormatterState): void {
   let ind: number = i.indent;
-  if (i.options.force_indent === true || i.options.force_attribute === true) {
+  if (i.options.forceIndent === true || i.options.forceAttribute === true) {
     i.level.push(i.indent);
     return;
   }
@@ -179,7 +179,7 @@ export function handleContent(i: FormatterState): void {
   if (i.count > i.options.wrap) {
     let d: number = i.a,
       e: number = Math.max(i.data.begin[i.a], 0);
-    if (i.data.types[i.a] === "content" && i.options.preserve_text === false) {
+    if (i.data.types[i.a] === "content" && i.options.preserveText === false) {
       let countx: number = 0,
         chars: string[] = i.data.token[i.a].replace(/\s+/g, " ").split(" ");
       do {
@@ -357,7 +357,7 @@ export function handleAttribute(i: FormatterState): void {
       if (i.options.unformatted === true) {
         i.level.push(-10);
       } else if (
-        i.options.force_attribute === true ||
+        i.options.forceAttribute === true ||
         attStart === true ||
         (i.a < i.c - 1 &&
           i.data.types[i.a + 1] !== "template_attribute" &&
@@ -386,7 +386,7 @@ export function handleAttribute(i: FormatterState): void {
   if (i.level[i.a] !== -20) {
     i.level[i.a] = i.level[parent];
   }
-  if (i.options.force_attribute === true) {
+  if (i.options.forceAttribute === true) {
     i.count = 0;
     i.level[parent] = lev;
   } else {
@@ -406,10 +406,10 @@ export function handleAttribute(i: FormatterState): void {
   // second, ensure tag contains more than one attribute
   if (y > parent + 1) {
     // finally, i.indent attributes if tag length exceeds the wrap limit
-    if (i.options.space_close === false) {
+    if (i.options.spaceClose === false) {
       len = len - 1;
     }
-    if (len > i.options.wrap && i.options.wrap > 0 && i.options.force_attribute === false) {
+    if (len > i.options.wrap && i.options.wrap > 0 && i.options.forceAttribute === false) {
       i.count = i.data.token[i.a].length;
       do {
         if (i.data.token[y].length > i.options.wrap && /\s/.test(i.data.token[y]) === true) {

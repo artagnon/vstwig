@@ -722,7 +722,7 @@ export default class Parser {
           a === config.end ||
           wrap < 1 ||
           (output.length <= wrap && output.indexOf("\n") < 0) ||
-          options.preserve_comment === true ||
+          options.preserveComment === true ||
           (config.opening === "/*" &&
             output.indexOf("\n") > 0 &&
             output.replace("\n", "").indexOf("\n") > 0 &&
@@ -1067,7 +1067,7 @@ export default class Parser {
         if (
           output === "//" ||
           output.slice(0, 6) === "//    " ||
-          options.preserve_comment === true
+          options.preserveComment === true
         ) {
           return [output, a];
         }

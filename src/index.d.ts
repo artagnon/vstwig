@@ -76,18 +76,18 @@ interface FormatterOptions {
   iterator: number;
   start: number;
   lf: string;
-  force_indent: boolean;
-  force_attribute: boolean;
+  forceIndent: boolean;
+  forceAttribute: boolean;
   wrap: number;
-  preserve_text: boolean;
-  preserve_comment: boolean;
+  preserveText: boolean;
+  preserveComment: boolean;
   unformatted: boolean;
-  space_close: boolean;
-  indent_char: string;
-  indent_size: number;
+  spaceClose: boolean;
+  indentChar: string;
+  indentSize: number;
   preserve: number;
   correct: boolean;
-  indent_level: number;
+  indentLevel: number;
 }
 interface FormatterState {
   options: any;

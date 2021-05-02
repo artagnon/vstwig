@@ -1,10 +1,10 @@
 function applyInd(i: FormatterState): string {
-  const indy: string[] = [i.options.indent_char],
-    size: number = i.options.indent_size - 1;
+  const indy: string[] = [i.options.indentChar],
+    size: number = i.options.indentSize - 1;
   let aa: number = 0;
   if (aa < size) {
     do {
-      indy.push(i.options.indent_char);
+      indy.push(i.options.indentChar);
       aa = aa + 1;
     } while (aa < size);
   }
@@ -87,7 +87,7 @@ export function applyAttributeEnd(i: FormatterState): void {
     regend: RegExp = /(\/|\?)?>$/,
     end: string[] | null = regend.exec(parent);
   let y: number = i.a + 1,
-    space: string = i.options.space_close === true && end !== null && end[0] === "/>" ? " " : "";
+    space: string = i.options.spaceClose === true && end !== null && end[0] === "/>" ? " " : "";
   if (end === null) {
     return;
   }
