@@ -1,14 +1,26 @@
-import { languages, ExtensionContext, TextDocument, Position, Range, TextEdit } from "vscode";
+import {
+  languages,
+  ExtensionContext,
+  TextDocument,
+  Position,
+  Range,
+  TextEdit,
+  window,
+  EndOfLine,
+} from "vscode";
 import FormatTwig from "./FormatTwig";
 
 function textEdits(document: TextDocument, range: Range): TextEdit[] {
+  const tabSize = window.activeTextEditor?.options.tabSize ?? 2;
+  const indentSize = typeof tabSize === "string" ? 2 : tabSize;
+  const lf = window.activeTextEditor?.document.eol === EndOfLine.LF ? "\n" : "\r\n";
   const options: FormatterOptions = {
     source: document.getText(range),
     beautify: {},
     end: 0,
     iterator: 0,
     start: 0,
-    lf: "\n",
+    lf: lf,
     forceIndent: false,
     forceAttribute: false,
     wrap: 0,
@@ -17,7 +29,7 @@ function textEdits(document: TextDocument, range: Range): TextEdit[] {
     unformatted: false,
     spaceClose: true,
     indentChar: " ",
-    indentSize: 2,
+    indentSize: indentSize,
     preserve: 1,
     correct: false,
     indentLevel: 0,
