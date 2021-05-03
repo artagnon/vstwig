@@ -42,11 +42,9 @@ export default class Parser {
       // the function that sorts object properties
       objectSort: (data: data): void => {
         let cc: number = i.parse.count,
-          global: boolean = false,
           dd: number = i.parse.structure[i.parse.structure.length - 1][1],
           ee: number = 0,
           ff: number = 0,
-          gg: number = 0,
           behind: number = 0,
           commaTest: boolean = true,
           front: number = 0,
@@ -56,7 +54,6 @@ export default class Parser {
           length: number = i.parse.count,
           begin: number = dd,
           stack: string = i.parse.structure[i.parse.structure.length - 1][0],
-          style: boolean = false,
           delim: [string, string] = [",", "separator"],
           lines: number = i.parse.linesSpace,
           sort = (x: [number, number], y: [number, number]): number => {
@@ -1035,7 +1032,7 @@ export default class Parser {
           );
           b = a;
           do {
-            b - b - 1;
+            b -= 1;
           } while (
             b > config.start &&
             config.chars[b - 1] === "/" &&

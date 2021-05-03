@@ -228,9 +228,6 @@ function wrap(i: FormatterState, index: number) {
     ilen: number = item.length;
   let bb: number = 1,
     acount: number = item[0].length;
-  if (/=("|')?(<|(\{(\{|%|#|@|!|\?|^))|(\[%))/.test(i.data.token[index]) === true) {
-    return;
-  }
   do {
     if (acount + item[bb].length > i.options.wrap) {
       acount = item[bb].length;
@@ -274,7 +271,7 @@ function attributeLevel(i: FormatterState): [boolean, number] {
 }
 
 export function attribute(i: FormatterState): void {
-  let y: number = i.a,
+  let y: number,
     parent: number = i.a - 1,
     len: number = i.data.token[parent].length + 1,
     [plural, lev] = attributeLevel(i),

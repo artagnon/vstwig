@@ -147,7 +147,7 @@ export function tag(i: LexState, end: string): void {
     preserve: boolean = false,
     simple: boolean = false,
     attstore: attStore = [],
-    comm: [string, number] = ["", 0];
+    comm: [string, number];
   const record: record = {
     begin: parse.structure[parse.structure.length - 1][1],
     ender: -1,
@@ -266,7 +266,6 @@ export function tag(i: LexState, end: string): void {
       attstore[ind][0] = attstore[ind][0].replace(/\s+$/, "");
       record.lines = attstore[ind][1];
       eq = attstore[ind][0].indexOf("=");
-      dq = attstore[ind][0].indexOf('"');
 
       if (eq > -1 && store.length > 0) {
         record.token = store.join(" ");
@@ -936,7 +935,6 @@ export function tag(i: LexState, end: string): void {
       }
     }
 
-    igcount = 0;
     element = lex.join("");
     tname = tagName(i, element);
     element = bracketSpace(element);
@@ -1568,7 +1566,6 @@ export function content(i: LexState): void {
         ltoke = store.join(i.options.lf);
         ltoke = startSpace + ltoke + endSpace;
       }
-      liner = 0;
       record.token = ltoke;
       recordPush(i, data, record, "");
       break;
