@@ -1,5 +1,3 @@
-import { formatWithOptions } from "node:util";
-
 /* Pads certain template tag delimiters with a space */
 export function bracketSpace(input: string): string {
   function spaceStart(start: string): string {
