@@ -103,11 +103,18 @@ export default class Parser {
               do {
                 front = front + 1;
               } while (data.types[front] === "comment");
-            } else if (data.types[front] === "comment" && data.lines[front] < 2) {
+            } else if (
+              data.types[front] === "comment" &&
+              data.lines[front] < 2
+            ) {
               // if a comment follows code on the same line then keep the comment next to the code it follows
               front = front + 1;
             }
-            if (commaTest === true && data.token[cc] === delim[0] && front <= behind) {
+            if (
+              commaTest === true &&
+              data.token[cc] === delim[0] &&
+              front <= behind
+            ) {
               if (data.token[behind] !== ",") {
                 behind = behind + 1;
               }
@@ -166,9 +173,15 @@ export default class Parser {
                   ff = ff + 1;
 
                   //remove extra commas
-                  if (data.token[ee] === delim[0] && data.begin[ee] === data.begin[keys[dd][0]]) {
+                  if (
+                    data.token[ee] === delim[0] &&
+                    data.begin[ee] === data.begin[keys[dd][0]]
+                  ) {
                     commaTest = true;
-                  } else if (data.token[ee] !== delim[0] && data.types[ee] !== "comment") {
+                  } else if (
+                    data.token[ee] !== delim[0] &&
+                    data.types[ee] !== "comment"
+                  ) {
                     commaTest = false;
                   }
                   ee = ee + 1;
@@ -275,25 +288,38 @@ export default class Parser {
           }
           if (record.types === "start" || record.types.indexOf("_start") > 0) {
             i.parse.structure.push([structure, i.parse.count]);
-          } else if (record.types === "end" || record.types.indexOf("_end") > 0) {
+          } else if (
+            record.types === "end" ||
+            record.types.indexOf("_end") > 0
+          ) {
             // this big condition fixes language specific else blocks that are children of start/end blocks not associated with the if/else chain
             let caseEnder: number = 0;
             if (
               i.parse.structure.length > 2 &&
-              (data.types[i.parse.structure[i.parse.structure.length - 1][1]] === "else" ||
-                data.types[i.parse.structure[i.parse.structure.length - 1][1]].indexOf("_else") >
-                  0) &&
-              (data.types[i.parse.structure[i.parse.structure.length - 2][1]] === "start" ||
-                data.types[i.parse.structure[i.parse.structure.length - 2][1]].indexOf("_start") >
-                  0) &&
-              (data.types[i.parse.structure[i.parse.structure.length - 2][1] + 1] === "else" ||
-                data.types[i.parse.structure[i.parse.structure.length - 2][1] + 1].indexOf(
-                  "_else"
-                ) > 0)
+              (data.types[
+                i.parse.structure[i.parse.structure.length - 1][1]
+              ] === "else" ||
+                data.types[
+                  i.parse.structure[i.parse.structure.length - 1][1]
+                ].indexOf("_else") > 0) &&
+              (data.types[
+                i.parse.structure[i.parse.structure.length - 2][1]
+              ] === "start" ||
+                data.types[
+                  i.parse.structure[i.parse.structure.length - 2][1]
+                ].indexOf("_start") > 0) &&
+              (data.types[
+                i.parse.structure[i.parse.structure.length - 2][1] + 1
+              ] === "else" ||
+                data.types[
+                  i.parse.structure[i.parse.structure.length - 2][1] + 1
+                ].indexOf("_else") > 0)
             ) {
               i.parse.structure.pop();
-              data.begin[i.parse.count] = i.parse.structure[i.parse.structure.length - 1][1];
-              data.stack[i.parse.count] = i.parse.structure[i.parse.structure.length - 1][0];
+              data.begin[i.parse.count] =
+                i.parse.structure[i.parse.structure.length - 1][1];
+              data.stack[i.parse.count] =
+                i.parse.structure[i.parse.structure.length - 1][0];
               data.ender[i.parse.count - 1] = i.parse.count;
               caseEnder = data.ender[data.begin[i.parse.count] + 1];
             }
@@ -302,7 +328,10 @@ export default class Parser {
               data.ender[data.begin[i.parse.count] + 1] = caseEnder;
             }
             i.parse.structure.pop();
-          } else if (record.types === "else" || record.types.indexOf("_else") > 0) {
+          } else if (
+            record.types === "else" ||
+            record.types.indexOf("_else") > 0
+          ) {
             if (structure === "") {
               structure = "else";
             }
@@ -315,9 +344,15 @@ export default class Parser {
             } else {
               ender();
               if (structure === "") {
-                i.parse.structure[i.parse.structure.length - 1] = ["else", i.parse.count];
+                i.parse.structure[i.parse.structure.length - 1] = [
+                  "else",
+                  i.parse.count,
+                ];
               } else {
-                i.parse.structure[i.parse.structure.length - 1] = [structure, i.parse.count];
+                i.parse.structure[i.parse.structure.length - 1] = [
+                  structure,
+                  i.parse.count,
+                ];
               }
             }
           }
@@ -525,7 +560,7 @@ export default class Parser {
         // * end   - the length of the array, to break the loop
         i.parse.linesSpace = 1;
         do {
-          if (args.array[args.index] === "\n") {
+          if (args.array[args.index] === options.lf) {
             i.parse.linesSpace = i.parse.linesSpace + 1;
             i.parse.lineNumber = i.parse.lineNumber + 1;
           }
@@ -625,17 +660,27 @@ export default class Parser {
             return `\\${input}`;
           },
           regEsc: RegExp = /(\/|\\|\||\*|\[|\]|\{|\})/g,
-          regEnd: RegExp = new RegExp(`\\s*${config.terminator.replace(regEsc, sanitize)}$`),
-          regIgnore: RegExp = new RegExp(
-            `^(${config.opening.replace(regEsc, sanitize)}\\s*parse-ignore-start)`
+          regEnd: RegExp = new RegExp(
+            `\\s*${config.terminator.replace(regEsc, sanitize)}$`
           ),
-          regStart: RegExp = new RegExp(`(${config.opening.replace(regEsc, sanitize)}\\s*)`),
+          regIgnore: RegExp = new RegExp(
+            `^(${config.opening.replace(
+              regEsc,
+              sanitize
+            )}\\s*parse-ignore-start)`
+          ),
+          regStart: RegExp = new RegExp(
+            `(${config.opening.replace(regEsc, sanitize)}\\s*)`
+          ),
           wrap: number = options.wrap,
           emptyLines = () => {
             if (/^\s+$/.test(lines[b + 1]) === true || lines[b + 1] === "") {
               do {
                 b = b + 1;
-              } while (b < len && (/^\s+$/.test(lines[b + 1]) === true || lines[b + 1] === ""));
+              } while (
+                b < len &&
+                (/^\s+$/.test(lines[b + 1]) === true || lines[b + 1] === "")
+              );
             }
             if (b < len - 1) {
               second.push("");
@@ -643,7 +688,7 @@ export default class Parser {
           };
         do {
           build.push(config.chars[a]);
-          if (config.chars[a] === "\n") {
+          if (config.chars[a] === options.lf) {
             i.parse.lineNumber = i.parse.lineNumber + 1;
           }
           if (
@@ -656,7 +701,7 @@ export default class Parser {
         } while (a < config.end);
         output = build.join("");
         if (regIgnore.test(output) === true) {
-          let termination: string = "\n";
+          let termination: string = options.lf;
           a = a + 1;
           do {
             build.push(config.chars[a]);
@@ -694,10 +739,13 @@ export default class Parser {
           }
           terml = termination.length - 1;
           term = termination.charAt(terml);
-          if (termination !== "\n" || config.chars[a] !== "\n") {
+          if (termination !== options.lf || config.chars[a] !== options.lf) {
             do {
               build.push(config.chars[a]);
-              if (termination === "\n" && config.chars[a + 1] === "\n") {
+              if (
+                termination === options.lf &&
+                config.chars[a + 1] === options.lf
+              ) {
                 break;
               }
               if (
@@ -709,7 +757,7 @@ export default class Parser {
               a = a + 1;
             } while (a < config.end);
           }
-          if (config.chars[a] === "\n") {
+          if (config.chars[a] === options.lf) {
             a = a - 1;
           }
           output = build.join("").replace(/\s+$/, "");
@@ -718,28 +766,33 @@ export default class Parser {
         if (
           a === config.end ||
           wrap < 1 ||
-          (output.length <= wrap && output.indexOf("\n") < 0) ||
+          (output.length <= wrap && output.indexOf(options.lf) < 0) ||
           options.preserveComment === true ||
           (config.opening === "/*" &&
-            output.indexOf("\n") > 0 &&
-            output.replace("\n", "").indexOf("\n") > 0 &&
-            /\n(?!(\s*\*))/.test(output) === false)
+            output.indexOf(options.lf) > 0 &&
+            output.replace(options.lf, "").indexOf(options.lf) > 0 &&
+            (/\n(?!(\s*\*))/.test(output) === false ||
+              /\r\n(?!(\s*\*))/.test(output) === false))
         ) {
           return [output, a];
         }
         b = config.start;
-        if (b > 0 && config.chars[b - 1] !== "\n" && /\s/.test(config.chars[b - 1]) === true) {
+        if (
+          b > 0 &&
+          config.chars[b - 1] !== options.lf &&
+          /\s/.test(config.chars[b - 1]) === true
+        ) {
           do {
             b = b - 1;
           } while (
             b > 0 &&
-            config.chars[b - 1] !== "\n" &&
+            config.chars[b - 1] !== options.lf &&
             /\s/.test(config.chars[b - 1]) === true
           );
         }
         space = config.chars.slice(b, config.start).join("");
-        spaceLine = new RegExp(`\n${space}`, "g");
-        lines = output.replace(/\r\n/g, "\n").replace(spaceLine, "\n").split("\n");
+        spaceLine = new RegExp(`${options.lf}${space}`, "g");
+        lines = output.replace(spaceLine, options.lf).split(options.lf);
         len = lines.length;
         lines[0] = lines[0].replace(regStart, "");
         lines[len - 1] = lines[len - 1].replace(regEnd, "");
@@ -775,7 +828,10 @@ export default class Parser {
                 .replace(/\s+$/, "")
                 .replace(/\s+/g, " ")}`;
             } else {
-              lines[b] = `${lines[b].replace(/^\s+/, "").replace(/\s+$/, "").replace(/\s+/g, " ")}`;
+              lines[b] = `${lines[b]
+                .replace(/^\s+/, "")
+                .replace(/\s+$/, "")
+                .replace(/\s+/g, " ")}`;
             }
             twrap = b < 1 ? wrap - (config.opening.length + 1) : wrap;
             c = lines[b].length;
@@ -810,7 +866,10 @@ export default class Parser {
                 lines[b] = lines[b].slice(c + 1);
                 bigLine = true;
                 b = b - 1;
-              } else if (/^\s+$/.test(lines[b + 1]) === true || lines[b + 1] === "") {
+              } else if (
+                /^\s+$/.test(lines[b + 1]) === true ||
+                lines[b + 1] === ""
+              ) {
                 second.push(lines[b].slice(0, c));
                 lines[b] = lines[b].slice(c + 1);
                 emptyLine = true;
@@ -843,7 +902,8 @@ export default class Parser {
                 b = b - 1;
               } else if (lines[b].replace(/^\s+/, "").indexOf(" ") < wrap) {
                 if (lines[b].length > wrap) {
-                  lines[b + 1] = lines[b].slice(c + 1) + options.lf + lines[b + 1];
+                  lines[b + 1] =
+                    lines[b].slice(c + 1) + options.lf + lines[b + 1];
                 } else {
                   lines[b + 1] = `${lines[b].slice(c + 1)} ${lines[b + 1]}`;
                 }
@@ -858,8 +918,10 @@ export default class Parser {
               }
             } else if (
               lines[b + 1] !== undefined &&
-              ((lines[b].length + bline.indexOf(" ") > wrap && bline.indexOf(" ") > 0) ||
-                (lines[b].length + bline.length > wrap && bline.indexOf(" ") < 0))
+              ((lines[b].length + bline.indexOf(" ") > wrap &&
+                bline.indexOf(" ") > 0) ||
+                (lines[b].length + bline.length > wrap &&
+                  bline.indexOf(" ") < 0))
             ) {
               second.push(lines[b]);
               b = b + 1;
@@ -873,7 +935,11 @@ export default class Parser {
               lines[b + 1] = `${lines[b]} ${lines[b + 1]}`;
               emptyLine = true;
             }
-            if (bigLine === false && bulletLine === false && numberLine === false) {
+            if (
+              bigLine === false &&
+              bulletLine === false &&
+              numberLine === false
+            ) {
               if (emptyLine === true) {
                 emptyLine = false;
               } else if (/^\s*(\*|-|(\d+\.))\s*$/.test(lines[b]) === false) {
@@ -891,11 +957,17 @@ export default class Parser {
                 } else {
                   if (config.opening === "/*" && lines[b].indexOf("/*") !== 0) {
                     second.push(
-                      `   ${lines[b].replace(/^\s+/, "").replace(/\s+$/, "").replace(/\s+/g, " ")}`
+                      `   ${lines[b]
+                        .replace(/^\s+/, "")
+                        .replace(/\s+$/, "")
+                        .replace(/\s+/g, " ")}`
                     );
                   } else {
                     second.push(
-                      `${lines[b].replace(/^\s+/, "").replace(/\s+$/, "").replace(/\s+/g, " ")}`
+                      `${lines[b]
+                        .replace(/^\s+/, "")
+                        .replace(/\s+$/, "")
+                        .replace(/\s+/g, " ")}`
                     );
                   }
                 }
@@ -908,10 +980,15 @@ export default class Parser {
           b = b + 1;
         } while (b < len);
         if (second.length > 0) {
-          if (second[second.length - 1].length > wrap - (config.terminator.length + 1)) {
+          if (
+            second[second.length - 1].length >
+            wrap - (config.terminator.length + 1)
+          ) {
             second.push(config.terminator);
           } else {
-            second[second.length - 1] = `${second[second.length - 1]} ${config.terminator}`;
+            second[second.length - 1] = `${second[second.length - 1]} ${
+              config.terminator
+            }`;
           }
           output = second.join(options.lf);
         } else {
@@ -931,7 +1008,7 @@ export default class Parser {
             let line: string = "";
             do {
               b = b + 1;
-              if (config.chars[b + 1] === "\n") {
+              if (config.chars[b + 1] === options.lf) {
                 return;
               }
             } while (b < config.end && /\s/.test(config.chars[b]) === true);
@@ -940,14 +1017,16 @@ export default class Parser {
               do {
                 build.push(config.chars[b]);
                 b = b + 1;
-              } while (b < config.end && config.chars[b] !== "\n");
+              } while (b < config.end && config.chars[b] !== options.lf);
               line = build.join("");
               if (
                 /^\/\/ (\*|-|(\d+\.))/.test(line) === false &&
                 line.slice(0, 6) !== "//    " &&
                 /^\/\/\s*$/.test(line) === false
               ) {
-                output = `${output} ${line.replace(/(^\/\/\s*)/, "").replace(/\s+$/, "")}`;
+                output = `${output} ${line
+                  .replace(/(^\/\/\s*)/, "")
+                  .replace(/\s+$/, "")}`;
                 a = b - 1;
                 recurse();
               }
@@ -1010,16 +1089,16 @@ export default class Parser {
         do {
           build.push(config.chars[a]);
           a = a + 1;
-        } while (a < config.end && config.chars[a] !== "\n");
+        } while (a < config.end && config.chars[a] !== options.lf);
         if (a === config.end) {
           // necessary because the wrapping logic expects line termination
-          config.chars.push("\n");
+          config.chars.push(options.lf);
         } else {
           a = a - 1;
         }
         output = build.join("").replace(/\s+$/, "");
         if (/^(\/\/\s*parse-ignore\u002dstart)/.test(output) === true) {
-          let termination: string = "\n";
+          let termination: string = options.lf;
           a = a + 1;
           do {
             build.push(config.chars[a]);
@@ -1041,21 +1120,24 @@ export default class Parser {
           if (config.chars[b] === "*") {
             termination = "\u002a/";
           }
-          if (termination !== "\n" || config.chars[a] !== "\n") {
+          if (termination !== options.lf || config.chars[a] !== options.lf) {
             do {
               build.push(config.chars[a]);
-              if (termination === "\n" && config.chars[a + 1] === "\n") {
+              if (
+                termination === options.lf &&
+                config.chars[a + 1] === options.lf
+              ) {
                 break;
               }
               a = a + 1;
             } while (
               a < config.end &&
-              (termination === "\n" ||
+              (termination === options.lf ||
                 (termination === "\u002a/" &&
                   (config.chars[a - 1] !== "*" || config.chars[a] !== "/")))
             );
           }
-          if (config.chars[a] === "\n") {
+          if (config.chars[a] === options.lf) {
             a = a - 1;
           }
           output = build.join("").replace(/\s+$/, "");
@@ -1069,7 +1151,10 @@ export default class Parser {
           return [output, a];
         }
         output = output.replace(/(\/\/\s*)/, "// ");
-        if (wrap < 1 || (a === config.end - 1 && i.parse.data.begin[i.parse.count] < 1)) {
+        if (
+          wrap < 1 ||
+          (a === config.end - 1 && i.parse.data.begin[i.parse.count] < 1)
+        ) {
           return [output, a];
         }
         b = a + 1;
