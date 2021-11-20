@@ -11,7 +11,7 @@
   },
   "version": "0.0.6",
   "engines": {
-    "vscode": "^1.55.0"
+    "vscode": "^1.63.0"
   },
   "categories": [
     "Formatters",
