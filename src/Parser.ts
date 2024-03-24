@@ -672,7 +672,7 @@ export default class Parser {
           regStart: RegExp = new RegExp(
             `(${config.opening.replace(regEsc, sanitize)}\\s*)`
           ),
-          wrap: number = options.wrap,
+          wrap: number = 0,
           emptyLines = () => {
             if (/^\s+$/.test(lines[b + 1]) === true || lines[b + 1] === "") {
               do {
@@ -767,7 +767,6 @@ export default class Parser {
           a === config.end ||
           wrap < 1 ||
           (output.length <= wrap && output.indexOf(options.lf) < 0) ||
-          options.preserveComment === true ||
           (config.opening === "/*" &&
             output.indexOf(options.lf) > 0 &&
             output.replace(options.lf, "").indexOf(options.lf) > 0 &&
@@ -1003,7 +1002,7 @@ export default class Parser {
           b: number = 0,
           output: string = "",
           build: string[] = [];
-        const wrap: number = options.wrap,
+        const wrap: number = 0,
           recurse = (): void => {
             let line: string = "";
             do {
@@ -1143,11 +1142,7 @@ export default class Parser {
           output = build.join("").replace(/\s+$/, "");
           return [output, a];
         }
-        if (
-          output === "//" ||
-          output.slice(0, 6) === "//    " ||
-          options.preserveComment === true
-        ) {
+        if (output === "//" || output.slice(0, 6) === "//    ") {
           return [output, a];
         }
         output = output.replace(/(\/\/\s*)/, "// ");

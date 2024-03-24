@@ -57,7 +57,7 @@ export function anchor(i: FormatterState): void {
 export function comment(i: FormatterState): void {
   let x: number = i.start,
     test: boolean = false;
-  if (i.data.lines[i.start + 1] === 0 && i.options.forceIndent === false) {
+  if (i.data.lines[i.start + 1] === 0) {
     do {
       if (i.data.lines[x] > 0) {
         test = true;
@@ -97,10 +97,6 @@ export function comment(i: FormatterState): void {
 
 export function content(i: FormatterState): void {
   let ind: number = i.indent;
-  if (i.options.forceIndent === true || i.options.forceAttribute === true) {
-    i.level.push(i.indent);
-    return;
-  }
   if (
     i.next < i.end &&
     (i.data.types[i.next].indexOf("end") > -1 ||
@@ -140,16 +136,14 @@ export function content(i: FormatterState): void {
     // * i.options.wrap is 0
     // * i.next token is singleton with an attribute and exceeds wrap
     // * i.next token is template or singleton and exceeds wrap
-    (i.options.wrap === 0 ||
-      (i.start < i.end - 2 &&
-        i.data.token[i.start].length +
-          i.data.token[i.start + 1].length +
-          i.data.token[i.start + 2].length +
-          1 >
-          i.options.wrap &&
-        i.data.types[i.start + 2].indexOf("attribute") > -1) ||
-      i.data.token[i.start].length + i.data.token[i.start + 1].length >
-        i.options.wrap) &&
+    ((i.start < i.end - 2 &&
+      i.data.token[i.start].length +
+        i.data.token[i.start + 1].length +
+        i.data.token[i.start + 2].length +
+        1 >
+        0 &&
+      i.data.types[i.start + 2].indexOf("attribute") > -1) ||
+      i.data.token[i.start].length + i.data.token[i.start + 1].length > 0) &&
     (i.data.types[i.start + 1] === "singleton" ||
       i.data.types[i.start + 1] === "template")
   ) {
@@ -165,10 +159,10 @@ export function content(i: FormatterState): void {
   ) {
     i.level[i.start - 1] = -20;
   }
-  if (i.count > i.options.wrap) {
+  if (i.count > 0) {
     let d: number = i.start,
       e: number = Math.max(i.data.begin[i.start], 0);
-    if (i.data.types[i.start] === "content" && i.options.preserveText === false) {
+    if (i.data.types[i.start] === "content") {
       let countx: number = 0,
         chars: string[] = i.data.token[i.start].replace(/\s+/g, " ").split(" ");
       do {
@@ -185,7 +179,7 @@ export function content(i: FormatterState): void {
       d = 0;
       e = chars.length;
       do {
-        if (chars[d].length + countx > i.options.wrap) {
+        if (chars[d].length + countx > 0) {
           chars[d] = i.lf + chars[d];
           countx = chars[d].length;
         } else {
@@ -202,7 +196,8 @@ export function content(i: FormatterState): void {
       }
       if (i.data.token[i.start].indexOf(i.lf) > 0) {
         i.count =
-          i.data.token[i.start].length - i.data.token[i.start].lastIndexOf(i.lf);
+          i.data.token[i.start].length -
+          i.data.token[i.start].lastIndexOf(i.lf);
       }
     } else {
       do {
@@ -242,24 +237,6 @@ export function content(i: FormatterState): void {
   }
 }
 
-function wrap(i: FormatterState, index: number) {
-  const item: string[] = i.data.token[index].replace(/\s+/g, " ").split(" "),
-    ilen: number = item.length;
-  let bb: number = 1,
-    acount: number = item[0].length;
-  do {
-    if (acount + item[bb].length > i.options.wrap) {
-      acount = item[bb].length;
-      item[bb] = i.lf + item[bb];
-    } else {
-      item[bb] = ` ${item[bb]}`;
-      acount = acount + item[bb].length;
-    }
-    bb = bb + 1;
-  } while (bb < ilen);
-  i.data.token[index] = item.join("");
-}
-
 function attributeLevel(i: FormatterState): [boolean, number] {
   let parent = i.start - 1,
     plural: boolean = false;
@@ -274,7 +251,10 @@ function attributeLevel(i: FormatterState): [boolean, number] {
       }
       x = x + 1;
     } while (x < i.end);
-  } else if (i.start < i.end - 1 && i.data.types[i.start + 1].indexOf("attribute") > -1) {
+  } else if (
+    i.start < i.end - 1 &&
+    i.data.types[i.start + 1].indexOf("attribute") > -1
+  ) {
     plural = true;
   }
   if (
@@ -325,7 +305,10 @@ export function attribute(i: FormatterState): void {
         i.level.push(lev);
       } else if (i.data.types[i.start].indexOf("start") > 0) {
         attStart = true;
-        if (i.start < i.end - 2 && i.data.types[i.start + 2].indexOf("attribute") > 0) {
+        if (
+          i.start < i.end - 2 &&
+          i.data.types[i.start + 2].indexOf("attribute") > 0
+        ) {
           i.level.push(-20);
           i.start += 1;
         } else {
@@ -346,10 +329,7 @@ export function attribute(i: FormatterState): void {
       earlyexit = true;
     } else if (i.data.types[i.start] === "attribute") {
       len = len + i.data.token[i.start].length + 1;
-      if (i.options.unformatted === true) {
-        i.level.push(-10);
-      } else if (
-        i.options.forceAttribute === true ||
+      if (
         attStart === true ||
         (i.start < i.end - 1 &&
           i.data.types[i.start + 1] !== "template_attribute" &&
@@ -377,15 +357,9 @@ export function attribute(i: FormatterState): void {
   if (i.level[i.start] !== -20) {
     i.level[i.start] = i.level[parent];
   }
-  if (i.options.forceAttribute === true) {
-    i.count = 0;
-    i.level[parent] = lev;
-  } else {
-    i.level[parent] = -10;
-  }
+  i.level[parent] = -10;
   if (
     earlyexit === true ||
-    i.options.unformatted === true ||
     i.data.token[parent] === "<%xml%>" ||
     i.data.token[parent] === "<?xml?>"
   ) {
@@ -393,36 +367,4 @@ export function attribute(i: FormatterState): void {
     return;
   }
   y = i.start;
-
-  // Second, ensure tag contains more than one attribute
-  if (y > parent + 1) {
-    // Finally, indent attributes if tag length exceeds the wrap limit
-    if (i.options.spaceClose === false) {
-      len = len - 1;
-    }
-    if (
-      len > i.options.wrap &&
-      i.options.wrap > 0 &&
-      i.options.forceAttribute === false
-    ) {
-      i.count = i.data.token[i.start].length;
-      do {
-        if (
-          i.data.token[y].length > i.options.wrap &&
-          /\s/.test(i.data.token[y]) === true
-        ) {
-          wrap(i, y);
-        }
-        y = y - 1;
-        i.level[y] = lev;
-      } while (y > parent);
-    }
-  } else if (
-    i.options.wrap > 0 &&
-    i.data.types[i.start].indexOf("attribute") > -1 &&
-    i.data.token[i.start].length > i.options.wrap &&
-    /\s/.test(i.data.token[i.start]) === true
-  ) {
-    wrap(i, i.start);
-  }
 }

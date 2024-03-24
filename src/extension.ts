@@ -11,29 +11,18 @@ import {
 import FormatTwig from "./FormatTwig";
 
 function textEdits(document: TextDocument, range: Range): TextEdit[] {
-  const tabSize = window.activeTextEditor?.options.tabSize ?? 2;
-  const indentSize = typeof tabSize === "string" ? 2 : tabSize;
+  let tabSize = window.activeTextEditor?.options.tabSize ?? 2;
+  tabSize = typeof tabSize == "string" ? 2 : tabSize;
+  let insertSpaces = window.activeTextEditor?.options.insertSpaces ?? true;
+  insertSpaces = typeof insertSpaces == "string" ? true : insertSpaces;
+  const indentSize = insertSpaces ? tabSize : 1;
   const lf =
     window.activeTextEditor?.document.eol === EndOfLine.LF ? "\n" : "\r\n";
   const options: FormatterOptions = {
     source: document.getText(range),
-    beautify: {},
-    end: 0,
-    iterator: 0,
-    start: 0,
     lf: lf,
-    forceIndent: false,
-    forceAttribute: false,
-    wrap: 0,
-    preserveText: false,
-    preserveComment: false,
-    unformatted: false,
-    spaceClose: true,
-    indentChar: " ",
+    indentChar: insertSpaces ? " " : "\t",
     indentSize: indentSize,
-    preserve: 1,
-    correct: false,
-    indentLevel: 0,
   };
 
   const ft = new FormatTwig(options);

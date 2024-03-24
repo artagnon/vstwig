@@ -1,10 +1,10 @@
 function ind(i: FormatterState): string {
-  const indy: string[] = [i.options.indentChar],
-    size: number = i.options.indentSize - 1;
+  const indy: string[] = [i.indentChar],
+    size: number = i.indentSize - 1;
   let aa: number = 0;
   if (aa < size) {
     do {
-      indy.push(i.options.indentChar);
+      indy.push(i.indentChar);
       aa = aa + 1;
     } while (aa < size);
   }
@@ -15,7 +15,7 @@ export function nl(i: FormatterState, tabs: number): string {
   // i.start new line character plus the correct amount of identation for the given line
   // of code
   const linesout: string[] = [],
-    pres: number = i.options.preserve + 1,
+    pres: number = 2,
     total: number = Math.min(i.data.lines[i.start + 1] - 1, pres);
   let index = 0;
   if (tabs < 0) {
@@ -86,11 +86,9 @@ export function attributeEnd(i: FormatterState): void {
   const parent: string = i.data.token[i.start],
     regend: RegExp = /(\/|\?)?>$/,
     end: string[] | null = regend.exec(parent);
-  let y: number = i.start + 1,
-    space: string = i.options.spaceClose === true && end !== null && end[0] === "/>" ? " " : "";
-  if (end === null) {
-    return;
-  }
+  let y: number = i.start + 1;
+  if (end === null) return;
+  let space: string = end[0] === "/>" ? " " : "";
   i.data.token[i.start] = parent.replace(regend, "");
   do {
     if (i.data.begin[y] < i.start || i.data.types[y].indexOf("attribute") < 0) {

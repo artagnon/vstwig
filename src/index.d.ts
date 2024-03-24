@@ -1,6 +1,7 @@
 interface AttStore extends Array<[string, number]> {
   [index: number]: [string, number];
 }
+
 interface MarkupCount {
   end: number;
   index: number;
@@ -66,27 +67,12 @@ interface DataRecord {
 
 interface FormatterOptions {
   source: string;
-  beautify: object;
-  end: number;
-  iterator: number;
-  start: number;
   lf: string;
-  forceIndent: boolean;
-  forceAttribute: boolean;
-  wrap: number;
-  preserveText: boolean;
-  preserveComment: boolean;
-  unformatted: boolean;
-  spaceClose: boolean;
   indentChar: string;
   indentSize: number;
-  preserve: number;
-  correct: boolean;
-  indentLevel: number;
 }
 
 interface FormatterState {
-  options: FormatterOptions;
   data: ParseData;
   lf: string;
   level: number[];
@@ -97,6 +83,8 @@ interface FormatterState {
   comstart: number;
   count: number;
   indent: number;
+  indentChar: string;
+  indentSize: number;
   build: string[];
 }
 

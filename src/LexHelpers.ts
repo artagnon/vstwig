@@ -359,7 +359,9 @@ export function tag(i: LexState, end: string): void {
           ltype = "comment";
           start = "<!--";
         }
-      } else if (i.chars.slice(i.start + 2, i.start + 8).join("") === "[CDATA") {
+      } else if (
+        i.chars.slice(i.start + 2, i.start + 8).join("") === "[CDATA"
+      ) {
         end = "]]>";
         ltype = "cdata";
         preserve = true;
@@ -635,7 +637,10 @@ export function tag(i: LexState, end: string): void {
             ltype = "start";
             break;
           }
-          while (i.start < i.end - 1 && /\s/.test(i.chars[i.start + 1]) === true) {
+          while (
+            i.start < i.end - 1 &&
+            /\s/.test(i.chars[i.start + 1]) === true
+          ) {
             i.start += 1;
             if (i.chars[i.start] === i.options.lf) {
               lines = lines + 1;
@@ -726,15 +731,20 @@ export function tag(i: LexState, end: string): void {
                 attributeLexer(false);
               }
               break;
-            } else if (i.chars[i.start] === "{" && i.chars[i.start - 1] === "=") {
+            } else if (
+              i.chars[i.start] === "{" &&
+              i.chars[i.start - 1] === "="
+            ) {
               quote = "}";
             } else if (i.chars[i.start] === '"' || i.chars[i.start] === "'") {
               quote = i.chars[i.start];
               if (
                 i.chars[i.start - 1] === "=" &&
                 (i.chars[i.start + 1] === "<" ||
-                  (i.chars[i.start + 1] === "{" && i.chars[i.start + 2] === "%") ||
-                  (/\s/.test(i.chars[i.start + 1]) === true && i.chars[i.start - 1] !== "="))
+                  (i.chars[i.start + 1] === "{" &&
+                    i.chars[i.start + 2] === "%") ||
+                  (/\s/.test(i.chars[i.start + 1]) === true &&
+                    i.chars[i.start - 1] !== "="))
               ) {
                 igcount = i.start;
               }
@@ -823,7 +833,10 @@ export function tag(i: LexState, end: string): void {
           ) {
             quote = quote + "<";
             igcount = 0;
-          } else if (i.chars[i.start] === ">" && (quote === '"<' || quote === "'<")) {
+          } else if (
+            i.chars[i.start] === ">" &&
+            (quote === '"<' || quote === "'<")
+          ) {
             quote = quote.charAt(0);
             igcount = 0;
           } else if (
@@ -899,7 +912,10 @@ export function tag(i: LexState, end: string): void {
             (attstore.length < 1 || /\s/.test(i.chars[i.start - 1]) === true)
           ) {
             lex.pop();
-            while (i.start < i.end && i.chars[i.start - 1] + i.chars[i.start] !== quote) {
+            while (
+              i.start < i.end &&
+              i.chars[i.start - 1] + i.chars[i.start] !== quote
+            ) {
               if (i.chars[i.start] === i.options.lf) {
                 lines = lines + 1;
               }
@@ -975,7 +991,10 @@ export function tag(i: LexState, end: string): void {
           }
         }
       }
-    } else if (i.chars[i.start] === quote.charAt(quote.length - 1) && end !== "}") {
+    } else if (
+      i.chars[i.start] === quote.charAt(quote.length - 1) &&
+      end !== "}"
+    ) {
       //find the closing quote or embedded template expression
       f = 0;
       if (lex.length > 1) {
@@ -997,24 +1016,6 @@ export function tag(i: LexState, end: string): void {
   }
 
   if (i.start < i.end) {
-    // start correction to incomplete template tags that use multiple angle braces
-    if (i.options.correct === true) {
-      if (i.chars[i.start + 1] === ">" && lex[0] === "<" && lex[1] !== "<") {
-        while (i.chars[i.start + 1] === ">") {
-          i.start = i.start + 1;
-        }
-      } else if (
-        lex[0] === "<" &&
-        lex[1] === "<" &&
-        i.chars[i.start + 1] !== ">" &&
-        lex[lex.length - 2] !== ">"
-      ) {
-        while (lex[1] === "<") {
-          lex.splice(1, 1);
-        }
-      }
-    }
-
     element = lex.join("");
     tname = tagName(i, element);
     element = bracketSpace(element);
@@ -1407,9 +1408,6 @@ export function tag(i: LexState, end: string): void {
 
       // Inserts start trailing slash into singleton tags if they do not already have it
       if (htmlsings[tname] === "singleton") {
-        if (i.options.correct === true && ender.test(element) === false) {
-          element = element.slice(0, element.length - 1) + " />";
-        }
         return true;
       }
     }
@@ -1613,86 +1611,6 @@ export function content(i: LexState): void {
       ltoke = lex.join("");
       ltoke = bracketSpace(ltoke);
       liner = 0;
-      record.token = ltoke;
-      if (i.options.wrap > 0) {
-        let aa: number = i.options.wrap,
-          len: number = ltoke.length,
-          startSpace: string = "",
-          endSpace: string = "";
-        const wrap: number = i.options.wrap,
-          store: string[] = [];
-        function wrapper(): void {
-          if (ltoke.charAt(aa) === " ") {
-            store.push(ltoke.slice(0, aa));
-            ltoke = ltoke.slice(aa + 1);
-            len = ltoke.length;
-            aa = wrap;
-            return;
-          }
-          while (aa > 0 && ltoke.charAt(aa) !== " ") {
-            aa -= 1;
-          }
-          if (aa > 0) {
-            store.push(ltoke.slice(0, aa));
-            ltoke = ltoke.slice(aa + 1);
-            len = ltoke.length;
-            aa = wrap;
-          } else {
-            aa = wrap;
-            while (aa < len && ltoke.charAt(aa) !== " ") {
-              aa += 1;
-            }
-            store.push(ltoke.slice(0, aa));
-            ltoke = ltoke.slice(aa + 1);
-            len = ltoke.length;
-            aa = wrap;
-          }
-        }
-        // HTML anchor lists do not get wrapping unless the content itself exceeds the wrapping limit
-        if (
-          data.token[data.begin[parse.count]] === "<start>" &&
-          data.token[data.begin[data.begin[parse.count]]] === "<li>" &&
-          data.lines[data.begin[parse.count]] === 0 &&
-          parse.linesSpace === 0 &&
-          ltoke.length < i.options.wrap
-        ) {
-          recordPush(i, data, record, "");
-          break;
-        }
-        if (len < wrap) {
-          recordPush(i, data, record, "");
-          break;
-        }
-        if (parse.linesSpace < 1) {
-          let bb = parse.count;
-          while (bb > 0 && aa > 0) {
-            aa = aa - data.token[bb].length;
-            if (data.types[bb].indexOf("attribute") > -1) {
-              aa = aa - 1;
-            }
-            if (data.lines[bb] > 0 && data.types[bb].indexOf("attribute") < 0) {
-              break;
-            }
-            bb -= 1;
-          }
-          if (aa < 1) {
-            aa = ltoke.indexOf(" ");
-          }
-        }
-        ltoke = lex.join("");
-        ltoke = ltoke
-          .replace(/^\s+/, "")
-          .replace(/\s+$/, "")
-          .replace(/\s+/g, " ");
-        while (aa < len) {
-          wrapper();
-        }
-        if (ltoke !== "" && ltoke !== " ") {
-          store.push(ltoke);
-        }
-        ltoke = store.join(i.options.lf);
-        ltoke = startSpace + ltoke + endSpace;
-      }
       record.token = ltoke;
       recordPush(i, data, record, "");
       break;
