@@ -1,13 +1,13 @@
-interface attStore extends Array<[string, number]> {
+interface AttStore extends Array<[string, number]> {
   [index: number]: [string, number];
 }
-interface markupCount {
+interface MarkupCount {
   end: number;
   index: number;
   start: number;
 }
 
-interface wrapConfig {
+interface WrapConfig {
   chars: string[];
   end: number;
   opening: string;
@@ -15,38 +15,38 @@ interface wrapConfig {
   terminator: string;
 }
 
-interface spacer {
-  array: string[];
+interface Spacer {
+  chars: string[];
   end: number;
   index: number;
 }
 
-interface parse {
-  concat(data: data, array: data): void;
+interface Parse {
+  concat(ParseData: ParseData, array: ParseData): void;
   count: number;
-  data: data;
+  data: ParseData;
   lineNumber: number;
   linesSpace: number;
-  objectSort(data: data): void;
-  pop(data: data): record;
-  push(data: data, record: record, structure: string): void;
+  objectSort(ParseData: ParseData): void;
+  pop(data: ParseData): DataRecord;
+  push(data: ParseData, record: DataRecord, structure: string): void;
   references: string[][];
   safeSort(array: any[], operation: string, recursive: boolean): any[];
-  spacer(args: spacer): number;
-  splice(spliceData: splice): void;
+  spacer(args: Spacer): number;
+  splice(spliceData: Splice): void;
   structure: Array<[string, number]>;
-  wrapCommentBlock(config: wrapConfig): [string, number];
-  wrapCommentLine(config: wrapConfig): [string, number];
+  wrapCommentBlock(config: WrapConfig): [string, number];
+  wrapCommentLine(config: WrapConfig): [string, number];
 }
 
-interface splice {
-  data: data;
+interface Splice {
+  data: ParseData;
   howmany: number;
   index: number;
-  record?: record;
+  record?: DataRecord;
 }
 
-interface data {
+interface ParseData {
   begin: number[];
   ender: number[];
   lines: number[];
@@ -55,7 +55,7 @@ interface data {
   types: string[];
 }
 
-interface record {
+interface DataRecord {
   begin: number;
   ender: number;
   lines: number;
@@ -87,11 +87,11 @@ interface FormatterOptions {
 
 interface FormatterState {
   options: FormatterOptions;
-  data: data;
+  data: ParseData;
   lf: string;
   level: number[];
-  a: number;
-  c: number;
+  start: number;
+  end: number;
   prev: number;
   next: number;
   comstart: number;
@@ -101,14 +101,14 @@ interface FormatterState {
 }
 
 interface LexState {
-  a: number;
-  b: string[];
-  c: number;
-  parse: parse;
+  start: number;
+  chars: string[];
+  end: number;
+  parse: Parse;
   sgmlflag: number;
   html: "html" | "xml" | "";
   parseerror: string;
-  count: markupCount;
+  count: MarkupCount;
   options: FormatterOptions;
   htmlblocks: any;
 }

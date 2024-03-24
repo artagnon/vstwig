@@ -1,30 +1,33 @@
 import * as Lex from "./LexHelpers";
 
-export function markupLexer(i: LexState): data {
+export function markupLexer(i: LexState): ParseData {
   const parse = i.parse;
   const data = i.parse.data;
 
   // Main loop
-  for (i.a = 0; i.a < i.c; i.a += 1) {
-    if (/\s/.test(i.b[i.a]) === true) {
+  for (i.start = 0; i.start < i.end; i.start += 1) {
+    if (/\s/.test(i.chars[i.start]) === true) {
       if (
         data.types[parse.count] === "template_start" &&
         parse.structure[parse.structure.length - 1][0] === "comment"
       ) {
         Lex.content(i);
       } else {
-        i.a = parse.spacer({ array: i.b, end: i.c, index: i.a });
+        i.start = parse.spacer({ chars: i.chars, end: i.end, index: i.start });
       }
-    } else if (i.b[i.a] === "<") {
+    } else if (i.chars[i.start] === "<") {
       Lex.tag(i, "");
-    } else if (i.b[i.a] === "[" && i.b[i.a + 1] === "%") {
+    } else if (i.chars[i.start] === "[" && i.chars[i.start + 1] === "%") {
       Lex.tag(i, "%]");
     } else if (
-      i.b[i.a] === "{" &&
-      (i.b[i.a + 1] === "{" || i.b[i.a + 1] === "%" || i.b[i.a + 1] === "@" || i.b[i.a + 1] === "#")
+      i.chars[i.start] === "{" &&
+      (i.chars[i.start + 1] === "{" ||
+        i.chars[i.start + 1] === "%" ||
+        i.chars[i.start + 1] === "@" ||
+        i.chars[i.start + 1] === "#")
     ) {
       Lex.tag(i, "");
-    } else if (i.b[i.a] === "]" && i.sgmlflag > 0) {
+    } else if (i.chars[i.start] === "]" && i.sgmlflag > 0) {
       Lex.tag(i, "]>");
     } else {
       Lex.content(i);

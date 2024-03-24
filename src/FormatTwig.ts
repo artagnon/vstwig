@@ -7,7 +7,7 @@ export default class FormatTwig implements FormatterState {
   options: any;
 
   // The result of the parse data
-  data: data;
+  data: ParseData;
 
   // The line feed character: "\n" on UNIX-like systems
   lf: string;
@@ -19,15 +19,15 @@ export default class FormatTwig implements FormatterState {
   level: number[];
 
   // Start of the sparser array
-  a: number;
+  start: number;
 
   // End of the sparser array
-  c: number;
+  end: number;
 
-  // a - 1, excluding comments
+  // start - 1, excluding comments
   prev: number;
 
-  // a + 1, excluding comments
+  // start + 1, excluding comments
   next: number;
 
   // Comment start; initialized to -1
@@ -47,8 +47,8 @@ export default class FormatTwig implements FormatterState {
     this.lf = options.lf;
     this.data = new Parser(options).runLexer();
     this.level = [];
-    this.a = 0;
-    this.c = this.data.token.length;
+    this.start = 0;
+    this.end = this.data.token.length;
     this.comstart = -1;
     this.prev = 0;
     this.next = 0;
@@ -67,19 +67,22 @@ export default class FormatTwig implements FormatterState {
     // i.data.lines -> space before token
     // i.level -> space after token
     do {
-      if (i.data.token[i.a].toLowerCase().indexOf("<!doctype") === 0) {
-        i.level[i.a - 1] = i.indent;
+      if (i.data.token[i.start].toLowerCase().indexOf("<!doctype") === 0) {
+        i.level[i.start - 1] = i.indent;
       }
-      if (i.data.types[i.a].indexOf("attribute") > -1) {
+      if (i.data.types[i.start].indexOf("attribute") > -1) {
         Collect.attribute(i);
-      } else if (i.data.types[i.a] === "comment") {
+      } else if (i.data.types[i.start] === "comment") {
         if (i.comstart < 0) {
-          i.comstart = i.a;
+          i.comstart = i.start;
         }
-        if (i.data.types[i.a + 1] !== "comment" || i.data.types[i.a - 1].indexOf("end") > -1) {
+        if (
+          i.data.types[i.start + 1] !== "comment" ||
+          i.data.types[i.start - 1].indexOf("end") > -1
+        ) {
           Collect.comment(i);
         }
-      } else if (i.data.types[i.a] !== "comment") {
+      } else if (i.data.types[i.start] !== "comment") {
         if (
           i.data.types[Collect.next(i)] === "end" ||
           i.data.types[Collect.next(i)] === "template_end"
@@ -91,46 +94,52 @@ export default class FormatTwig implements FormatterState {
           ) {
             i.indent -= 1;
           }
-          if (i.data.token[i.a] === "</ol>" || i.data.token[i.a] === "</ul>") {
+          if (i.data.token[i.start] === "</ol>" || i.data.token[i.start] === "</ul>") {
             Collect.anchor(i);
           }
         }
         if (
           i.options.forceIndent === false &&
-          (i.data.types[i.a] === "content" ||
-            i.data.types[i.a] === "singleton" ||
-            i.data.types[i.a] === "template")
+          (i.data.types[i.start] === "content" ||
+            i.data.types[i.start] === "singleton" ||
+            i.data.types[i.start] === "template")
         ) {
-          i.count = i.count + i.data.token[i.a].length;
+          i.count = i.count + i.data.token[i.start].length;
           if (
-            i.data.types[i.a] === "template_start" &&
+            i.data.types[i.start] === "template_start" &&
             i.data.types[Collect.next(i)].indexOf("template") < 0
           ) {
             Collect.content(i);
           } else {
             i.level.push(i.indent);
           }
-        } else if (i.data.types[i.a] === "start" || i.data.types[i.a] === "template_start") {
+        } else if (
+          i.data.types[i.start] === "start" ||
+          i.data.types[i.start] === "template_start"
+        ) {
           i.indent += 1;
           if (
-            i.data.types[i.a] === "template_start" &&
+            i.data.types[i.start] === "template_start" &&
             i.data.types[Collect.next(i)] === "template_else"
           ) {
             i.indent += 1;
           }
-          if (i.data.types[i.a] === "start" && i.data.types[Collect.next(i)] === "end") {
+          if (
+            i.data.types[i.start] === "start" &&
+            i.data.types[Collect.next(i)] === "end"
+          ) {
             i.level.push(-20);
           } else if (i.options.forceIndent === true) {
             i.level.push(i.indent);
           } else if (
-            i.data.types[i.a] === "template_start" &&
+            i.data.types[i.start] === "template_start" &&
             i.data.types[Collect.next(i)] === "template_end"
           ) {
             i.level.push(-20);
           } else {
             i.level.push(i.indent);
           }
-        } else if (i.data.types[i.a] === "template_else") {
+        } else if (i.data.types[i.start] === "template_else") {
           if (i.data.types[Collect.next(i)] === "template_end") {
             i.level[Collect.prev(i)] = i.indent + 1;
           } else {
@@ -142,51 +151,52 @@ export default class FormatTwig implements FormatterState {
         }
       }
       if (
-        i.data.types[i.a] !== "content" &&
-        i.data.types[i.a] !== "singleton" &&
-        i.data.types[i.a] !== "template" &&
-        i.data.types[i.a] !== "attribute"
+        i.data.types[i.start] !== "content" &&
+        i.data.types[i.start] !== "singleton" &&
+        i.data.types[i.start] !== "template" &&
+        i.data.types[i.start] !== "attribute"
       ) {
         i.count = 0;
       }
-      i.a += 1;
-    } while (i.a < i.c);
+      i.start += 1;
+    } while (i.start < i.end);
   }
 
   applyMarkupLevels(): void {
     const i = this;
-    this.a = this.options.start;
+    i.start = i.options.start;
     do {
       if (
-        (i.data.types[i.a] === "start" ||
-          i.data.types[i.a] === "singleton" ||
-          i.data.types[i.a] === "xml" ||
-          i.data.types[i.a] === "sgml") &&
-        i.data.types[i.a + 1] !== undefined &&
-        i.data.types[i.a].indexOf("attribute") < 0 &&
-        i.a < i.c - 1 &&
-        i.data.types[i.a + 1].indexOf("attribute") > -1
+        (i.data.types[i.start] === "start" ||
+          i.data.types[i.start] === "singleton" ||
+          i.data.types[i.start] === "xml" ||
+          i.data.types[i.start] === "sgml") &&
+        i.data.types[i.start + 1] !== undefined &&
+        i.data.types[i.start].indexOf("attribute") < 0 &&
+        i.start < i.end - 1 &&
+        i.data.types[i.start + 1].indexOf("attribute") > -1
       ) {
         Apply.attributeEnd(i);
       }
       if (
-        i.data.token[i.a].indexOf(i.lf) > 0 &&
-        ((i.data.types[i.a] === "content" && i.options.preserveText === false) ||
-          i.data.types[i.a] === "comment" ||
-          i.data.types[i.a] === "attribute")
+        i.data.token[i.start].indexOf(i.lf) > 0 &&
+        ((i.data.types[i.start] === "content" &&
+          i.options.preserveText === false) ||
+          i.data.types[i.start] === "comment" ||
+          i.data.types[i.start] === "attribute")
       ) {
         Apply.multiline(i);
       } else {
-        i.build.push(i.data.token[i.a]);
-        if (i.level[i.a] === -10 && i.a < i.c - 1) {
+        i.build.push(i.data.token[i.start]);
+        if (i.level[i.start] === -10 && i.start < i.end - 1) {
           i.build.push(" ");
-        } else if (i.level[i.a] > -1) {
-          i.build.push(Apply.nl(i, i.level[i.a]));
+        } else if (i.level[i.start] > -1) {
+          i.build.push(Apply.nl(i, i.level[i.start]));
         }
       }
-      i.a += 1;
-    } while (i.a < i.c);
-    i.options.iterator = i.c - 1;
+      i.start += 1;
+    } while (i.start < i.end);
+    i.options.iterator = i.end - 1;
     if (i.build[0] === i.lf || i.build[0] === " ") {
       i.build[0] = "";
     }

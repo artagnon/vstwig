@@ -1,7 +1,7 @@
 import { markupLexer } from "./MarkupLexer";
 
 export default class Parser {
-  parse: parse;
+  parse: Parse;
   options: FormatterOptions;
 
   constructor(options: FormatterOptions) {
@@ -28,7 +28,7 @@ export default class Parser {
       // stores the stack and begin values by stacking depth
       structure: [["global", -1]],
       // an extension of Array.prototype.concat to work across the data structure.  This is an expensive operation.
-      concat: (data: data, array: data): void => {
+      concat: (data: ParseData, array: ParseData): void => {
         data.begin = data.begin.concat(array.begin);
         data.ender = data.ender.concat(array.ender);
         data.lines = data.lines.concat(array.lines);
@@ -40,7 +40,7 @@ export default class Parser {
         }
       },
       // the function that sorts object properties
-      objectSort: (data: data): void => {
+      objectSort: (data: ParseData): void => {
         let cc: number = i.parse.count,
           dd: number = i.parse.structure[i.parse.structure.length - 1][1],
           ee: number = 0,
@@ -80,7 +80,7 @@ export default class Parser {
             }
             return -1;
           },
-          store: data = {
+          store: ParseData = {
             begin: [],
             ender: [],
             lines: [],
@@ -231,8 +231,8 @@ export default class Parser {
         return;
       },
       // an extension of Array.prototype.pop to work across the data structure
-      pop: (data: data): record => {
-        const output: record = {
+      pop: (data: ParseData): DataRecord => {
+        const output: DataRecord = {
           begin: data.begin.pop() ?? 0,
           ender: data.ender.pop() ?? 0,
           lines: data.lines.pop() ?? 0,
@@ -246,7 +246,7 @@ export default class Parser {
         return output;
       },
       // an extension of Array.prototype.push to work across the data structure
-      push: (data: data, record: record, structure: string): void => {
+      push: (data: ParseData, record: DataRecord, structure: string): void => {
         const ender = (): void => {
           let a: number = i.parse.count;
           const begin: number = data.begin[a];
@@ -554,17 +554,17 @@ export default class Parser {
         return ascend(array);
       },
       // a simple tool to take note of whitespace between tokens
-      spacer: (args: spacer): number => {
+      spacer: (args: Spacer): number => {
         // * array - the characters to scan
         // * index - the index to start scanning from
         // * end   - the length of the array, to break the loop
         i.parse.linesSpace = 1;
         do {
-          if (args.array[args.index] === options.lf) {
+          if (args.chars[args.index] === options.lf) {
             i.parse.linesSpace = i.parse.linesSpace + 1;
             i.parse.lineNumber = i.parse.lineNumber + 1;
           }
-          if (/\s/.test(args.array[args.index + 1]) === false) {
+          if (/\s/.test(args.chars[args.index + 1]) === false) {
             break;
           }
           args.index = args.index + 1;
@@ -572,7 +572,7 @@ export default class Parser {
         return args.index;
       },
       // an extension of Array.prototype.splice to work across the data structure
-      splice: (spliceData: splice): void => {
+      splice: (spliceData: Splice): void => {
         const finalItem: [number, string] = [
           i.parse.data.begin[i.parse.count],
           i.parse.data.token[i.parse.count],
@@ -636,7 +636,7 @@ export default class Parser {
         }
       },
       // parsing block comments and simultaneously applying word wrap
-      wrapCommentBlock: (config: wrapConfig): [string, number] => {
+      wrapCommentBlock: (config: WrapConfig): [string, number] => {
         let a: number = config.start,
           b: number = 0,
           c: number = 0,
@@ -998,7 +998,7 @@ export default class Parser {
         return [output, a];
       },
       // parsing line comments and simultaneously applying word wrap
-      wrapCommentLine: (config: wrapConfig): [string, number] => {
+      wrapCommentLine: (config: WrapConfig): [string, number] => {
         let a: number = config.start,
           b: number = 0,
           output: string = "",
@@ -1036,7 +1036,7 @@ export default class Parser {
             let c: number = 0,
               d: number = 0;
             const lines: string[] = [],
-              record: record =
+              record: DataRecord =
                 i.parse.count > -1
                   ? {
                       begin: i.parse.structure[i.parse.structure.length - 1][1],
@@ -1176,7 +1176,7 @@ export default class Parser {
       return arr;
     };
     const lexState: LexState = {
-      a: 0,
+      start: 0,
       sgmlflag: 0,
       html: "",
       parse: i.parse,
@@ -1187,8 +1187,8 @@ export default class Parser {
         start: 0,
       },
       options: i.options,
-      b: i.options.source.split(""),
-      c: i.options.source.length,
+      chars: i.options.source.split(""),
+      end: i.options.source.length,
       htmlblocks: {
         body: "block",
         colgroup: "block",

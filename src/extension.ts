@@ -13,7 +13,8 @@ import FormatTwig from "./FormatTwig";
 function textEdits(document: TextDocument, range: Range): TextEdit[] {
   const tabSize = window.activeTextEditor?.options.tabSize ?? 2;
   const indentSize = typeof tabSize === "string" ? 2 : tabSize;
-  const lf = window.activeTextEditor?.document.eol === EndOfLine.LF ? "\n" : "\r\n";
+  const lf =
+    window.activeTextEditor?.document.eol === EndOfLine.LF ? "\n" : "\r\n";
   const options: FormatterOptions = {
     source: document.getText(range),
     beautify: {},
@@ -40,35 +41,31 @@ function textEdits(document: TextDocument, range: Range): TextEdit[] {
 }
 
 export function activate(_: ExtensionContext) {
-  languages.registerDocumentRangeFormattingEditProvider(
-    { scheme: "file", language: "twig" },
-    {
-      provideDocumentRangeFormattingEdits: function (document: TextDocument, range: Range) {
-        const start = new Position(range.start.line, 0);
-        let end = range.end;
-        if (end.character === 0) {
-          end = end.translate(-1, Number.MAX_VALUE);
-        } else {
-          end = end.translate(0, Number.MAX_VALUE);
-        }
-        return textEdits(document, new Range(start, end));
-      },
-    }
-  );
+  languages.registerDocumentRangeFormattingEditProvider("twig", {
+    provideDocumentRangeFormattingEdits: (
+      document: TextDocument,
+      range: Range
+    ) => {
+      const start = new Position(range.start.line, 0);
+      let end = range.end;
+      end =
+        end.character === 0
+          ? end.translate(-1, Number.MAX_VALUE)
+          : end.translate(0, Number.MAX_VALUE);
+      return textEdits(document, new Range(start, end));
+    },
+  });
 
-  languages.registerDocumentFormattingEditProvider(
-    { scheme: "file", language: "twig" },
-    {
-      provideDocumentFormattingEdits: function (document: TextDocument) {
-        const start = new Position(0, 0);
-        const end = new Position(
-          document.lineCount - 1,
-          document.lineAt(document.lineCount - 1).text.length
-        );
-        return textEdits(document, new Range(start, end));
-      },
-    }
-  );
+  languages.registerDocumentFormattingEditProvider("twig", {
+    provideDocumentFormattingEdits: (document: TextDocument) => {
+      const start = new Position(0, 0);
+      const end = new Position(
+        document.lineCount - 1,
+        document.lineAt(document.lineCount - 1).text.length
+      );
+      return textEdits(document, new Range(start, end));
+    },
+  });
 }
 
 // this method is called when your extension is deactivated
