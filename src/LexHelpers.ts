@@ -472,7 +472,7 @@ export function tag(i: LexState, end: string): void {
   // This is the real tag lexer. Everything that follows is attribute handling and
   // edge cases
   lastchar = end.charAt(end.length - 1);
-  if (ltype === "comment" && i.chars[i.start] === "<") {
+  if (ltype === "comment") {
     comm = parse.wrapCommentBlock({
       chars: i.chars,
       end: i.end,
