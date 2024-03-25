@@ -2,25 +2,20 @@ function ind(i: FormatterState): string {
   const indy: string[] = [i.indentChar],
     size: number = i.indentSize - 1;
   let aa: number = 0;
-  if (aa < size) {
-    do {
-      indy.push(i.indentChar);
-      aa = aa + 1;
-    } while (aa < size);
+  while (aa < size) {
+    indy.push(i.indentChar);
+    aa = aa + 1;
   }
   return indy.join("");
 }
 
 export function nl(i: FormatterState, tabs: number): string {
-  // i.start new line character plus the correct amount of identation for the given line
+  // i.start new line character plus the correct amount of indentation for the given line
   // of code
   const linesout: string[] = [],
-    pres: number = 2,
-    total: number = Math.min(i.data.lines[i.start + 1] - 1, pres);
+    total: number = Math.min(i.data.lines[i.start + 1] - 1, 2);
   let index = 0;
-  if (tabs < 0) {
-    tabs = 0;
-  }
+  if (tabs < 0) tabs = 0;
   do {
     linesout.push(i.lf);
     index = index + 1;
@@ -37,49 +32,35 @@ export function nl(i: FormatterState, tabs: number): string {
 
 function multilineLev(i: FormatterState): number {
   let bb: number = i.start - 1,
-    start: boolean = bb > -1 && i.data.types[bb].indexOf("start") > -1;
-  if (i.level[i.start] > -1 && i.data.types[i.start] === "attribute") {
+    start: boolean = false;
+  if (i.level[i.start] > -1 && i.data.types[i.start] === "attribute")
     return i.level[i.start] + 1;
-  }
-  do {
+  while (bb > -1) {
+    if (i.level[bb] > -1)
+      return i.data.types[bb] === "content" && start === false
+        ? i.level[bb]
+        : i.level[bb] + 1;
+    if (i.data.types[bb].indexOf("start") > -1) start = true;
     bb = bb - 1;
-    if (i.level[bb] > -1) {
-      if (i.data.types[i.start] === "content" && start === false) {
-        return i.level[bb];
-      }
-      return i.level[bb] + 1;
-    }
-    if (i.data.types[bb].indexOf("start") > -1) {
-      start = true;
-    }
-  } while (bb > 0);
+  }
   return 1;
 }
 
 export function multiline(i: FormatterState): void {
   const lines: string[] = i.data.token[i.start].split(i.lf),
     line: number = i.data.lines[i.start + 1],
-    lev: number =
-      i.level[i.start - 1] > -1
-        ? i.data.types[i.start] === "attribute"
-          ? i.level[i.start - 1] + 1
-          : i.level[i.start - 1]
-        : multilineLev(i);
-  let aa: number = 0,
+    lev: number = multilineLev(i);
+  let aa: number,
     len: number = lines.length - 1;
   i.data.lines[i.start + 1] = 0;
-  do {
-    i.build.push(lines[aa]);
-    i.build.push(nl(i, lev));
-    aa = aa + 1;
-  } while (aa < len);
-  i.data.lines[i.start + 1] = line;
-  i.build.push(lines[len]);
-  if (i.level[i.start] === -10) {
-    i.build.push(" ");
-  } else if (i.level[i.start] > -1) {
-    i.build.push(nl(i, i.level[i.start]));
+  for (aa = 0; aa < len; ++aa) {
+    i.build.push(lines[aa].trim());
+    i.build.push(nl(i, aa === len - 1 ? lev - 1 : lev));
   }
+  i.data.lines[i.start + 1] = line;
+  i.build.push(lines[len].trim());
+  if (i.level[i.start] === -10) i.build.push(i.indentChar);
+  else if (i.level[i.start] > -1) i.build.push(nl(i, i.level[i.start]));
 }
 
 export function attributeEnd(i: FormatterState): void {

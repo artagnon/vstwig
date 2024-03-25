@@ -1608,7 +1608,7 @@ export function content(i: LexState): void {
     ) {
       // Regular content
       i.start -= 1;
-      ltoke = lex.join("");
+      ltoke = lex.join("").trim();
       ltoke = bracketSpace(ltoke);
       liner = 0;
       record.token = ltoke;

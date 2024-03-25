@@ -27,7 +27,7 @@ export default class FormatTwig implements FormatterState {
   // start + 1, excluding comments
   next = 0;
 
-  // Comment start; initialized to -1
+  // Comment start
   comstart = -1;
 
   // Keeps count of the number of tokens encountered
@@ -161,6 +161,7 @@ export default class FormatTwig implements FormatterState {
 
   applyMarkupLevels(): void {
     const i = this;
+    i.start = 0;
     do {
       if (
         (i.data.types[i.start] === "start" ||
@@ -184,7 +185,7 @@ export default class FormatTwig implements FormatterState {
       } else {
         i.build.push(i.data.token[i.start]);
         if (i.level[i.start] === -10 && i.start < i.end - 1) {
-          i.build.push(" ");
+          i.build.push(i.indentChar);
         } else if (i.level[i.start] > -1) {
           i.build.push(Apply.nl(i, i.level[i.start]));
         }
