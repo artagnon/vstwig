@@ -45,7 +45,7 @@ export default class FormatTwig implements FormatterState {
   // The final result of the formatting is collected here
   build: string[] = [];
 
-  constructor(options: any) {
+  constructor(options: FormatterOptions) {
     this.lf = options.lf;
     this.data = new Parser(options).runLexer();
     this.end = this.data.token.length;

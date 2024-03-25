@@ -1,17 +1,12 @@
 /* Pads certain template tag delimiters with start space */
 export function bracketSpace(input: string): string {
-  function spaceStart(start: string): string {
-    return start.replace(/\s*$/, " ");
-  }
-  function spaceEnd(end: string): string {
-    return end.replace(/^\s*/, " ");
-  }
+  let spaceStart = (start: string) => start.replace(/\s*$/, " ");
+  let spaceEnd = (end: string): string => end.replace(/^\s*/, " ");
   if (
     /\{(=|#|\/|(%>)|(%\]))/.test(input) === true ||
     /\}%(>|\])/.test(input) === true
-  ) {
+  )
     return input;
-  }
   input = input.replace(/\{((\{+)|%-?)\s*/g, spaceStart);
   input = input.replace(/\s*((\}\}+)|(-?%\}))/g, spaceEnd);
   return input;
@@ -213,6 +208,56 @@ function attributeRecord(
     record.token = store.join(" ");
     recordPush(i, data, record, "");
   }
+}
+
+function attributeLexer(
+  i: LexState,
+  attribute: string[],
+  attstore: AttStore,
+  lines: number,
+  quotes: boolean
+): string[] {
+  let atty: string = attribute.join("");
+  if (!quotes) atty = atty.replace(/\s+/g, " ");
+  atty = atty.replace(/^\u0020/, "").replace(/\u0020$/, "");
+  attribute = atty.split(i.options.lf);
+  for (let aa = 0; aa < attribute.length; ++aa)
+    attribute[aa] = attribute[aa].replace(/(\s+)$/, "");
+  atty = attribute.join(i.options.lf);
+  atty = bracketSpace(atty);
+  if (atty === "=") {
+    attstore[attstore.length - 1][0] = `${attstore[attstore.length - 1][0]}=`;
+  } else if (
+    atty.charAt(0) === "=" &&
+    attstore.length > 0 &&
+    attstore[attstore.length - 1][0].indexOf("=") < 0
+  ) {
+    //if an attribute starts with start `=` then adjoin it to the last attribute
+    attstore[attstore.length - 1][0] = attstore[attstore.length - 1][0] + atty;
+  } else if (
+    atty.charAt(0) !== "=" &&
+    attstore.length > 0 &&
+    attstore[attstore.length - 1][0].indexOf("=") ===
+      attstore[attstore.length - 1][0].length - 1
+  ) {
+    // if an attribute follows an attribute ending with `=` then adjoin it to the
+    // last attribute
+    attstore[attstore.length - 1][0] = attstore[attstore.length - 1][0] + atty;
+  } else if (atty !== "" && atty !== " ") {
+    attstore.push([atty, lines]);
+  }
+  if (
+    attstore.length > 0 &&
+    attstore[attstore.length - 1][0].indexOf("=\u201c") > 0
+  ) {
+    i.parseerror = `Quote looking character (\u201c, &#x201c) used instead of actual quotes on line number ${i.parse.lineNumber}`;
+  } else if (
+    attstore.length > 0 &&
+    attstore[attstore.length - 1][0].indexOf("=\u201d") > 0
+  ) {
+    i.parseerror = `Quote looking character (\u201d, &#x201d) used instead of actual quotes on line number ${i.parse.lineNumber}`;
+  }
+  return [];
 }
 
 // Parses tags, attributes, and template elements
@@ -498,64 +543,7 @@ export function tag(i: LexState, end: string): void {
     quotetest: boolean = false,
     attribute: string[] = [];
   const lex: string[] = [];
-  // attribute lexer
-  function attributeLexer(quotes: boolean): void {
-    let atty: string = "",
-      aa: number = 0,
-      bb: number = 0;
-    if (quotes === true) {
-      atty = attribute.join("");
-      quote = "";
-    } else {
-      atty = attribute.join("");
-      atty = atty.replace(/\s+/g, " ");
-    }
-    atty = atty.replace(/^\u0020/, "").replace(/\u0020$/, "");
-    attribute = atty.split(i.options.lf);
-    bb = attribute.length;
-    while (aa < bb) {
-      attribute[aa] = attribute[aa].replace(/(\s+)$/, "");
-      aa = aa + 1;
-    }
-    atty = attribute.join(i.options.lf);
-    atty = bracketSpace(atty);
-    if (atty === "=") {
-      attstore[attstore.length - 1][0] = `${attstore[attstore.length - 1][0]}=`;
-    } else if (
-      atty.charAt(0) === "=" &&
-      attstore.length > 0 &&
-      attstore[attstore.length - 1][0].indexOf("=") < 0
-    ) {
-      //if an attribute starts with start `=` then adjoin it to the last attribute
-      attstore[attstore.length - 1][0] =
-        attstore[attstore.length - 1][0] + atty;
-    } else if (
-      atty.charAt(0) !== "=" &&
-      attstore.length > 0 &&
-      attstore[attstore.length - 1][0].indexOf("=") ===
-        attstore[attstore.length - 1][0].length - 1
-    ) {
-      // if an attribute follows an attribute ending with `=` then adjoin it to the
-      // last attribute
-      attstore[attstore.length - 1][0] =
-        attstore[attstore.length - 1][0] + atty;
-    } else if (atty !== "" && atty !== " ") {
-      attstore.push([atty, lines]);
-    }
-    if (
-      attstore.length > 0 &&
-      attstore[attstore.length - 1][0].indexOf("=\u201c") > 0
-    ) {
-      i.parseerror = `Quote looking character (\u201c, &#x201c) used instead of actual quotes on line number ${parse.lineNumber}`;
-    } else if (
-      attstore.length > 0 &&
-      attstore[attstore.length - 1][0].indexOf("=\u201d") > 0
-    ) {
-      i.parseerror = `Quote looking character (\u201d, &#x201d) used instead of actual quotes on line number ${parse.lineNumber}`;
-    }
-    attribute = [];
-    lines = i.chars[i.start] === i.options.lf ? 2 : 1;
-  }
+
   for (; i.start < i.end; i.start += 1) {
     if (i.chars[i.start] === i.options.lf) {
       lines = lines + 1;
@@ -651,9 +639,8 @@ export function tag(i: LexState, end: string): void {
         igcount = 0;
         lex.pop();
         for (; i.start < i.end; i.start += 1) {
-          if (i.chars[i.start] === i.options.lf) {
+          if (i.chars[i.start] === i.options.lf)
             parse.lineNumber = parse.lineNumber + 1;
-          }
           attribute.push(i.chars[i.start]);
           if (
             (i.chars[i.start] === "<" || i.chars[i.start] === ">") &&
@@ -670,7 +657,14 @@ export function tag(i: LexState, end: string): void {
                 if (braccount === 0) {
                   quote = "";
                   igcount = 0;
-                  attributeLexer(false);
+                  attribute = attributeLexer(
+                    i,
+                    attribute,
+                    attstore,
+                    lines,
+                    false
+                  );
+                  lines = i.chars[i.start] === i.options.lf ? 2 : 1;
                   break;
                 }
               }
@@ -686,18 +680,21 @@ export function tag(i: LexState, end: string): void {
                 if (preserve === true) {
                   lex.pop();
                 }
-                i.start -= 1;
+                --i.start;
               }
-              if (attribute.length > 0) {
-                attributeLexer(false);
-              }
+              if (attribute.length > 0)
+                attribute = attributeLexer(
+                  i,
+                  attribute,
+                  attstore,
+                  lines,
+                  false
+                );
+              lines = i.chars[i.start] === i.options.lf ? 2 : 1;
               break;
-            } else if (
-              i.chars[i.start] === "{" &&
-              i.chars[i.start - 1] === "="
-            ) {
+            } else if (i.chars[i.start] === "{" && i.chars[i.start - 1] === "=")
               quote = "}";
-            } else if (i.chars[i.start] === '"' || i.chars[i.start] === "'") {
+            else if (i.chars[i.start] === '"' || i.chars[i.start] === "'") {
               quote = i.chars[i.start];
               if (
                 i.chars[i.start - 1] === "=" &&
@@ -706,9 +703,8 @@ export function tag(i: LexState, end: string): void {
                     i.chars[i.start + 2] === "%") ||
                   (/\s/.test(i.chars[i.start + 1]) === true &&
                     i.chars[i.start - 1] !== "="))
-              ) {
+              )
                 igcount = i.start;
-              }
             } else if (i.chars[i.start] === "(") {
               quote = ")";
               parncount = 1;
@@ -721,15 +717,9 @@ export function tag(i: LexState, end: string): void {
                 i.chars[i.start + 1] === "#")
             ) {
               //opening embedded template expression
-              if (i.chars[i.start + 1] === "{") {
-                if (i.chars[i.start + 2] === "{") {
-                  quote = "}}}";
-                } else {
-                  quote = "}}";
-                }
-              } else {
-                quote = i.chars[i.start + 1] + "}";
-              }
+              if (i.chars[i.start + 1] === "{")
+                quote = i.chars[i.start + 2] === "{" ? "}}}" : "}}";
+              else quote = i.chars[i.start + 1] + "}";
             }
             if (/\s/.test(i.chars[i.start]) === true && quote === "") {
               // testing for i.start run of spaces between an attribute's = and i.start quoted value.
@@ -744,7 +734,7 @@ export function tag(i: LexState, end: string): void {
                     }
                     break;
                   }
-                  e = e + 1;
+                  ++e;
                 }
               }
               if (quotetest === true) {
@@ -755,7 +745,14 @@ export function tag(i: LexState, end: string): void {
               ) {
                 //if there is an unquoted space attribute is complete
                 attribute.pop();
-                attributeLexer(false);
+                attribute = attributeLexer(
+                  i,
+                  attribute,
+                  attstore,
+                  lines,
+                  false
+                );
+                lines = i.chars[i.start] === i.options.lf ? 2 : 1;
                 stest = true;
                 break;
               }
@@ -767,7 +764,14 @@ export function tag(i: LexState, end: string): void {
             if (parncount === 0) {
               quote = "";
               if (i.chars[i.start + 1] === end.charAt(0)) {
-                attributeLexer(false);
+                attribute = attributeLexer(
+                  i,
+                  attribute,
+                  attstore,
+                  lines,
+                  false
+                );
+                lines = i.chars[i.start] === i.options.lf ? 2 : 1;
                 break;
               }
             }
@@ -812,19 +816,15 @@ export function tag(i: LexState, end: string): void {
               tname = lex[1] + lex[2];
               tname = tname.toLowerCase();
             }
-            e = quote.length - 1;
-            while (e > -1) {
-              if (i.chars[i.start - f] !== quote.charAt(e)) {
-                break;
-              }
-              f = f + 1;
-              e = e - 1;
+            for (e = quote.length - 1; e > -1; --e) {
+              if (i.chars[i.start - f] !== quote.charAt(e)) break;
+              ++f;
             }
             if (e < 0) {
-              attributeLexer(true);
-              if (i.chars[i.start + 1] === lastchar) {
-                break;
-              }
+              attribute = attributeLexer(i, attribute, attstore, lines, true);
+              lines = i.chars[i.start] === i.options.lf ? 2 : 1;
+              quote = "";
+              if (i.chars[i.start + 1] === lastchar) break;
             }
           } else if (igcount > 0 && /\s/.test(i.chars[i.start]) === false) {
             igcount = 0;
@@ -834,10 +834,10 @@ export function tag(i: LexState, end: string): void {
         end !== "%>" &&
         end !== i.options.lf &&
         (i.chars[i.start] === '"' || i.chars[i.start] === "'")
-      ) {
+      )
         //opening quote
         quote = i.chars[i.start];
-      } else if (
+      else if (
         ltype !== "comment" &&
         end !== i.options.lf &&
         i.chars[i.start] === "<" &&
@@ -846,9 +846,9 @@ export function tag(i: LexState, end: string): void {
         i.chars[i.start + 3] === "-" &&
         i.chars[i.start + 4] !== "#" &&
         data.types[parse.count] !== "conditional"
-      ) {
+      )
         quote = "-->";
-      } else if (
+      else if (
         i.chars[i.start] === "{" &&
         lex[0] !== "{" &&
         end !== i.options.lf &&
@@ -860,13 +860,9 @@ export function tag(i: LexState, end: string): void {
           i.chars[i.start + 1] === "#")
       ) {
         //opening embedded template expression
-        if (i.chars[i.start + 1] === "{") {
-          if (i.chars[i.start + 2] === "{") {
-            quote = "}}}";
-          } else {
-            quote = "}}";
-          }
-        } else {
+        if (i.chars[i.start + 1] === "{")
+          quote = i.chars[i.start + 2] === "{" ? "}}}" : "}}";
+        else {
           quote = i.chars[i.start + 1] + "}";
           if (
             attribute.length < 1 &&
@@ -877,9 +873,7 @@ export function tag(i: LexState, end: string): void {
               i.start < i.end &&
               i.chars[i.start - 1] + i.chars[i.start] !== quote
             ) {
-              if (i.chars[i.start] === i.options.lf) {
-                lines = lines + 1;
-              }
+              if (i.chars[i.start] === i.options.lf) ++lines;
               attribute.push(i.chars[i.start]);
               i.start = i.start + 1;
             }
@@ -900,11 +894,8 @@ export function tag(i: LexState, end: string): void {
         i.chars[i.start - 1] !== "<"
       ) {
         //identify i.start space in i.start regular start or singleton tag
-        if (ltype === "sgml") {
-          lex.push(" ");
-        } else {
-          stest = true;
-        }
+        if (ltype === "sgml") lex.push(" ");
+        else stest = true;
       } else if (
         (i.chars[i.start] === lastchar ||
           (end === i.options.lf && i.chars[i.start + 1] === "<")) &&
@@ -941,11 +932,9 @@ export function tag(i: LexState, end: string): void {
           f = lex.length;
           e = end.length - 1;
           while (e > -1) {
-            f = f - 1;
-            if (lex[f] !== end.charAt(e)) {
-              break;
-            }
-            e = e - 1;
+            --f;
+            if (lex[f] !== end.charAt(e)) break;
+            --e;
           }
           if (e < 0) {
             break;
@@ -962,17 +951,13 @@ export function tag(i: LexState, end: string): void {
         tname = lex[1] + lex[2];
         tname = tname.toLowerCase();
       }
-      e = quote.length - 1;
-      while (e > -1) {
+      for (e = quote.length - 1; e > -1; --e) {
         if (i.chars[i.start - f] !== quote.charAt(e)) {
           break;
         }
-        f = f + 1;
-        e = e - 1;
+        ++f;
       }
-      if (e < 0) {
-        quote = "";
-      }
+      if (e < 0) quote = "";
     }
   }
 
@@ -980,17 +965,14 @@ export function tag(i: LexState, end: string): void {
     element = lex.join("");
     tname = tagName(i, element);
     element = bracketSpace(element);
-    if (tname === "xml") {
-      i.html = "xml";
-    } else if (
+    if (tname === "xml") i.html = "xml";
+    else if (
       i.html === "" &&
       tname === "!DOCTYPE" &&
       element.toLowerCase().indexOf("xhtml") > 0
-    ) {
+    )
       i.html = "xml";
-    } else if (i.html === "" && tname === "html") {
-      i.html = "html";
-    }
+    else if (i.html === "" && tname === "html") i.html = "html";
   }
   record.token = element;
   record.types = ltype;
@@ -1008,9 +990,7 @@ export function tag(i: LexState, end: string): void {
     while (aa > -1) {
       if (data.types[aa].indexOf("end") > 0) {
         aa = data.begin[aa];
-        if (aa < 0) {
-          break;
-        }
+        if (aa < 0) break;
       } else if (/\{%\s*block/.test(data.token[aa]) === true) {
         if (endName === "") {
           break;
@@ -1019,11 +999,9 @@ export function tag(i: LexState, end: string): void {
           .replace(/\{%\s*block\s+/, "")
           .split(/\s+/)[0]
           .replace(/\s+/, "");
-        if (endName === startName) {
-          break;
-        }
+        if (endName === startName) break;
       }
-      aa = aa - 1;
+      --aa;
     }
     i.count.start = i.count.start + 1;
     data.types[aa] = "template_start";
@@ -1053,28 +1031,18 @@ export function tag(i: LexState, end: string): void {
     return;
   }
 
-  if (preserve === false) {
-    element = element.replace(/\s+/g, " ");
-  }
+  if (!preserve) element = element.replace(/\s+/g, " ");
 
   //i.start quick hack to inject records for i.start type of template comments
   if (tname === "comment" && element.slice(0, 2) === "{%") {
-    function lineFindStart(spaces: string): string {
-      if (spaces === "") {
-        linesStart = 0;
-      } else {
-        linesStart = spaces.split(i.options.lf).length;
-      }
+    let lineFindStart = (spaces: string): string => {
+      linesStart = spaces === "" ? 0 : spaces.split(i.options.lf).length;
       return "";
-    }
-    function lineFindEnd(spaces: string): string {
-      if (spaces === "") {
-        linesEnd = 0;
-      } else {
-        linesEnd = spaces.split(i.options.lf).length;
-      }
+    };
+    let lineFindEnd = (spaces: string): string => {
+      linesEnd = spaces === "" ? 0 : spaces.split(i.options.lf).length;
       return "";
-    }
+    };
     let linesStart: number = 0,
       linesEnd: number = 0;
     record.begin = parse.structure[parse.structure.length - 1][1];
@@ -1152,7 +1120,7 @@ export function tag(i: LexState, end: string): void {
     (element.slice(element.length - 2) === "]>" ||
       /^(<!((doctype)|(notation))\s)/i.test(element) === true)
   ) {
-    i.sgmlflag = i.sgmlflag - 1;
+    --i.sgmlflag;
   }
 
   // cheat identifies HTML singleton elements as singletons even if formatted as
@@ -1182,17 +1150,14 @@ export function tag(i: LexState, end: string): void {
         wbr: "singleton",
       };
     function fixsingleton(): boolean {
-      let aa: number = parse.count,
-        bb: number = 0;
+      let bb: number = 0;
       const vname: string = tname.slice(1);
-      while (aa > -1) {
+      for (let aa = parse.count; aa > -1; --aa) {
         if (data.types[aa] === "end") {
-          bb = bb + 1;
+          ++bb;
         } else if (data.types[aa] === "start") {
-          bb = bb - 1;
-          if (bb < 0) {
-            return false;
-          }
+          --bb;
+          if (bb < 0) return false;
         }
         if (bb === 0 && data.token[aa].toLowerCase().indexOf(vname) === 1) {
           data.types[aa] = "start";
@@ -1200,7 +1165,6 @@ export function tag(i: LexState, end: string): void {
           data.token[aa] = data.token[aa].replace(/(\s*\/>)$/, ">");
           return false;
         }
-        aa = aa - 1;
       }
       return false;
     }
