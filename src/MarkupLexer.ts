@@ -5,7 +5,7 @@ export function markupLexer(i: LexState): ParseData {
   const data = i.parse.data;
 
   // Main loop
-  for (i.start = 0; i.start < i.end; i.start += 1) {
+  for (i.start = 0; i.start < i.end; ++i.start) {
     if (/\s/.test(i.chars[i.start]) === true) {
       if (
         data.types[parse.count] === "template_start" &&

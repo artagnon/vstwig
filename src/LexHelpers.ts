@@ -93,6 +93,128 @@ export function fixHtmlEnd(i: LexState, element: string, end: boolean): void {
   }
 }
 
+function templateAtt(
+  i: LexState,
+  record: DataRecord,
+  sample: string,
+  token: string
+): DataRecord {
+  const data: ParseData = i.parse.data;
+
+  if (sample.charAt(0) === "{" && "{%".indexOf(sample.charAt(1)) > -1)
+    record.types = "template_attribute";
+  else {
+    record.token = token;
+    recordPush(i, data, record, "");
+    return record;
+  }
+  record.token = token;
+  recordPush(i, data, record, "");
+  record.types = "attribute";
+  return record;
+}
+
+// attribute parser
+function attributeRecord(
+  i: LexState,
+  element: string,
+  attstore: AttStore,
+  tname: string,
+  ltype: string,
+  record: DataRecord
+): void {
+  let ind: number = 0,
+    eq: number = 0,
+    dq: number = 0,
+    slice: string = "",
+    name: string = "",
+    store: string[] = [],
+    len: number = attstore.length;
+  const parse: Parse = i.parse,
+    begin: number = parse.count,
+    stack: string = tname.replace(/\/$/, ""),
+    syntax: string = "<{\"'=/",
+    data: ParseData = parse.data;
+
+  if (attstore.length < 1) return;
+
+  // fix for singleton tags, since "/" at the end of the tag is not an attribute
+  if (attstore[attstore.length - 1][0] === "/") {
+    attstore.pop();
+    element = element.replace(/>$/, "/>");
+  }
+
+  // reconnects attribute names to their respective values if separated on "="
+  eq = attstore.length;
+  dq = 1;
+  while (dq < eq) {
+    name = attstore[dq - 1][0];
+    if (
+      name.charAt(name.length - 1) === "=" &&
+      attstore[dq][0].indexOf("=") < 0
+    ) {
+      attstore[dq - 1][0] = name + attstore[dq][0];
+      attstore.splice(dq, 1);
+      eq = eq - 1;
+      dq = dq - 1;
+    }
+    dq = dq + 1;
+  }
+
+  record.begin = begin;
+  record.stack = stack;
+  record.types = "attribute";
+  store = [];
+
+  for (; ind < len; ++ind) {
+    if (attstore[ind] === undefined) {
+      break;
+    }
+    attstore[ind][0] = attstore[ind][0].replace(/\s+$/, "");
+    record.lines = attstore[ind][1];
+    eq = attstore[ind][0].indexOf("=");
+
+    if (eq > -1 && store.length > 0) {
+      record.token = store.join(" ");
+      recordPush(i, data, record, "");
+      if (
+        attstore[ind][0].indexOf("=") > 0 &&
+        attstore[ind][0].indexOf("//") < 0 &&
+        attstore[ind][0].charAt(0) !== ";"
+      ) {
+        record.token = attstore[ind][0].replace(/\s$/, "");
+      } else {
+        record.token = attstore[ind][0];
+      }
+      recordPush(i, data, record, "");
+      store = [];
+    } else if (ltype === "sgml") {
+      store.push(attstore[ind][0]);
+    } else if (eq < 0) {
+      record.token = attstore[ind][0];
+      recordPush(i, data, record, "");
+    } else {
+      // separates out the attribute name from its value
+      slice = attstore[ind][0].slice(eq + 1);
+      if (syntax.indexOf(slice.charAt(0)) < 0) {
+        slice = '"' + slice + '"';
+      }
+      name = attstore[ind][0].slice(0, eq);
+      name = name + "=" + slice;
+      record = templateAtt(
+        i,
+        record,
+        slice.replace(/^("|')/, "").slice(0, 2),
+        name.replace(/(\s+)$/, "")
+      );
+    }
+  }
+  if (store.length > 0) {
+    record.token = store.join(" ");
+    recordPush(i, data, record, "");
+  }
+}
+
 // Parses tags, attributes, and template elements
 export function tag(i: LexState, end: string): void {
   const parse = i.parse;
@@ -167,167 +289,6 @@ export function tag(i: LexState, end: string): void {
     token: "",
     types: "",
   };
-  // attribute parser
-  function attributeRecord(): void {
-    let ind: number = 0,
-      eq: number = 0,
-      dq: number = 0,
-      slice: string = "",
-      name: string = "",
-      store: string[] = [],
-      len: number = attstore.length;
-    const qc: "none" | "double" | "single" = "none",
-      begin: number = parse.count,
-      stack: string = tname.replace(/\/$/, ""),
-      syntax: string = "<{\"'=/";
-    function convertQ(): void {
-      if (
-        qc === "none" ||
-        record.types !== "attribute" ||
-        (qc === "single" && record.token.indexOf('"') < 0) ||
-        (qc === "double" && record.token.indexOf("'") < 0)
-      ) {
-        recordPush(i, data, record, "");
-      } else {
-        let ee: number = 0,
-          inner: boolean = false;
-        const chars: string[] = record.token.split(""),
-          eq: number = record.token.indexOf("="),
-          len: number = chars.length - 1;
-        if (
-          chars[eq + 1] !== '"' &&
-          qc === "single" &&
-          chars[chars.length - 1] !== '"'
-        ) {
-          recordPush(i, data, record, "");
-        } else if (
-          chars[eq + 1] !== "'" &&
-          qc === "double" &&
-          chars[chars.length - 1] !== "'"
-        ) {
-          recordPush(i, data, record, "");
-        } else {
-          ee = eq + 2;
-          if (qc === "double") {
-            if (record.token.slice(eq + 2, len).indexOf('"') > -1) {
-              inner = true;
-            }
-            chars[eq + 1] = '"';
-            chars[chars.length - 1] = '"';
-          } else {
-            if (record.token.slice(eq + 2, len).indexOf("'") > -1) {
-              inner = true;
-            }
-            chars[eq + 1] = "'";
-            chars[chars.length - 1] = "'";
-          }
-          if (inner === true) {
-            while (ee < len) {
-              if (chars[ee] === "'" && qc === "single") {
-                chars[ee] = '"';
-              } else if (chars[ee] === '"' && qc === "double") {
-                chars[ee] = "'";
-              }
-              ee = ee + 1;
-            }
-          }
-          record.token = chars.join("");
-          recordPush(i, data, record, "");
-        }
-      }
-    }
-    function templateAtt(sample: string, token: string): void {
-      if (sample.charAt(0) === "{" && "{%".indexOf(sample.charAt(1)) > -1) {
-        record.types = "template_attribute";
-      } else {
-        record.token = token;
-        convertQ();
-        return;
-      }
-      record.token = token;
-      convertQ();
-      record.types = "attribute";
-    }
-
-    if (attstore.length < 1) {
-      return;
-    }
-
-    // fix for singleton tags, since "/" at the end of the tag is not an attribute
-    if (attstore[attstore.length - 1][0] === "/") {
-      attstore.pop();
-      element = element.replace(/>$/, "/>");
-    }
-
-    // reconnects attribute names to their respective values if separated on "="
-    eq = attstore.length;
-    dq = 1;
-    while (dq < eq) {
-      name = attstore[dq - 1][0];
-      if (
-        name.charAt(name.length - 1) === "=" &&
-        attstore[dq][0].indexOf("=") < 0
-      ) {
-        attstore[dq - 1][0] = name + attstore[dq][0];
-        attstore.splice(dq, 1);
-        eq = eq - 1;
-        dq = dq - 1;
-      }
-      dq = dq + 1;
-    }
-
-    record.begin = begin;
-    record.stack = stack;
-    record.types = "attribute";
-    store = [];
-
-    while (ind < len) {
-      if (attstore[ind] === undefined) {
-        break;
-      }
-      attstore[ind][0] = attstore[ind][0].replace(/\s+$/, "");
-      record.lines = attstore[ind][1];
-      eq = attstore[ind][0].indexOf("=");
-
-      if (eq > -1 && store.length > 0) {
-        record.token = store.join(" ");
-        convertQ();
-        if (
-          attstore[ind][0].indexOf("=") > 0 &&
-          attstore[ind][0].indexOf("//") < 0 &&
-          attstore[ind][0].charAt(0) !== ";"
-        ) {
-          record.token = attstore[ind][0].replace(/\s$/, "");
-        } else {
-          record.token = attstore[ind][0];
-        }
-        convertQ();
-        store = [];
-      } else if (ltype === "sgml") {
-        store.push(attstore[ind][0]);
-      } else if (eq < 0) {
-        record.token = attstore[ind][0];
-        convertQ();
-      } else {
-        // separates out the attribute name from its value
-        slice = attstore[ind][0].slice(eq + 1);
-        if (syntax.indexOf(slice.charAt(0)) < 0) {
-          slice = '"' + slice + '"';
-        }
-        name = attstore[ind][0].slice(0, eq);
-        name = name + "=" + slice;
-        templateAtt(
-          slice.replace(/^("|')/, "").slice(0, 2),
-          name.replace(/(\s+)$/, "")
-        );
-      }
-      ind = ind + 1;
-    }
-    if (store.length > 0) {
-      record.token = store.join(" ");
-      convertQ();
-    }
-  }
 
   // this complex series of conditions determines an elements delimiters look to
   // the types being pushed to quickly reason about the logic no type is pushed
@@ -1552,7 +1513,7 @@ export function tag(i: LexState, end: string): void {
   }
 
   recordPush(i, data, record, tname);
-  attributeRecord();
+  attributeRecord(i, element, attstore, tname, ltype, record);
   parse.linesSpace = 0;
 }
 
