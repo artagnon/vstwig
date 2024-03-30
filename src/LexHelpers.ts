@@ -20,11 +20,9 @@ export function recordPush(
   structure: string
 ): void {
   if (target === i.parse.data) {
-    if (record.types.indexOf("end") > -1) {
-      i.count.end = i.count.end + 1;
-    } else if (record.types.indexOf("start") > -1) {
+    if (record.types.indexOf("end") > -1) i.count.end = i.count.end + 1;
+    else if (record.types.indexOf("start") > -1)
       i.count.start = i.count.start + 1;
-    }
   }
   i.parse.push(target, record, structure);
 }
@@ -34,22 +32,14 @@ export function tagName(i: LexState, el: string): string {
   let space: number = 0,
     name: string = "";
   const reg: RegExp = /^((\{|<)((%-?)|\{-?)=?\s*)/;
-  if (typeof el !== "string") {
-    return "";
-  }
+  if (typeof el !== "string") return "";
   space = el.replace(reg, "%").replace(/\s+/, " ").indexOf(" ");
   name = el.replace(reg, " ");
   name = space < 0 ? name.slice(1, el.length - 1) : name.slice(1, space);
-  if (i.html === "html") {
-    name = name.toLowerCase();
-  }
+  if (i.html === "html") name = name.toLowerCase();
   name = name.replace(/(\}\})$/, "");
-  if (name.indexOf("(") > 0) {
-    name = name.slice(0, name.indexOf("("));
-  }
-  if (name === "?xml?") {
-    return "xml";
-  }
+  if (name.indexOf("(") > 0) name = name.slice(0, name.indexOf("("));
+  if (name === "?xml?") return "xml";
   return name;
 }
 
@@ -67,24 +57,16 @@ export function fixHtmlEnd(i: LexState, element: string, end: boolean): void {
       types: "end",
     };
   recordPush(i, data, record, "");
-  if (
+  while (
     i.htmlblocks[parse.structure[parse.structure.length - 1][0]] === "block" &&
     ((end === true && parse.structure.length > 1) ||
       (end === false &&
         `/${parse.structure[parse.structure.length - 1][0]}` !== tname))
   ) {
-    while (
-      i.htmlblocks[parse.structure[parse.structure.length - 1][0]] ===
-        "block" &&
-      ((end === true && parse.structure.length > 1) ||
-        (end === false &&
-          `/${parse.structure[parse.structure.length - 1][0]}` !== tname))
-    ) {
-      record.begin = parse.structure[parse.structure.length - 1][1];
-      record.stack = parse.structure[parse.structure.length - 1][0];
-      record.token = `</${parse.structure[parse.structure.length - 1][0]}>`;
-      recordPush(i, data, record, "");
-    }
+    record.begin = parse.structure[parse.structure.length - 1][1];
+    record.stack = parse.structure[parse.structure.length - 1][0];
+    record.token = `</${parse.structure[parse.structure.length - 1][0]}>`;
+    recordPush(i, data, record, "");
   }
 }
 
@@ -141,8 +123,7 @@ function attributeRecord(
 
   // reconnects attribute names to their respective values if separated on "="
   eq = attstore.length;
-  dq = 1;
-  while (dq < eq) {
+  for (dq = 1; dq < eq; ++dq) {
     name = attstore[dq - 1][0];
     if (
       name.charAt(name.length - 1) === "=" &&
@@ -150,10 +131,9 @@ function attributeRecord(
     ) {
       attstore[dq - 1][0] = name + attstore[dq][0];
       attstore.splice(dq, 1);
-      eq = eq - 1;
-      dq = dq - 1;
+      --eq;
+      --dq;
     }
-    dq = dq + 1;
   }
 
   record.begin = begin;
@@ -162,9 +142,8 @@ function attributeRecord(
   store = [];
 
   for (; ind < len; ++ind) {
-    if (attstore[ind] === undefined) {
-      break;
-    }
+    if (attstore[ind] === undefined) break;
+
     attstore[ind][0] = attstore[ind][0].replace(/\s+$/, "");
     record.lines = attstore[ind][1];
     eq = attstore[ind][0].indexOf("=");
@@ -176,24 +155,19 @@ function attributeRecord(
         attstore[ind][0].indexOf("=") > 0 &&
         attstore[ind][0].indexOf("//") < 0 &&
         attstore[ind][0].charAt(0) !== ";"
-      ) {
+      )
         record.token = attstore[ind][0].replace(/\s$/, "");
-      } else {
-        record.token = attstore[ind][0];
-      }
+      else record.token = attstore[ind][0];
       recordPush(i, data, record, "");
       store = [];
-    } else if (ltype === "sgml") {
-      store.push(attstore[ind][0]);
-    } else if (eq < 0) {
+    } else if (ltype === "sgml") store.push(attstore[ind][0]);
+    else if (eq < 0) {
       record.token = attstore[ind][0];
       recordPush(i, data, record, "");
     } else {
       // separates out the attribute name from its value
       slice = attstore[ind][0].slice(eq + 1);
-      if (syntax.indexOf(slice.charAt(0)) < 0) {
-        slice = '"' + slice + '"';
-      }
+      if (syntax.indexOf(slice.charAt(0)) < 0) slice = '"' + slice + '"';
       name = attstore[ind][0].slice(0, eq);
       name = name + "=" + slice;
       record = templateAtt(
@@ -221,43 +195,92 @@ function attributeLexer(
   if (!quotes) atty = atty.replace(/\s+/g, " ");
   atty = atty.replace(/^\u0020/, "").replace(/\u0020$/, "");
   attribute = atty.split(i.options.lf);
+
   for (let aa = 0; aa < attribute.length; ++aa)
     attribute[aa] = attribute[aa].replace(/(\s+)$/, "");
+
   atty = attribute.join(i.options.lf);
   atty = bracketSpace(atty);
-  if (atty === "=") {
+
+  if (atty === "=")
     attstore[attstore.length - 1][0] = `${attstore[attstore.length - 1][0]}=`;
-  } else if (
+  else if (
     atty.charAt(0) === "=" &&
     attstore.length > 0 &&
     attstore[attstore.length - 1][0].indexOf("=") < 0
-  ) {
+  )
     //if an attribute starts with start `=` then adjoin it to the last attribute
     attstore[attstore.length - 1][0] = attstore[attstore.length - 1][0] + atty;
-  } else if (
+  else if (
     atty.charAt(0) !== "=" &&
     attstore.length > 0 &&
     attstore[attstore.length - 1][0].indexOf("=") ===
       attstore[attstore.length - 1][0].length - 1
-  ) {
+  )
     // if an attribute follows an attribute ending with `=` then adjoin it to the
     // last attribute
     attstore[attstore.length - 1][0] = attstore[attstore.length - 1][0] + atty;
-  } else if (atty !== "" && atty !== " ") {
-    attstore.push([atty, lines]);
-  }
-  if (
-    attstore.length > 0 &&
-    attstore[attstore.length - 1][0].indexOf("=\u201c") > 0
-  ) {
+  else if (atty !== "" && atty !== " ") attstore.push([atty, lines]);
+
+  if (attstore.length === 0) return [];
+
+  if (attstore[attstore.length - 1][0].indexOf("=\u201c") > 0)
     i.parseerror = `Quote looking character (\u201c, &#x201c) used instead of actual quotes on line number ${i.parse.lineNumber}`;
-  } else if (
-    attstore.length > 0 &&
-    attstore[attstore.length - 1][0].indexOf("=\u201d") > 0
-  ) {
+  else if (attstore[attstore.length - 1][0].indexOf("=\u201d") > 0)
     i.parseerror = `Quote looking character (\u201d, &#x201d) used instead of actual quotes on line number ${i.parse.lineNumber}`;
-  }
+
   return [];
+}
+
+function peertest(i: LexState, name: string, item: string): boolean {
+  if (i.htmlblocks[name] === undefined) return false;
+  if (name === item) return true;
+  if (name === "dd" && item === "dt") return true;
+  if (name === "dt" && item === "dd") return true;
+  if (name === "td" && item === "th") return true;
+  if (name === "th" && item === "td") return true;
+  if (
+    name === "colgroup" &&
+    (item === "tbody" || item === "tfoot" || item === "thead" || item === "tr")
+  )
+    return true;
+  if (
+    name === "tbody" &&
+    (item === "colgroup" || item === "tfoot" || item === "thead")
+  )
+    return true;
+  if (
+    name === "tfoot" &&
+    (item === "colgroup" || item === "tbody" || item === "thead")
+  )
+    return true;
+  if (
+    name === "thead" &&
+    (item === "colgroup" || item === "tbody" || item === "tfoot")
+  )
+    return true;
+  if (name === "tr" && item === "colgroup") return true;
+  return false;
+}
+
+function fixsingleton(i: LexState, tname: string): boolean {
+  const vname: string = tname.slice(1);
+  for (let aa = i.parse.count; aa > -1; --aa) {
+    let bb: number = 0;
+    if (i.parse.data.types[aa] === "end") {
+      ++bb;
+    } else if (i.parse.data.types[aa] === "start") {
+      --bb;
+      if (bb < 0) return false;
+    }
+    if (bb === 0 && i.parse.data.token[aa].toLowerCase().indexOf(vname) === 1) {
+      i.parse.data.types[aa] = "start";
+      i.count.start = i.count.start + 1;
+      i.parse.data.token[aa] = i.parse.data.token[aa].replace(/(\s*\/>)$/, ">");
+      return false;
+    }
+  }
+  return false;
 }
 
 // Parses tags, attributes, and template elements
@@ -987,7 +1010,7 @@ export function tag(i: LexState, end: string): void {
     let aa: number = parse.count,
       bb: number = parse.count,
       startName: string = "";
-    while (aa > -1) {
+    for (; aa > -1; --aa) {
       if (data.types[aa].indexOf("end") > 0) {
         aa = data.begin[aa];
         if (aa < 0) break;
@@ -1001,9 +1024,8 @@ export function tag(i: LexState, end: string): void {
           .replace(/\s+/, "");
         if (endName === startName) break;
       }
-      --aa;
     }
-    i.count.start = i.count.start + 1;
+    ++i.count.start;
     data.types[aa] = "template_start";
     data.ender[aa] = parse.count + 1;
     record.begin = aa;
@@ -1011,7 +1033,7 @@ export function tag(i: LexState, end: string): void {
     record.token = element;
     record.types = "template_end";
     if (aa > -1) {
-      while (bb > aa) {
+      for (; bb > aa; --bb) {
         if (data.types[bb].indexOf("end") > 0) {
           bb = data.begin[bb];
           data.begin[bb] = aa;
@@ -1023,7 +1045,6 @@ export function tag(i: LexState, end: string): void {
           }
           data.stack[bb] = "block";
         }
-        bb = bb - 1;
       }
     }
     parse.structure.push(["block", aa]);
@@ -1101,14 +1122,12 @@ export function tag(i: LexState, end: string): void {
     element.slice(0, 2) === "<%" &&
     element.slice(element.length - 2) === "%>"
   ) {
-    if (/^(<%\s+end\s+-?%>)$/.test(element) === true) {
-      ltype = "template_end";
-    } else if (
+    if (/^(<%\s+end\s+-?%>)$/.test(element) === true) ltype = "template_end";
+    else if (
       (/\sdo\s/.test(element) === true && /\s-?%>$/.test(element) === true) ||
       /^(<%(%|-|=)?\s*if)/.test(element) === true
-    ) {
+    )
       ltype = "template_start";
-    }
   }
   record.types = ltype;
 
@@ -1149,87 +1168,17 @@ export function tag(i: LexState, end: string): void {
         source: "singleton",
         wbr: "singleton",
       };
-    function fixsingleton(): boolean {
-      let bb: number = 0;
-      const vname: string = tname.slice(1);
-      for (let aa = parse.count; aa > -1; --aa) {
-        if (data.types[aa] === "end") {
-          ++bb;
-        } else if (data.types[aa] === "start") {
-          --bb;
-          if (bb < 0) return false;
-        }
-        if (bb === 0 && data.token[aa].toLowerCase().indexOf(vname) === 1) {
-          data.types[aa] = "start";
-          i.count.start = i.count.start + 1;
-          data.token[aa] = data.token[aa].replace(/(\s*\/>)$/, ">");
-          return false;
-        }
-      }
-      return false;
-    }
-    function peertest(name: string, item: string): boolean {
-      if (i.htmlblocks[name] === undefined) {
-        return false;
-      }
-      if (name === item) {
-        return true;
-      }
-      if (name === "dd" && item === "dt") {
-        return true;
-      }
-      if (name === "dt" && item === "dd") {
-        return true;
-      }
-      if (name === "td" && item === "th") {
-        return true;
-      }
-      if (name === "th" && item === "td") {
-        return true;
-      }
-      if (
-        name === "colgroup" &&
-        (item === "tbody" ||
-          item === "tfoot" ||
-          item === "thead" ||
-          item === "tr")
-      ) {
-        return true;
-      }
-      if (
-        name === "tbody" &&
-        (item === "colgroup" || item === "tfoot" || item === "thead")
-      ) {
-        return true;
-      }
-      if (
-        name === "tfoot" &&
-        (item === "colgroup" || item === "tbody" || item === "thead")
-      ) {
-        return true;
-      }
-      if (
-        name === "thead" &&
-        (item === "colgroup" || item === "tbody" || item === "tfoot")
-      ) {
-        return true;
-      }
-      if (name === "tr" && item === "colgroup") {
-        return true;
-      }
-      return false;
-    }
-    function addHtmlEnd(count: number): void {
+
+    let addHtmlEnd = (count: number) => {
       record.lines = data.lines[parse.count] > 0 ? 1 : 0;
       record.token = `</${parse.structure[parse.structure.length - 1][0]}>`;
       record.types = "end";
       recordPush(i, data, record, "");
-      while (count > 0) {
+      for (; count > 0; --count) {
         record.begin = parse.structure[parse.structure.length - 1][1];
         record.stack = parse.structure[parse.structure.length - 1][0];
         record.token = `</${parse.structure[parse.structure.length - 1][0]}>`;
         recordPush(i, data, record, "");
-        count = count - 1;
       }
       record.begin = parse.structure[parse.structure.length - 1][1];
       record.lines = parse.linesSpace;
@@ -1237,7 +1186,7 @@ export function tag(i: LexState, end: string): void {
       record.token = element;
       record.types = "end";
       data.lines[parse.count - 1] = 0;
-    }
+    };
 
     // Determine if the current end tag is actually part of an HTML singleton
     if (ltype === "end") {
@@ -1258,21 +1207,21 @@ export function tag(i: LexState, end: string): void {
         element.charAt(1) !== "!" &&
         element.charAt(1) !== "?" &&
         (parse.count < 0 || data.types[parse.count].indexOf("template") < 0)
-      ) {
+      )
         element = element.toLowerCase();
-      }
 
       if (
         i.htmlblocks[parse.structure[parse.structure.length - 1][0]] ===
           "block" &&
         peertest(
+          i,
           tname.slice(1),
           parse.structure[parse.structure.length - 2][0]
-        ) === true
-      ) {
+        )
+      )
         // Looks for HTML tags missing an ending pair when encountering an ending tag for i.start parent node
         addHtmlEnd(0);
-      } else if (
+      else if (
         parse.structure.length > 3 &&
         i.htmlblocks[parse.structure[parse.structure.length - 1][0]] ===
           "block" &&
@@ -1280,34 +1229,34 @@ export function tag(i: LexState, end: string): void {
           "block" &&
         i.htmlblocks[parse.structure[parse.structure.length - 3][0]] ===
           "block" &&
-        peertest(tname, parse.structure[parse.structure.length - 4][0]) === true
-      ) {
+        peertest(i, tname, parse.structure[parse.structure.length - 4][0])
+      )
         // Looks for consecutive missing end tags
         addHtmlEnd(3);
-      } else if (
+      else if (
         parse.structure.length > 2 &&
         i.htmlblocks[parse.structure[parse.structure.length - 1][0]] ===
           "block" &&
         i.htmlblocks[parse.structure[parse.structure.length - 2][0]] ===
           "block" &&
-        peertest(tname, parse.structure[parse.structure.length - 3][0]) === true
-      ) {
+        peertest(i, tname, parse.structure[parse.structure.length - 3][0])
+      )
         // Looks for consecutive missing end tags
         addHtmlEnd(2);
-      } else if (
+      else if (
         parse.structure.length > 1 &&
         i.htmlblocks[parse.structure[parse.structure.length - 1][0]] ===
           "block" &&
-        peertest(tname, parse.structure[parse.structure.length - 2][0]) === true
-      ) {
+        peertest(i, tname, parse.structure[parse.structure.length - 2][0])
+      )
         // Looks for consecutive missing end tags
         addHtmlEnd(1);
-      } else if (
-        peertest(tname, parse.structure[parse.structure.length - 1][0]) === true
-      ) {
+      else if (
+        peertest(i, tname, parse.structure[parse.structure.length - 1][0])
+      )
         // Certain tags cannot contain other certain tags if such tags are peers
         addHtmlEnd(0);
-      } else if (
+      else if (
         tname.charAt(0) === "/" &&
         i.htmlblocks[parse.structure[parse.structure.length - 1][0]] ===
           "block" &&
@@ -1327,14 +1276,11 @@ export function tag(i: LexState, end: string): void {
       if (
         data.types[parse.count] === "end" &&
         htmlsings[tname.slice(1)] === "singleton"
-      ) {
-        return fixsingleton();
-      }
+      )
+        return fixsingleton(i, tname);
 
       // Inserts start trailing slash into singleton tags if they do not already have it
-      if (htmlsings[tname] === "singleton") {
-        return true;
-      }
+      if (htmlsings[tname] === "singleton") return true;
     }
 
     return false;
