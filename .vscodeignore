@@ -3,7 +3,8 @@
 out/**
 src/**
 .gitignore
-.yarnrc
+.yarnrc.yml
+.pnp.*
 .yarn/**
 vsc-extension-quickstart.md
 **/tsconfig.json
