@@ -26,7 +26,7 @@ const RAW_RUNTIME_STATE =
       [null, {\
         "packageLocation": "./",\
         "packageDependencies": [\
-          ["@types/node", "npm:20.12.7"],\
+          ["@types/node", "npm:20.12.8"],\
           ["@types/vscode", "npm:1.88.0"],\
           ["ts-loader", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:9.5.1"],\
           ["typescript", "patch:typescript@npm%3A5.4.5#optional!builtin<compat/typescript>::version=5.4.5&hash=5adc0c"],\
@@ -219,10 +219,10 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["@types/node", [\
-      ["npm:20.12.7", {\
-        "packageLocation": "./.yarn/cache/@types-node-npm-20.12.7-3bb3d3303d-b4a28a3b59.zip/node_modules/@types/node/",\
+      ["npm:20.12.8", {\
+        "packageLocation": "./.yarn/cache/@types-node-npm-20.12.8-f4c49e4029-1feab4c8cb.zip/node_modules/@types/node/",\
         "packageDependencies": [\
-          ["@types/node", "npm:20.12.7"],\
+          ["@types/node", "npm:20.12.8"],\
           ["undici-types", "npm:5.26.5"]\
         ],\
         "linkType": "HARD"\
@@ -1850,7 +1850,7 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./.yarn/cache/jest-worker-npm-27.5.1-1c110b5894-06c6e2a845.zip/node_modules/jest-worker/",\
         "packageDependencies": [\
           ["jest-worker", "npm:27.5.1"],\
-          ["@types/node", "npm:20.12.7"],\
+          ["@types/node", "npm:20.12.8"],\
           ["merge-stream", "npm:2.0.0"],\
           ["supports-color", "npm:8.1.1"]\
         ],\
@@ -3306,7 +3306,7 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./",\
         "packageDependencies": [\
           ["vstwig", "workspace:."],\
-          ["@types/node", "npm:20.12.7"],\
+          ["@types/node", "npm:20.12.8"],\
           ["@types/vscode", "npm:1.88.0"],\
           ["ts-loader", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:9.5.1"],\
           ["typescript", "patch:typescript@npm%3A5.4.5#optional!builtin<compat/typescript>::version=5.4.5&hash=5adc0c"],\
