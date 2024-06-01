@@ -155,7 +155,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^20.12.7":
+"@types/node@npm:*":
   version: 20.12.8
   resolution: "@types/node@npm:20.12.8"
   dependencies:
@@ -164,7 +164,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/vscode@npm:^1.88.0":
+"@types/node@npm:^20.13.0":
+  version: 20.13.0
+  resolution: "@types/node@npm:20.13.0"
+  dependencies:
+    undici-types: "npm:~5.26.4"
+  checksum: 10/82f0e999078fa5e251de002c755d18f63c47ff09c192fdd1381ca91774327563ad778244ab51f52304a9432b5ba678c1328585ef5e92ffdc5eed8e950a6ad1b9
+  languageName: node
+  linkType: hard
+
+"@types/vscode@npm:^1.89.0":
   version: 1.89.0
   resolution: "@types/vscode@npm:1.89.0"
   checksum: 10/18494a57325e245059c171ebdca5def3baa8b02a2edfad72a0c4832a953d4ab9c4a8db1157c78bbe59a5363071ef04560f826272f0f8bbefbc109e59a19e3781
@@ -2821,8 +2830,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "vstwig@workspace:."
   dependencies:
-    "@types/node": "npm:^20.12.7"
-    "@types/vscode": "npm:^1.88.0"
+    "@types/node": "npm:^20.13.0"
+    "@types/vscode": "npm:^1.89.0"
     ts-loader: "npm:^9.5.1"
     typescript: "npm:^5.4.5"
     vsce: "npm:^2.15.0"

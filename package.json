@@ -2,7 +2,7 @@
   "name": "vstwig",
   "icon": "assets/logo.png",
   "displayName": "PHP Twig",
-  "description": "Syntax highlihting and formatting",
+  "description": "Syntax highlighting and formatting",
   "author": "Ramkumar Ramachandra",
   "publisher": "artagnon",
   "repository": {
@@ -52,8 +52,8 @@
     "lint": "yarn eslint src --ext ts"
   },
   "devDependencies": {
-    "@types/node": "^20.12.7",
-    "@types/vscode": "^1.88.0",
+    "@types/node": "^20.13.0",
+    "@types/vscode": "^1.89.0",
     "ts-loader": "^9.5.1",
     "typescript": "^5.4.5",
     "vsce": "^2.15.0",
