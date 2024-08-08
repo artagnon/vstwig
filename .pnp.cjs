@@ -28,7 +28,7 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./",\
         "packageDependencies": [\
           ["@types/node", "npm:20.14.14"],\
-          ["@types/vscode", "npm:1.90.0"],\
+          ["@types/vscode", "npm:1.92.0"],\
           ["ts-loader", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:9.5.1"],\
           ["typescript", "patch:typescript@npm%3A5.5.4#optional!builtin<compat/typescript>::version=5.5.4&hash=379a07"],\
           ["vsce", "npm:2.15.0"],\
@@ -238,10 +238,10 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["@types/vscode", [\
-      ["npm:1.90.0", {\
-        "packageLocation": "./.yarn/cache/@types-vscode-npm-1.90.0-7a71c83282-83b786e637.zip/node_modules/@types/vscode/",\
+      ["npm:1.92.0", {\
+        "packageLocation": "./.yarn/cache/@types-vscode-npm-1.92.0-a23ad08e5e-395f3eeec3.zip/node_modules/@types/vscode/",\
         "packageDependencies": [\
-          ["@types/vscode", "npm:1.90.0"]\
+          ["@types/vscode", "npm:1.92.0"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -3332,7 +3332,7 @@ const RAW_RUNTIME_STATE =
         "packageDependencies": [\
           ["vstwig", "workspace:."],\
           ["@types/node", "npm:20.14.14"],\
-          ["@types/vscode", "npm:1.90.0"],\
+          ["@types/vscode", "npm:1.92.0"],\
           ["ts-loader", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:9.5.1"],\
           ["typescript", "patch:typescript@npm%3A5.5.4#optional!builtin<compat/typescript>::version=5.5.4&hash=379a07"],\
           ["vsce", "npm:2.15.0"],\
