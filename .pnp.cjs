@@ -32,7 +32,7 @@ const RAW_RUNTIME_STATE =
           ["ts-loader", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:9.5.1"],\
           ["typescript", "patch:typescript@npm%3A5.5.4#optional!builtin<compat/typescript>::version=5.5.4&hash=379a07"],\
           ["vsce", "npm:2.15.0"],\
-          ["webpack", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.94.0"],\
+          ["webpack", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.97.1"],\
           ["webpack-cli", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.1.4"]\
         ],\
         "linkType": "SOFT"\
@@ -165,16 +165,45 @@ const RAW_RUNTIME_STATE =
         "linkType": "HARD"\
       }]\
     ]],\
-    ["@types/estree", [\
-      ["npm:1.0.5", {\
-        "packageLocation": "./.yarn/cache/@types-estree-npm-1.0.5-5b7faed3b4-7de6d928dd.zip/node_modules/@types/estree/",\
+    ["@types/eslint", [\
+      ["npm:9.6.1", {\
+        "packageLocation": "./.yarn/cache/@types-eslint-npm-9.6.1-31a8cf74e4-719fcd2557.zip/node_modules/@types/eslint/",\
         "packageDependencies": [\
-          ["@types/estree", "npm:1.0.5"]\
+          ["@types/eslint", "npm:9.6.1"],\
+          ["@types/estree", "npm:1.0.6"],\
+          ["@types/json-schema", "npm:7.0.15"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["@types/eslint-scope", [\
+      ["npm:3.7.7", {\
+        "packageLocation": "./.yarn/cache/@types-eslint-scope-npm-3.7.7-efa26592f6-e2889a124a.zip/node_modules/@types/eslint-scope/",\
+        "packageDependencies": [\
+          ["@types/eslint-scope", "npm:3.7.7"],\
+          ["@types/eslint", "npm:9.6.1"],\
+          ["@types/estree", "npm:1.0.6"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["@types/estree", [\
+      ["npm:1.0.6", {\
+        "packageLocation": "./.yarn/cache/@types-estree-npm-1.0.6-b5e23f2ea2-9d35d47509.zip/node_modules/@types/estree/",\
+        "packageDependencies": [\
+          ["@types/estree", "npm:1.0.6"]\
         ],\
         "linkType": "HARD"\
       }]\
     ]],\
     ["@types/json-schema", [\
+      ["npm:7.0.15", {\
+        "packageLocation": "./.yarn/cache/@types-json-schema-npm-7.0.15-fd16381786-1a3c3e0623.zip/node_modules/@types/json-schema/",\
+        "packageDependencies": [\
+          ["@types/json-schema", "npm:7.0.15"]\
+        ],\
+        "linkType": "HARD"\
+      }],\
       ["npm:7.0.9", {\
         "packageLocation": "./.yarn/cache/@types-json-schema-npm-7.0.9-361918cff3-7ceb41e396.zip/node_modules/@types/json-schema/",\
         "packageDependencies": [\
@@ -211,171 +240,171 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["@webassemblyjs/ast", [\
-      ["npm:1.12.1", {\
-        "packageLocation": "./.yarn/cache/@webassemblyjs-ast-npm-1.12.1-3ff9ea1c0e-a775b05594.zip/node_modules/@webassemblyjs/ast/",\
+      ["npm:1.14.1", {\
+        "packageLocation": "./.yarn/cache/@webassemblyjs-ast-npm-1.14.1-3c3be7e1c7-f83e6abe38.zip/node_modules/@webassemblyjs/ast/",\
         "packageDependencies": [\
-          ["@webassemblyjs/ast", "npm:1.12.1"],\
-          ["@webassemblyjs/helper-numbers", "npm:1.11.6"],\
-          ["@webassemblyjs/helper-wasm-bytecode", "npm:1.11.6"]\
+          ["@webassemblyjs/ast", "npm:1.14.1"],\
+          ["@webassemblyjs/helper-numbers", "npm:1.13.2"],\
+          ["@webassemblyjs/helper-wasm-bytecode", "npm:1.13.2"]\
         ],\
         "linkType": "HARD"\
       }]\
     ]],\
     ["@webassemblyjs/floating-point-hex-parser", [\
-      ["npm:1.11.6", {\
-        "packageLocation": "./.yarn/cache/@webassemblyjs-floating-point-hex-parser-npm-1.11.6-3a9928fc76-29b0875884.zip/node_modules/@webassemblyjs/floating-point-hex-parser/",\
+      ["npm:1.13.2", {\
+        "packageLocation": "./.yarn/cache/@webassemblyjs-floating-point-hex-parser-npm-1.13.2-6fb28a43ea-e866ec8433.zip/node_modules/@webassemblyjs/floating-point-hex-parser/",\
         "packageDependencies": [\
-          ["@webassemblyjs/floating-point-hex-parser", "npm:1.11.6"]\
+          ["@webassemblyjs/floating-point-hex-parser", "npm:1.13.2"]\
         ],\
         "linkType": "HARD"\
       }]\
     ]],\
     ["@webassemblyjs/helper-api-error", [\
-      ["npm:1.11.6", {\
-        "packageLocation": "./.yarn/cache/@webassemblyjs-helper-api-error-npm-1.11.6-75f6275ff4-e8563df851.zip/node_modules/@webassemblyjs/helper-api-error/",\
+      ["npm:1.13.2", {\
+        "packageLocation": "./.yarn/cache/@webassemblyjs-helper-api-error-npm-1.13.2-960f9ddae0-48b5df7fd3.zip/node_modules/@webassemblyjs/helper-api-error/",\
         "packageDependencies": [\
-          ["@webassemblyjs/helper-api-error", "npm:1.11.6"]\
+          ["@webassemblyjs/helper-api-error", "npm:1.13.2"]\
         ],\
         "linkType": "HARD"\
       }]\
     ]],\
     ["@webassemblyjs/helper-buffer", [\
-      ["npm:1.12.1", {\
-        "packageLocation": "./.yarn/cache/@webassemblyjs-helper-buffer-npm-1.12.1-d025434a45-1d8705daa4.zip/node_modules/@webassemblyjs/helper-buffer/",\
+      ["npm:1.14.1", {\
+        "packageLocation": "./.yarn/cache/@webassemblyjs-helper-buffer-npm-1.14.1-41c842be6b-9690afeafa.zip/node_modules/@webassemblyjs/helper-buffer/",\
         "packageDependencies": [\
-          ["@webassemblyjs/helper-buffer", "npm:1.12.1"]\
+          ["@webassemblyjs/helper-buffer", "npm:1.14.1"]\
         ],\
         "linkType": "HARD"\
       }]\
     ]],\
     ["@webassemblyjs/helper-numbers", [\
-      ["npm:1.11.6", {\
-        "packageLocation": "./.yarn/cache/@webassemblyjs-helper-numbers-npm-1.11.6-819ddab1da-9ffd258ad8.zip/node_modules/@webassemblyjs/helper-numbers/",\
+      ["npm:1.13.2", {\
+        "packageLocation": "./.yarn/cache/@webassemblyjs-helper-numbers-npm-1.13.2-f66f9b062d-e4c7d0b098.zip/node_modules/@webassemblyjs/helper-numbers/",\
         "packageDependencies": [\
-          ["@webassemblyjs/helper-numbers", "npm:1.11.6"],\
-          ["@webassemblyjs/floating-point-hex-parser", "npm:1.11.6"],\
-          ["@webassemblyjs/helper-api-error", "npm:1.11.6"],\
+          ["@webassemblyjs/helper-numbers", "npm:1.13.2"],\
+          ["@webassemblyjs/floating-point-hex-parser", "npm:1.13.2"],\
+          ["@webassemblyjs/helper-api-error", "npm:1.13.2"],\
           ["@xtuc/long", "npm:4.2.2"]\
         ],\
         "linkType": "HARD"\
       }]\
     ]],\
     ["@webassemblyjs/helper-wasm-bytecode", [\
-      ["npm:1.11.6", {\
-        "packageLocation": "./.yarn/cache/@webassemblyjs-helper-wasm-bytecode-npm-1.11.6-3bc23747de-4ebf03e9c1.zip/node_modules/@webassemblyjs/helper-wasm-bytecode/",\
+      ["npm:1.13.2", {\
+        "packageLocation": "./.yarn/cache/@webassemblyjs-helper-wasm-bytecode-npm-1.13.2-d4f0224769-3edd191fff.zip/node_modules/@webassemblyjs/helper-wasm-bytecode/",\
         "packageDependencies": [\
-          ["@webassemblyjs/helper-wasm-bytecode", "npm:1.11.6"]\
+          ["@webassemblyjs/helper-wasm-bytecode", "npm:1.13.2"]\
         ],\
         "linkType": "HARD"\
       }]\
     ]],\
     ["@webassemblyjs/helper-wasm-section", [\
-      ["npm:1.12.1", {\
-        "packageLocation": "./.yarn/cache/@webassemblyjs-helper-wasm-section-npm-1.12.1-cd0e2f1eab-e91e6b2811.zip/node_modules/@webassemblyjs/helper-wasm-section/",\
+      ["npm:1.14.1", {\
+        "packageLocation": "./.yarn/cache/@webassemblyjs-helper-wasm-section-npm-1.14.1-5243edbf41-6b73874f90.zip/node_modules/@webassemblyjs/helper-wasm-section/",\
         "packageDependencies": [\
-          ["@webassemblyjs/helper-wasm-section", "npm:1.12.1"],\
-          ["@webassemblyjs/ast", "npm:1.12.1"],\
-          ["@webassemblyjs/helper-buffer", "npm:1.12.1"],\
-          ["@webassemblyjs/helper-wasm-bytecode", "npm:1.11.6"],\
-          ["@webassemblyjs/wasm-gen", "npm:1.12.1"]\
+          ["@webassemblyjs/helper-wasm-section", "npm:1.14.1"],\
+          ["@webassemblyjs/ast", "npm:1.14.1"],\
+          ["@webassemblyjs/helper-buffer", "npm:1.14.1"],\
+          ["@webassemblyjs/helper-wasm-bytecode", "npm:1.13.2"],\
+          ["@webassemblyjs/wasm-gen", "npm:1.14.1"]\
         ],\
         "linkType": "HARD"\
       }]\
     ]],\
     ["@webassemblyjs/ieee754", [\
-      ["npm:1.11.6", {\
-        "packageLocation": "./.yarn/cache/@webassemblyjs-ieee754-npm-1.11.6-95c92f446a-13574b8e41.zip/node_modules/@webassemblyjs/ieee754/",\
+      ["npm:1.13.2", {\
+        "packageLocation": "./.yarn/cache/@webassemblyjs-ieee754-npm-1.13.2-a3a6a7b2fd-d7e3520baa.zip/node_modules/@webassemblyjs/ieee754/",\
         "packageDependencies": [\
-          ["@webassemblyjs/ieee754", "npm:1.11.6"],\
+          ["@webassemblyjs/ieee754", "npm:1.13.2"],\
           ["@xtuc/ieee754", "npm:1.2.0"]\
         ],\
         "linkType": "HARD"\
       }]\
     ]],\
     ["@webassemblyjs/leb128", [\
-      ["npm:1.11.6", {\
-        "packageLocation": "./.yarn/cache/@webassemblyjs-leb128-npm-1.11.6-697d62da2e-ec3b72db0e.zip/node_modules/@webassemblyjs/leb128/",\
+      ["npm:1.13.2", {\
+        "packageLocation": "./.yarn/cache/@webassemblyjs-leb128-npm-1.13.2-30bfcea7aa-3a10542c86.zip/node_modules/@webassemblyjs/leb128/",\
         "packageDependencies": [\
-          ["@webassemblyjs/leb128", "npm:1.11.6"],\
+          ["@webassemblyjs/leb128", "npm:1.13.2"],\
           ["@xtuc/long", "npm:4.2.2"]\
         ],\
         "linkType": "HARD"\
       }]\
     ]],\
     ["@webassemblyjs/utf8", [\
-      ["npm:1.11.6", {\
-        "packageLocation": "./.yarn/cache/@webassemblyjs-utf8-npm-1.11.6-102c4e5d68-361a537bd6.zip/node_modules/@webassemblyjs/utf8/",\
+      ["npm:1.13.2", {\
+        "packageLocation": "./.yarn/cache/@webassemblyjs-utf8-npm-1.13.2-a0ec535507-27885e5d19.zip/node_modules/@webassemblyjs/utf8/",\
         "packageDependencies": [\
-          ["@webassemblyjs/utf8", "npm:1.11.6"]\
+          ["@webassemblyjs/utf8", "npm:1.13.2"]\
         ],\
         "linkType": "HARD"\
       }]\
     ]],\
     ["@webassemblyjs/wasm-edit", [\
-      ["npm:1.12.1", {\
-        "packageLocation": "./.yarn/cache/@webassemblyjs-wasm-edit-npm-1.12.1-727bec592a-5678ae02db.zip/node_modules/@webassemblyjs/wasm-edit/",\
+      ["npm:1.14.1", {\
+        "packageLocation": "./.yarn/cache/@webassemblyjs-wasm-edit-npm-1.14.1-f8509a0db6-c62c50eadc.zip/node_modules/@webassemblyjs/wasm-edit/",\
         "packageDependencies": [\
-          ["@webassemblyjs/wasm-edit", "npm:1.12.1"],\
-          ["@webassemblyjs/ast", "npm:1.12.1"],\
-          ["@webassemblyjs/helper-buffer", "npm:1.12.1"],\
-          ["@webassemblyjs/helper-wasm-bytecode", "npm:1.11.6"],\
-          ["@webassemblyjs/helper-wasm-section", "npm:1.12.1"],\
-          ["@webassemblyjs/wasm-gen", "npm:1.12.1"],\
-          ["@webassemblyjs/wasm-opt", "npm:1.12.1"],\
-          ["@webassemblyjs/wasm-parser", "npm:1.12.1"],\
-          ["@webassemblyjs/wast-printer", "npm:1.12.1"]\
+          ["@webassemblyjs/wasm-edit", "npm:1.14.1"],\
+          ["@webassemblyjs/ast", "npm:1.14.1"],\
+          ["@webassemblyjs/helper-buffer", "npm:1.14.1"],\
+          ["@webassemblyjs/helper-wasm-bytecode", "npm:1.13.2"],\
+          ["@webassemblyjs/helper-wasm-section", "npm:1.14.1"],\
+          ["@webassemblyjs/wasm-gen", "npm:1.14.1"],\
+          ["@webassemblyjs/wasm-opt", "npm:1.14.1"],\
+          ["@webassemblyjs/wasm-parser", "npm:1.14.1"],\
+          ["@webassemblyjs/wast-printer", "npm:1.14.1"]\
         ],\
         "linkType": "HARD"\
       }]\
     ]],\
     ["@webassemblyjs/wasm-gen", [\
-      ["npm:1.12.1", {\
-        "packageLocation": "./.yarn/cache/@webassemblyjs-wasm-gen-npm-1.12.1-bbe22ad265-ec45bd50e8.zip/node_modules/@webassemblyjs/wasm-gen/",\
+      ["npm:1.14.1", {\
+        "packageLocation": "./.yarn/cache/@webassemblyjs-wasm-gen-npm-1.14.1-8b8d68f261-6085166b09.zip/node_modules/@webassemblyjs/wasm-gen/",\
         "packageDependencies": [\
-          ["@webassemblyjs/wasm-gen", "npm:1.12.1"],\
-          ["@webassemblyjs/ast", "npm:1.12.1"],\
-          ["@webassemblyjs/helper-wasm-bytecode", "npm:1.11.6"],\
-          ["@webassemblyjs/ieee754", "npm:1.11.6"],\
-          ["@webassemblyjs/leb128", "npm:1.11.6"],\
-          ["@webassemblyjs/utf8", "npm:1.11.6"]\
+          ["@webassemblyjs/wasm-gen", "npm:1.14.1"],\
+          ["@webassemblyjs/ast", "npm:1.14.1"],\
+          ["@webassemblyjs/helper-wasm-bytecode", "npm:1.13.2"],\
+          ["@webassemblyjs/ieee754", "npm:1.13.2"],\
+          ["@webassemblyjs/leb128", "npm:1.13.2"],\
+          ["@webassemblyjs/utf8", "npm:1.13.2"]\
         ],\
         "linkType": "HARD"\
       }]\
     ]],\
     ["@webassemblyjs/wasm-opt", [\
-      ["npm:1.12.1", {\
-        "packageLocation": "./.yarn/cache/@webassemblyjs-wasm-opt-npm-1.12.1-450c932de6-21f25ae109.zip/node_modules/@webassemblyjs/wasm-opt/",\
+      ["npm:1.14.1", {\
+        "packageLocation": "./.yarn/cache/@webassemblyjs-wasm-opt-npm-1.14.1-d6b7083f9d-fa5d1ef8d2.zip/node_modules/@webassemblyjs/wasm-opt/",\
         "packageDependencies": [\
-          ["@webassemblyjs/wasm-opt", "npm:1.12.1"],\
-          ["@webassemblyjs/ast", "npm:1.12.1"],\
-          ["@webassemblyjs/helper-buffer", "npm:1.12.1"],\
-          ["@webassemblyjs/wasm-gen", "npm:1.12.1"],\
-          ["@webassemblyjs/wasm-parser", "npm:1.12.1"]\
+          ["@webassemblyjs/wasm-opt", "npm:1.14.1"],\
+          ["@webassemblyjs/ast", "npm:1.14.1"],\
+          ["@webassemblyjs/helper-buffer", "npm:1.14.1"],\
+          ["@webassemblyjs/wasm-gen", "npm:1.14.1"],\
+          ["@webassemblyjs/wasm-parser", "npm:1.14.1"]\
         ],\
         "linkType": "HARD"\
       }]\
     ]],\
     ["@webassemblyjs/wasm-parser", [\
-      ["npm:1.12.1", {\
-        "packageLocation": "./.yarn/cache/@webassemblyjs-wasm-parser-npm-1.12.1-54a7a19806-f7311685b7.zip/node_modules/@webassemblyjs/wasm-parser/",\
+      ["npm:1.14.1", {\
+        "packageLocation": "./.yarn/cache/@webassemblyjs-wasm-parser-npm-1.14.1-ad3b2c4a8f-07d9805fda.zip/node_modules/@webassemblyjs/wasm-parser/",\
         "packageDependencies": [\
-          ["@webassemblyjs/wasm-parser", "npm:1.12.1"],\
-          ["@webassemblyjs/ast", "npm:1.12.1"],\
-          ["@webassemblyjs/helper-api-error", "npm:1.11.6"],\
-          ["@webassemblyjs/helper-wasm-bytecode", "npm:1.11.6"],\
-          ["@webassemblyjs/ieee754", "npm:1.11.6"],\
-          ["@webassemblyjs/leb128", "npm:1.11.6"],\
-          ["@webassemblyjs/utf8", "npm:1.11.6"]\
+          ["@webassemblyjs/wasm-parser", "npm:1.14.1"],\
+          ["@webassemblyjs/ast", "npm:1.14.1"],\
+          ["@webassemblyjs/helper-api-error", "npm:1.13.2"],\
+          ["@webassemblyjs/helper-wasm-bytecode", "npm:1.13.2"],\
+          ["@webassemblyjs/ieee754", "npm:1.13.2"],\
+          ["@webassemblyjs/leb128", "npm:1.13.2"],\
+          ["@webassemblyjs/utf8", "npm:1.13.2"]\
         ],\
         "linkType": "HARD"\
       }]\
     ]],\
     ["@webassemblyjs/wast-printer", [\
-      ["npm:1.12.1", {\
-        "packageLocation": "./.yarn/cache/@webassemblyjs-wast-printer-npm-1.12.1-e75655c7ff-1a6a4b6bc4.zip/node_modules/@webassemblyjs/wast-printer/",\
+      ["npm:1.14.1", {\
+        "packageLocation": "./.yarn/cache/@webassemblyjs-wast-printer-npm-1.14.1-e43dc9a0b4-cef09aad2f.zip/node_modules/@webassemblyjs/wast-printer/",\
         "packageDependencies": [\
-          ["@webassemblyjs/wast-printer", "npm:1.12.1"],\
-          ["@webassemblyjs/ast", "npm:1.12.1"],\
+          ["@webassemblyjs/wast-printer", "npm:1.14.1"],\
+          ["@webassemblyjs/ast", "npm:1.14.1"],\
           ["@xtuc/long", "npm:4.2.2"]\
         ],\
         "linkType": "HARD"\
@@ -395,7 +424,7 @@ const RAW_RUNTIME_STATE =
           ["@webpack-cli/configtest", "virtual:fc4da6f5ccbdfe7c040a82696ddb4987002afc76fe92cb6292677ed4800ca19f2164e3efaedbee664b53f041b05a67c3e0494bf7183fd8940aa9ed190fe5cfdb#npm:2.1.1"],\
           ["@types/webpack", null],\
           ["@types/webpack-cli", null],\
-          ["webpack", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.94.0"],\
+          ["webpack", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.97.1"],\
           ["webpack-cli", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.1.4"]\
         ],\
         "packagePeers": [\
@@ -421,7 +450,7 @@ const RAW_RUNTIME_STATE =
           ["@webpack-cli/info", "virtual:fc4da6f5ccbdfe7c040a82696ddb4987002afc76fe92cb6292677ed4800ca19f2164e3efaedbee664b53f041b05a67c3e0494bf7183fd8940aa9ed190fe5cfdb#npm:2.0.2"],\
           ["@types/webpack", null],\
           ["@types/webpack-cli", null],\
-          ["webpack", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.94.0"],\
+          ["webpack", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.97.1"],\
           ["webpack-cli", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.1.4"]\
         ],\
         "packagePeers": [\
@@ -448,7 +477,7 @@ const RAW_RUNTIME_STATE =
           ["@types/webpack", null],\
           ["@types/webpack-cli", null],\
           ["@types/webpack-dev-server", null],\
-          ["webpack", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.94.0"],\
+          ["webpack", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.97.1"],\
           ["webpack-cli", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.1.4"],\
           ["webpack-dev-server", null]\
         ],\
@@ -498,32 +527,10 @@ const RAW_RUNTIME_STATE =
         ],\
         "linkType": "HARD"\
       }],\
-      ["npm:8.7.1", {\
-        "packageLocation": "./.yarn/cache/acorn-npm-8.7.1-7c7a019990-60a550c0c1.zip/node_modules/acorn/",\
+      ["npm:8.14.0", {\
+        "packageLocation": "./.yarn/cache/acorn-npm-8.14.0-dc46f61424-6df29c3555.zip/node_modules/acorn/",\
         "packageDependencies": [\
-          ["acorn", "npm:8.7.1"]\
-        ],\
-        "linkType": "HARD"\
-      }]\
-    ]],\
-    ["acorn-import-attributes", [\
-      ["npm:1.9.5", {\
-        "packageLocation": "./.yarn/cache/acorn-import-attributes-npm-1.9.5-d1e666eb35-8bfbfbb6e2.zip/node_modules/acorn-import-attributes/",\
-        "packageDependencies": [\
-          ["acorn-import-attributes", "npm:1.9.5"]\
-        ],\
-        "linkType": "SOFT"\
-      }],\
-      ["virtual:dec4a71c28daff9bf5cc19c2ee695a1be5c45d00d92849a0cf1f7fca34e7f82e4318c864dc57d0cd1e6d1e458fe16cea7a4e35094b6f8d4708b9250d033ab07f#npm:1.9.5", {\
-        "packageLocation": "./.yarn/__virtual__/acorn-import-attributes-virtual-1a73daf1aa/0/cache/acorn-import-attributes-npm-1.9.5-d1e666eb35-8bfbfbb6e2.zip/node_modules/acorn-import-attributes/",\
-        "packageDependencies": [\
-          ["acorn-import-attributes", "virtual:dec4a71c28daff9bf5cc19c2ee695a1be5c45d00d92849a0cf1f7fca34e7f82e4318c864dc57d0cd1e6d1e458fe16cea7a4e35094b6f8d4708b9250d033ab07f#npm:1.9.5"],\
-          ["@types/acorn", null],\
-          ["acorn", "npm:8.7.1"]\
-        ],\
-        "packagePeers": [\
-          "@types/acorn",\
-          "acorn"\
+          ["acorn", "npm:8.14.0"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -714,14 +721,14 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["browserslist", [\
-      ["npm:4.23.0", {\
-        "packageLocation": "./.yarn/cache/browserslist-npm-4.23.0-8126a959d4-496c3862df.zip/node_modules/browserslist/",\
+      ["npm:4.24.4", {\
+        "packageLocation": "./.yarn/cache/browserslist-npm-4.24.4-2fdeb5face-11fda105e8.zip/node_modules/browserslist/",\
         "packageDependencies": [\
-          ["browserslist", "npm:4.23.0"],\
-          ["caniuse-lite", "npm:1.0.30001600"],\
-          ["electron-to-chromium", "npm:1.4.715"],\
-          ["node-releases", "npm:2.0.14"],\
-          ["update-browserslist-db", "virtual:8126a959d46e6def6d7f2497c47970a23a94adac85f5be1df9be290c674503b9bcbe0dc057e2741ee222cc2a8a3b9f584b20c3a9eb5ce085704d99fc5d94514c#npm:1.0.13"]\
+          ["browserslist", "npm:4.24.4"],\
+          ["caniuse-lite", "npm:1.0.30001696"],\
+          ["electron-to-chromium", "npm:1.5.90"],\
+          ["node-releases", "npm:2.0.19"],\
+          ["update-browserslist-db", "virtual:2fdeb5face9914bb5fd94c70f084d153c80d2f09e5aabee010e4220b248dc23fca8f73c7beed0195e45ae6e2b1cb25388f709d7bfc4f00e473d573887faf4e5c#npm:1.1.2"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -791,10 +798,10 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["caniuse-lite", [\
-      ["npm:1.0.30001600", {\
-        "packageLocation": "./.yarn/cache/caniuse-lite-npm-1.0.30001600-89d888d155-4c52f83ed7.zip/node_modules/caniuse-lite/",\
+      ["npm:1.0.30001696", {\
+        "packageLocation": "./.yarn/cache/caniuse-lite-npm-1.0.30001696-067c2f955f-7230d3258e.zip/node_modules/caniuse-lite/",\
         "packageDependencies": [\
-          ["caniuse-lite", "npm:1.0.30001600"]\
+          ["caniuse-lite", "npm:1.0.30001696"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -1123,10 +1130,10 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["electron-to-chromium", [\
-      ["npm:1.4.715", {\
-        "packageLocation": "./.yarn/cache/electron-to-chromium-npm-1.4.715-bba842aa86-0fc9fc9fe2.zip/node_modules/electron-to-chromium/",\
+      ["npm:1.5.90", {\
+        "packageLocation": "./.yarn/cache/electron-to-chromium-npm-1.5.90-074751336b-4c04d3735a.zip/node_modules/electron-to-chromium/",\
         "packageDependencies": [\
-          ["electron-to-chromium", "npm:1.4.715"]\
+          ["electron-to-chromium", "npm:1.5.90"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -1259,10 +1266,10 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["escalade", [\
-      ["npm:3.1.1", {\
-        "packageLocation": "./.yarn/cache/escalade-npm-3.1.1-e02da076aa-afa618e733.zip/node_modules/escalade/",\
+      ["npm:3.2.0", {\
+        "packageLocation": "./.yarn/cache/escalade-npm-3.2.0-19b50dd48f-9d7169e396.zip/node_modules/escalade/",\
         "packageDependencies": [\
-          ["escalade", "npm:3.1.1"]\
+          ["escalade", "npm:3.2.0"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -2260,10 +2267,10 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["node-releases", [\
-      ["npm:2.0.14", {\
-        "packageLocation": "./.yarn/cache/node-releases-npm-2.0.14-d39047cad8-0f7607ec7d.zip/node_modules/node-releases/",\
+      ["npm:2.0.19", {\
+        "packageLocation": "./.yarn/cache/node-releases-npm-2.0.19-b123ed6240-c2b33b4f0c.zip/node_modules/node-releases/",\
         "packageDependencies": [\
-          ["node-releases", "npm:2.0.14"]\
+          ["node-releases", "npm:2.0.19"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -2434,10 +2441,10 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["picocolors", [\
-      ["npm:1.0.0", {\
-        "packageLocation": "./.yarn/cache/picocolors-npm-1.0.0-d81e0b1927-a2e8092dd8.zip/node_modules/picocolors/",\
+      ["npm:1.1.1", {\
+        "packageLocation": "./.yarn/cache/picocolors-npm-1.1.1-4fede47cf1-e1cf46bf84.zip/node_modules/picocolors/",\
         "packageDependencies": [\
-          ["picocolors", "npm:1.0.0"]\
+          ["picocolors", "npm:1.1.1"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -3034,10 +3041,10 @@ const RAW_RUNTIME_STATE =
         ],\
         "linkType": "SOFT"\
       }],\
-      ["virtual:dec4a71c28daff9bf5cc19c2ee695a1be5c45d00d92849a0cf1f7fca34e7f82e4318c864dc57d0cd1e6d1e458fe16cea7a4e35094b6f8d4708b9250d033ab07f#npm:5.3.10", {\
-        "packageLocation": "./.yarn/__virtual__/terser-webpack-plugin-virtual-1e62d88023/0/cache/terser-webpack-plugin-npm-5.3.10-3bde1920fb-fb1c2436ae.zip/node_modules/terser-webpack-plugin/",\
+      ["virtual:62065fc9d307c9e9b25c9bbaadd96c19ace515b3d5f50d155eb18a2e2ea5a7fc34736bf61df3b6502e949d4820ed30c8f71212876d12ade6d006883f96a8891e#npm:5.3.10", {\
+        "packageLocation": "./.yarn/__virtual__/terser-webpack-plugin-virtual-b8c8afe15a/0/cache/terser-webpack-plugin-npm-5.3.10-3bde1920fb-fb1c2436ae.zip/node_modules/terser-webpack-plugin/",\
         "packageDependencies": [\
-          ["terser-webpack-plugin", "virtual:dec4a71c28daff9bf5cc19c2ee695a1be5c45d00d92849a0cf1f7fca34e7f82e4318c864dc57d0cd1e6d1e458fe16cea7a4e35094b6f8d4708b9250d033ab07f#npm:5.3.10"],\
+          ["terser-webpack-plugin", "virtual:62065fc9d307c9e9b25c9bbaadd96c19ace515b3d5f50d155eb18a2e2ea5a7fc34736bf61df3b6502e949d4820ed30c8f71212876d12ade6d006883f96a8891e#npm:5.3.10"],\
           ["@jridgewell/trace-mapping", "npm:0.3.25"],\
           ["@swc/core", null],\
           ["@types/esbuild", null],\
@@ -3050,7 +3057,7 @@ const RAW_RUNTIME_STATE =
           ["serialize-javascript", "npm:6.0.2"],\
           ["terser", "npm:5.29.2"],\
           ["uglify-js", null],\
-          ["webpack", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.94.0"]\
+          ["webpack", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.97.1"]\
         ],\
         "packagePeers": [\
           "@swc/core",\
@@ -3104,7 +3111,7 @@ const RAW_RUNTIME_STATE =
           ["semver", "npm:7.6.0"],\
           ["source-map", "npm:0.7.4"],\
           ["typescript", "patch:typescript@npm%3A5.5.4#optional!builtin<compat/typescript>::version=5.5.4&hash=379a07"],\
-          ["webpack", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.94.0"]\
+          ["webpack", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.97.1"]\
         ],\
         "packagePeers": [\
           "@types/typescript",\
@@ -3210,21 +3217,21 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["update-browserslist-db", [\
-      ["npm:1.0.13", {\
-        "packageLocation": "./.yarn/cache/update-browserslist-db-npm-1.0.13-ea7b8ee24d-9074b4ef34.zip/node_modules/update-browserslist-db/",\
+      ["npm:1.1.2", {\
+        "packageLocation": "./.yarn/cache/update-browserslist-db-npm-1.1.2-59b122fef6-e7bf8221df.zip/node_modules/update-browserslist-db/",\
         "packageDependencies": [\
-          ["update-browserslist-db", "npm:1.0.13"]\
+          ["update-browserslist-db", "npm:1.1.2"]\
         ],\
         "linkType": "SOFT"\
       }],\
-      ["virtual:8126a959d46e6def6d7f2497c47970a23a94adac85f5be1df9be290c674503b9bcbe0dc057e2741ee222cc2a8a3b9f584b20c3a9eb5ce085704d99fc5d94514c#npm:1.0.13", {\
-        "packageLocation": "./.yarn/__virtual__/update-browserslist-db-virtual-c44986bb1a/0/cache/update-browserslist-db-npm-1.0.13-ea7b8ee24d-9074b4ef34.zip/node_modules/update-browserslist-db/",\
+      ["virtual:2fdeb5face9914bb5fd94c70f084d153c80d2f09e5aabee010e4220b248dc23fca8f73c7beed0195e45ae6e2b1cb25388f709d7bfc4f00e473d573887faf4e5c#npm:1.1.2", {\
+        "packageLocation": "./.yarn/__virtual__/update-browserslist-db-virtual-d7fc8cbe33/0/cache/update-browserslist-db-npm-1.1.2-59b122fef6-e7bf8221df.zip/node_modules/update-browserslist-db/",\
         "packageDependencies": [\
-          ["update-browserslist-db", "virtual:8126a959d46e6def6d7f2497c47970a23a94adac85f5be1df9be290c674503b9bcbe0dc057e2741ee222cc2a8a3b9f584b20c3a9eb5ce085704d99fc5d94514c#npm:1.0.13"],\
+          ["update-browserslist-db", "virtual:2fdeb5face9914bb5fd94c70f084d153c80d2f09e5aabee010e4220b248dc23fca8f73c7beed0195e45ae6e2b1cb25388f709d7bfc4f00e473d573887faf4e5c#npm:1.1.2"],\
           ["@types/browserslist", null],\
-          ["browserslist", "npm:4.23.0"],\
-          ["escalade", "npm:3.1.1"],\
-          ["picocolors", "npm:1.0.0"]\
+          ["browserslist", "npm:4.24.4"],\
+          ["escalade", "npm:3.2.0"],\
+          ["picocolors", "npm:1.1.1"]\
         ],\
         "packagePeers": [\
           "@types/browserslist",\
@@ -3300,7 +3307,7 @@ const RAW_RUNTIME_STATE =
           ["ts-loader", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:9.5.1"],\
           ["typescript", "patch:typescript@npm%3A5.5.4#optional!builtin<compat/typescript>::version=5.5.4&hash=379a07"],\
           ["vsce", "npm:2.15.0"],\
-          ["webpack", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.94.0"],\
+          ["webpack", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.97.1"],\
           ["webpack-cli", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.1.4"]\
         ],\
         "linkType": "SOFT"\
@@ -3318,25 +3325,25 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["webpack", [\
-      ["npm:5.94.0", {\
-        "packageLocation": "./.yarn/cache/webpack-npm-5.94.0-d1e43de389-648449c5fb.zip/node_modules/webpack/",\
+      ["npm:5.97.1", {\
+        "packageLocation": "./.yarn/cache/webpack-npm-5.97.1-b41b9903c1-665bd3b8c8.zip/node_modules/webpack/",\
         "packageDependencies": [\
-          ["webpack", "npm:5.94.0"]\
+          ["webpack", "npm:5.97.1"]\
         ],\
         "linkType": "SOFT"\
       }],\
-      ["virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.94.0", {\
-        "packageLocation": "./.yarn/__virtual__/webpack-virtual-dec4a71c28/0/cache/webpack-npm-5.94.0-d1e43de389-648449c5fb.zip/node_modules/webpack/",\
+      ["virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.97.1", {\
+        "packageLocation": "./.yarn/__virtual__/webpack-virtual-62065fc9d3/0/cache/webpack-npm-5.97.1-b41b9903c1-665bd3b8c8.zip/node_modules/webpack/",\
         "packageDependencies": [\
-          ["webpack", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.94.0"],\
-          ["@types/estree", "npm:1.0.5"],\
+          ["webpack", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.97.1"],\
+          ["@types/eslint-scope", "npm:3.7.7"],\
+          ["@types/estree", "npm:1.0.6"],\
           ["@types/webpack-cli", null],\
-          ["@webassemblyjs/ast", "npm:1.12.1"],\
-          ["@webassemblyjs/wasm-edit", "npm:1.12.1"],\
-          ["@webassemblyjs/wasm-parser", "npm:1.12.1"],\
-          ["acorn", "npm:8.7.1"],\
-          ["acorn-import-attributes", "virtual:dec4a71c28daff9bf5cc19c2ee695a1be5c45d00d92849a0cf1f7fca34e7f82e4318c864dc57d0cd1e6d1e458fe16cea7a4e35094b6f8d4708b9250d033ab07f#npm:1.9.5"],\
-          ["browserslist", "npm:4.23.0"],\
+          ["@webassemblyjs/ast", "npm:1.14.1"],\
+          ["@webassemblyjs/wasm-edit", "npm:1.14.1"],\
+          ["@webassemblyjs/wasm-parser", "npm:1.14.1"],\
+          ["acorn", "npm:8.14.0"],\
+          ["browserslist", "npm:4.24.4"],\
           ["chrome-trace-event", "npm:1.0.3"],\
           ["enhanced-resolve", "npm:5.17.1"],\
           ["es-module-lexer", "npm:1.4.2"],\
@@ -3350,7 +3357,7 @@ const RAW_RUNTIME_STATE =
           ["neo-async", "npm:2.6.2"],\
           ["schema-utils", "npm:3.3.0"],\
           ["tapable", "npm:2.2.0"],\
-          ["terser-webpack-plugin", "virtual:dec4a71c28daff9bf5cc19c2ee695a1be5c45d00d92849a0cf1f7fca34e7f82e4318c864dc57d0cd1e6d1e458fe16cea7a4e35094b6f8d4708b9250d033ab07f#npm:5.3.10"],\
+          ["terser-webpack-plugin", "virtual:62065fc9d307c9e9b25c9bbaadd96c19ace515b3d5f50d155eb18a2e2ea5a7fc34736bf61df3b6502e949d4820ed30c8f71212876d12ade6d006883f96a8891e#npm:5.3.10"],\
           ["watchpack", "npm:2.4.1"],\
           ["webpack-cli", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.1.4"],\
           ["webpack-sources", "npm:3.2.3"]\
@@ -3391,7 +3398,7 @@ const RAW_RUNTIME_STATE =
           ["import-local", "npm:3.0.2"],\
           ["interpret", "npm:3.1.1"],\
           ["rechoir", "npm:0.8.0"],\
-          ["webpack", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.94.0"],\
+          ["webpack", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.97.1"],\
           ["webpack-bundle-analyzer", null],\
           ["webpack-dev-server", null],\
           ["webpack-merge", "npm:5.7.3"]\
