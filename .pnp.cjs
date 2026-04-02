@@ -30,7 +30,7 @@ const RAW_RUNTIME_STATE =
         "packageDependencies": [\
           ["@types/node", "npm:25.5.0"],\
           ["@types/vscode", "npm:1.110.0"],\
-          ["ts-loader", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:9.5.4"],\
+          ["ts-loader", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:9.5.7"],\
           ["typescript", "patch:typescript@npm%3A6.0.2#optional!builtin<compat/typescript>::version=6.0.2&hash=5786d5"],\
           ["vsce", "npm:2.15.0"],\
           ["vstwig", "workspace:."],\
@@ -3054,15 +3054,15 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["ts-loader", [\
-      ["npm:9.5.4", {\
-        "packageLocation": "./.yarn/cache/ts-loader-npm-9.5.4-c828f5cb90-a9977dce1c.zip/node_modules/ts-loader/",\
+      ["npm:9.5.7", {\
+        "packageLocation": "./.yarn/cache/ts-loader-npm-9.5.7-c6cf2bfeb2-c70c53679a.zip/node_modules/ts-loader/",\
         "packageDependencies": [\
-          ["ts-loader", "npm:9.5.4"]\
+          ["ts-loader", "npm:9.5.7"]\
         ],\
         "linkType": "SOFT"\
       }],\
-      ["virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:9.5.4", {\
-        "packageLocation": "./.yarn/__virtual__/ts-loader-virtual-a910b68a85/0/cache/ts-loader-npm-9.5.4-c828f5cb90-a9977dce1c.zip/node_modules/ts-loader/",\
+      ["virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:9.5.7", {\
+        "packageLocation": "./.yarn/__virtual__/ts-loader-virtual-41b82faf10/0/cache/ts-loader-npm-9.5.7-c6cf2bfeb2-c70c53679a.zip/node_modules/ts-loader/",\
         "packageDependencies": [\
           ["@types/typescript", null],\
           ["@types/webpack", null],\
@@ -3071,7 +3071,7 @@ const RAW_RUNTIME_STATE =
           ["micromatch", "npm:4.0.5"],\
           ["semver", "npm:7.6.0"],\
           ["source-map", "npm:0.7.4"],\
-          ["ts-loader", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:9.5.4"],\
+          ["ts-loader", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:9.5.7"],\
           ["typescript", "patch:typescript@npm%3A6.0.2#optional!builtin<compat/typescript>::version=6.0.2&hash=5786d5"],\
           ["webpack", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:5.105.4"]\
         ],\
@@ -3255,7 +3255,7 @@ const RAW_RUNTIME_STATE =
         "packageDependencies": [\
           ["@types/node", "npm:25.5.0"],\
           ["@types/vscode", "npm:1.110.0"],\
-          ["ts-loader", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:9.5.4"],\
+          ["ts-loader", "virtual:ef2b1b4a8a9eb19e55e4ac88ffd0bc6b5f0fd64554e7452983b5e3824fcff5ea034b835521a2d0e8ec7a1fb9ad0f155fa6cd6c13f1af5bd719a5b86743720b22#npm:9.5.7"],\
           ["typescript", "patch:typescript@npm%3A6.0.2#optional!builtin<compat/typescript>::version=6.0.2&hash=5786d5"],\
           ["vsce", "npm:2.15.0"],\
           ["vstwig", "workspace:."],\
